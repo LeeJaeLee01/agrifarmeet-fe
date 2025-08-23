@@ -3,7 +3,7 @@ import { formatVND } from '../../utils/helper';
 import { TProductCard } from '../../types/TProductCard';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { App } from 'antd';
@@ -53,26 +53,28 @@ const ProductCard: React.FC<TProductCard> = ({
 
   return (
     <div className="relative flex flex-col h-full pb-4 transition bg-white border rounded-lg cursor-pointer group">
-      <div className="relative">
-        <img src={img} alt={name} className="object-cover w-full h-40 rounded-lg" />
-        {discount && (
-          <span className="absolute px-2 py-1 text-xs font-bold bg-red-500 rounded-lg top-1 right-1 text-red bg-rose-200">
-            -{discount}%
-          </span>
-        )}
-      </div>
-
-      <div className="flex-1 px-3 mt-4">
-        <h3 className="h-10 mb-2 text-sm font-medium text-text1 line-clamp-2">{name}</h3>
-        <p className="mb-3 text-xs text-text3">Đơn vị tính: {unit}</p>
-
-        <div className="flex items-center gap-2">
-          {oldPrice && (
-            <span className="text-sm line-through text-text4">{formatVND(oldPrice)}</span>
+      <Link to={`/product/${id}`} className="flex-1">
+        <div className="relative">
+          <img src={img} alt={name} className="object-cover w-full h-40 rounded-lg" />
+          {discount && (
+            <span className="absolute px-2 py-1 text-xs font-bold bg-red-500 rounded-lg top-1 right-1 text-red bg-rose-200">
+              -{discount}%
+            </span>
           )}
-          <span className="text-base font-semibold text-green">{formatVND(price)}</span>
         </div>
-      </div>
+
+        <div className="flex-1 px-3 mt-4">
+          <h3 className="h-10 mb-2 text-sm font-medium text-text1 line-clamp-2">{name}</h3>
+          <p className="mb-3 text-xs text-text3">Đơn vị tính: {unit}</p>
+
+          <div className="flex items-center gap-2">
+            {oldPrice && (
+              <span className="text-sm line-through text-text4">{formatVND(oldPrice)}</span>
+            )}
+            <span className="text-base font-semibold text-green">{formatVND(price)}</span>
+          </div>
+        </div>
+      </Link>
       <div className="px-3">
         <button
           onClick={addToCart}

@@ -3,6 +3,8 @@ import { Table, message, Button, Space, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import './Cart.scss';
 import api from '../../utils/api';
+import Section from '../../components/Section/Section';
+import { Link } from 'react-router-dom';
 
 interface CartItem {
   id: string; // cart_item id
@@ -135,9 +137,11 @@ const Cart: React.FC = () => {
       title: 'Hình ảnh',
       dataIndex: 'image',
       key: 'image',
-      render: (src) =>
+      render: (src, id) =>
         src ? (
-          <img src={src} alt="product" style={{ width: 60, height: 60, objectFit: 'cover' }} />
+          <Link to={`/product/${id.productId}`}>
+            <img src={src} alt="product" className="object-cover w-14 h-14" />
+          </Link>
         ) : (
           <span>Không có</span>
         ),
@@ -146,6 +150,7 @@ const Cart: React.FC = () => {
       title: 'Tên sản phẩm',
       dataIndex: 'name',
       key: 'name',
+      render: (text, record) => <Link to={`/product/${record.productId}`}>{text}</Link>,
     },
     {
       title: 'Giá',
@@ -158,15 +163,17 @@ const Cart: React.FC = () => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (quantity: number, record) => (
-        <Space>
-          <Button size="small" onClick={() => decreaseQuantity(record)}>
-            -
-          </Button>
-          <span>{quantity}</span>
-          <Button size="small" onClick={() => increaseQuantity(record)}>
-            +
-          </Button>
-        </Space>
+        <div className="flex items-center gap-3 mt-4">
+          <div className="flex items-center border rounded-md">
+            <Button type="text" className="px-3" onClick={() => decreaseQuantity(record)}>
+              -
+            </Button>
+            <div className="px-4">{quantity}</div>
+            <Button type="text" className="px-3" onClick={() => increaseQuantity(record)}>
+              +
+            </Button>
+          </div>
+        </div>
       ),
     },
     {
@@ -203,8 +210,8 @@ const Cart: React.FC = () => {
     .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="relative cart-page page-height">
-      <div className="container p-5 mx-auto cart-page">
+    <Section fullScreen>
+      <div className="container mx-auto cart-page">
         <h2 className="mb-5 text-xl font-semibold">Giỏ hàng của bạn ({cartItems.length})</h2>
 
         {selectedRowKeys.length > 0 && (
@@ -231,7 +238,7 @@ const Cart: React.FC = () => {
       </div>
 
       {/* Thanh tổng tiền */}
-      <div className="absolute bottom-0 left-0 w-full bg-white border-t shadow cart-items-info">
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow cart-items-info">
         <div className="container flex items-center justify-end w-full h-20 gap-5 px-5 mx-auto">
           <span className="text-lg font-medium">
             Tổng tiền ({selectedRowKeys.length} sản phẩm):{' '}
@@ -247,7 +254,7 @@ const Cart: React.FC = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </Section>
   );
 };
 

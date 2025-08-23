@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './Products.scss';
 import { Spin, Button, Space } from 'antd';
 import api from '../../utils/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
+import './ProductList.scss';
+import Section from '../../components/Section/Section';
 
 interface Product {
   id: string;
@@ -17,9 +18,9 @@ interface Product {
   updatedAt: string;
 }
 
-type SortType = 'priceAsc' | 'priceDesc' | 'newest';
+type SortType = 'priceAsc' | 'priceDesc' | 'newest' | 'best-seller';
 
-const Products: React.FC = () => {
+const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [sortType, setSortType] = useState<SortType>('newest');
@@ -54,11 +55,11 @@ const Products: React.FC = () => {
   });
 
   return (
-    <div className="relative cart-page page-height">
-      <div className="container h-full p-5 mx-auto">
-        <h2 className="mb-5 text-xl font-semibold">Sản phẩm</h2>
+    <Section>
+      <div className="container mx-auto">
+        <h2 className="mb-5 text-xl font-semibold">Tất cả sản phẩm</h2>
 
-        <div className="flex items-center gap-3 mb-5">
+        <div className="items-center gap-3 mb-5 md:flex">
           <span className="font-medium">Sắp xếp theo:</span>
           <Space.Compact>
             <Button
@@ -78,6 +79,12 @@ const Products: React.FC = () => {
               onClick={() => setSortType('newest')}
             >
               Mới nhất
+            </Button>
+            <Button
+              type={sortType === 'best-seller' ? 'primary' : 'default'}
+              onClick={() => setSortType('best-seller')}
+            >
+              Bán chạy
             </Button>
           </Space.Compact>
         </div>
@@ -101,8 +108,8 @@ const Products: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </Section>
   );
 };
 
-export default Products;
+export default ProductList;
