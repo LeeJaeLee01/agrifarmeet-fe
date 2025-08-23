@@ -1,8 +1,9 @@
 import React from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { Input, Button } from 'antd';
+import { Input, Button, message } from 'antd';
 import './Login.scss';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface LoginForm {
   email: string;
@@ -16,8 +17,31 @@ const LoginPage: React.FC = () => {
     formState: { errors },
   } = useForm<LoginForm>();
 
-  const onSubmit: SubmitHandler<LoginForm> = (data) => {
-    console.log('Login Data:', data);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/';
+
+  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+    try {
+      const response = await axios.post('http://localhost:3030/users/login', {
+        username: data.email, // map email -> username cho API
+        password: data.password,
+      });
+
+      if (response.status === 201) {
+        message.success('Đăng nhập thành công');
+        console.log('Login response:', response.data);
+
+        // Ví dụ: lưu token vào localStorage
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
+        navigate(from, { replace: true }); // ✅ quay lại trang yêu cầu trước đó
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      message.error(error.response?.data?.message || 'Đăng nhập thất bại');
+    }
   };
 
   return (

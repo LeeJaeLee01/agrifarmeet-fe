@@ -1,0 +1,21 @@
+.swiper-button-prev,
+.swiper-button-next,
+.swiper-button-disabled {
+  @apply opacity-0 transition-opacity duration-300 text-text2 text-sm;
+  opacity: 0 !important;
+}
+
+.swiper:hover .swiper-button-prev,
+.swiper:hover .swiper-button-next {
+  opacity: 100 !important;
+}
+
+.swiper:hover .swiper-button-disabled {
+  opacity: 0.35 !important;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 18px !important;
+  color: theme('colors.text2') !important;
+}
