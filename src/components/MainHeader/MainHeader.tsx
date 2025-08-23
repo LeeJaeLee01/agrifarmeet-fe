@@ -33,7 +33,7 @@ const MainHeader = () => {
   );
 
   return (
-    <Header className="header">
+    <Header className="shadow-sm header">
       <div className="logo">
         <NavLink to="/">
           <img src="/logo.png" alt="Logo" style={{ height: 40 }} />

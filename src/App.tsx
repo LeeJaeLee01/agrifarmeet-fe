@@ -9,6 +9,7 @@ const Home = lazy(() => import('./pages/Home/Home'));
 const Login = lazy(() => import('./pages/Login/Login'));
 const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
 const Cart = lazy(() => import('./pages/Cart/Cart'));
+const Products = lazy(() => import('./pages/Products/Products'));
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                     </PrivateRoute>
                   }
                 />
+                <Route path="/products" element={<Products />} />
               </Route>
             </Routes>
           </Suspense>
