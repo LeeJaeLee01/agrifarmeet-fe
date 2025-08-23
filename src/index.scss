@@ -12,3 +12,7 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.page-height {
+  min-height: calc(100vh - 80px);
+}

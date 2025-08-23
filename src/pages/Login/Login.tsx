@@ -4,6 +4,9 @@ import { Input, Button, message } from 'antd';
 import './Login.scss';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setToken, setUsername } from '../../store/slices/authSlice'; // đường dẫn slice bạn đã tạo
+import { AppDispatch } from '../../store';
 
 interface LoginForm {
   email: string;
@@ -17,6 +20,8 @@ const LoginPage: React.FC = () => {
     formState: { errors },
   } = useForm<LoginForm>();
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/';
@@ -24,19 +29,24 @@ const LoginPage: React.FC = () => {
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
     try {
       const response = await axios.post('http://localhost:3030/users/login', {
-        username: data.email, // map email -> username cho API
+        username: data.email,
         password: data.password,
       });
 
       if (response.status === 201) {
         message.success('Đăng nhập thành công');
-        console.log('Login response:', response.data);
 
-        // Ví dụ: lưu token vào localStorage
         if (response.data.token) {
+          // ✅ lưu vào Redux
+          dispatch(setToken(response.data.token));
+          dispatch(setUsername(response.data.user.username));
+
+          // ✅ vẫn lưu localStorage (cho refresh)
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('username', response.data.user.username);
         }
-        navigate(from, { replace: true }); // ✅ quay lại trang yêu cầu trước đó
+
+        navigate(from, { replace: true });
       }
     } catch (error: any) {
       console.error('Login error:', error);

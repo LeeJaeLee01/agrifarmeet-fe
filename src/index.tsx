@@ -7,13 +7,17 @@ import reportWebVitals from './reportWebVitals';
 import 'antd/dist/reset.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { Provider } from 'react-redux';
+import { store } from './store/index';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
-      <ToastContainer />
+      <Provider store={store}>
+        <App />
+        <ToastContainer />
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 );

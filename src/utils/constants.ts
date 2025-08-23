@@ -33,7 +33,7 @@ export const bannerImages = [
 
 export const featuredProducts = [
   {
-    id: 1,
+    id: '0a3533ae-f4a9-4aae-80db-050240eff032',
     name: 'Rau muống VietGAP 300g_Đồng Dưa',
     price: 74091,
     oldPrice: 82324,
@@ -43,14 +43,14 @@ export const featuredProducts = [
     category: 'vegetable',
   },
   {
-    id: 2,
+    id: 'f63163d5-cbae-4f92-81d4-f1fe0eb2d47f',
     name: 'Cà chua Beef VietGap Đà Lạt_VRĐL',
     price: 50134,
     image: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg',
     category: 'vegetable',
   },
   {
-    id: 3,
+    id: '3',
     name: 'Cải bắp',
     price: 28009,
     oldPrice: 35012,
@@ -60,7 +60,7 @@ export const featuredProducts = [
     category: 'vegetable',
   },
   {
-    id: 4,
+    id: '4',
     name: 'Cà rốt',
     price: 52226,
     oldPrice: 61442,
@@ -70,7 +70,7 @@ export const featuredProducts = [
     category: 'vegetable',
   },
   {
-    id: 5,
+    id: 'f806f009-36d2-46f1-b632-b7c7dddf4242',
     name: 'Khoai tây',
     price: 52200,
     oldPrice: 69600,
@@ -80,7 +80,7 @@ export const featuredProducts = [
     category: 'vegetable',
   },
   {
-    id: 6,
+    id: '6',
     name: 'Rau má',
     price: 54000,
     oldPrice: 60000,
@@ -89,7 +89,7 @@ export const featuredProducts = [
     category: 'herb',
   },
   {
-    id: 7,
+    id: '8',
     name: 'Gừng',
     price: 64800,
     oldPrice: 72000,
@@ -99,7 +99,7 @@ export const featuredProducts = [
     category: 'herb',
   },
   {
-    id: 8,
+    id: '9',
     name: 'Tỏi',
     price: 63750,
     oldPrice: 75000,
@@ -112,20 +112,32 @@ export const featuredProducts = [
 
 export const categories = [
   {
-    id: 1,
-    name: 'Rau củ',
+    id: '1d6c6338-ae9c-4618-b1e7-d78955af062d',
+    name: 'Rau ăn lá',
     image:
       'https://thanhnien.mediacdn.vn/Uploaded/ngocthanh/2015_10_25/trai-cay_CZLU.jpg?width=500',
   },
   {
-    id: 2,
-    name: 'Thủy hải sản',
+    id: '1b82cf5f-0228-4ada-b822-4d700cdb2a3d',
+    name: 'Trái cây',
     image:
       'https://cdn.tgdd.vn/2023/10/CookDish/thuy-san-va-hai-san-khac-nhau-nhu-the-nao-cac-mon-an-ngon-tu-avt-1200x676.jpg',
   },
   {
-    id: 3,
-    name: 'Thịt sạch các loại',
+    id: '76be87a1-bf20-4034-9c25-7fe3a6f6528e',
+    name: 'Củ-rễ',
+    image:
+      'https://bizweb.dktcdn.net/100/383/313/files/thit-heo-sach-da-nang-1.jpg?v=1627697192893',
+  },
+  {
+    id: '99e8261c-a3c7-42fe-ad40-88ef32e438f3',
+    name: 'Trứng',
+    image:
+      'https://bizweb.dktcdn.net/100/383/313/files/thit-heo-sach-da-nang-1.jpg?v=1627697192893',
+  },
+  {
+    id: '56998b95-8370-4548-b2ea-696d937b9576',
+    name: 'Gói combo',
     image:
       'https://bizweb.dktcdn.net/100/383/313/files/thit-heo-sach-da-nang-1.jpg?v=1627697192893',
   },

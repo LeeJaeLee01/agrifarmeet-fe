@@ -31,6 +31,7 @@ const Home: React.FC = () => {
             {featuredProducts.map((item) => (
               <SwiperSlide key={item.id}>
                 <ProductCard
+                  id={item.id}
                   img={item.image}
                   name={item.name}
                   unit="Cân"
@@ -71,6 +72,7 @@ const Home: React.FC = () => {
             {featuredProducts.map((item) => (
               <SwiperSlide key={item.id}>
                 <ProductCard
+                  id={item.id}
                   img={item.image}
                   name={item.name}
                   unit="Cân"

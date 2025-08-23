@@ -2,8 +2,55 @@ import React from 'react';
 import { formatVND } from '../../utils/helper';
 import { TProductCard } from '../../types/TProductCard';
 import { toast } from 'react-toastify';
+import api from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { App } from 'antd';
 
-const ProductCard: React.FC<TProductCard> = ({ img, name, unit, oldPrice, price, discount }) => {
+const ProductCard: React.FC<TProductCard> = ({
+  id,
+  img,
+  name,
+  unit,
+  oldPrice,
+  price,
+  discount,
+}) => {
+  const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  const { modal } = App.useApp();
+
+  const addToCart = async () => {
+    if (!token) {
+      modal.confirm({
+        title: 'Bạn chưa đăng nhập',
+        content:
+          'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng. Bạn có muốn đăng nhập ngay không?',
+        okText: 'Đăng nhập',
+        cancelText: 'Hủy',
+        centered: true,
+        onOk: () => {
+          navigate('/login');
+        },
+      });
+      return;
+    }
+
+    try {
+      const res = await api.post('http://localhost:3030/carts/add', {
+        productId: id,
+        quantity: 1,
+      });
+
+      toast.success('Thêm vào giỏ thành công!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Có lỗi xảy ra');
+    }
+  };
+
   return (
     <div className="relative flex flex-col h-full pb-4 transition bg-white border rounded-lg cursor-pointer group">
       <div className="relative">
@@ -28,7 +75,7 @@ const ProductCard: React.FC<TProductCard> = ({ img, name, unit, oldPrice, price,
       </div>
       <div className="px-3">
         <button
-          onClick={() => toast.success('Thành công!')}
+          onClick={addToCart}
           className="w-full px-2 py-2 mt-3 text-sm font-normal transition bg-green-500 border rounded-lg text-purple border-purple group-hover:bg-purple group-hover:text-white"
         >
           Thêm vào giỏ
