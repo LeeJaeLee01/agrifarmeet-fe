@@ -1,6 +1,6 @@
 import { Menu, Dropdown } from 'antd';
 import { Header } from 'antd/es/layout/layout';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './MainHeader.scss';
 import { RootState } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,9 +21,17 @@ const MainHeader = () => {
     <Menu
       items={[
         {
+          key: 'user-info',
+          label: <Link to="/customer-info">Thông tin của tôi</Link>,
+        },
+        {
+          key: 'order',
+          label: <Link to="/order">Đơn mua</Link>,
+        },
+        {
           key: 'logout',
           label: (
-            <span onClick={handleLogout} style={{ color: 'red' }}>
+            <span onClick={handleLogout} className="text-red">
               Đăng xuất
             </span>
           ),

@@ -39,15 +39,33 @@ const ProductCard: React.FC<TProductCard> = ({
     }
 
     try {
-      const res = await api.post('http://localhost:3030/carts/add', {
-        productId: id,
-        quantity: 1,
-      });
+      // Lấy giỏ hàng từ localStorage (nếu có)
+      const cartData = localStorage.getItem('cart');
+      let cart: any[] = cartData ? JSON.parse(cartData) : [];
+
+      // Kiểm tra sản phẩm đã tồn tại chưa
+      const existing = cart.find((item) => item.productId === id);
+
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({
+          productId: id,
+          name,
+          price,
+          unit,
+          img,
+          quantity: 1,
+        });
+      }
+
+      // Lưu lại giỏ hàng vào localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
 
       toast.success('Thêm vào giỏ thành công!');
     } catch (err) {
       console.error(err);
-      toast.error('Có lỗi xảy ra');
+      toast.error('Có lỗi xảy ra khi thêm vào giỏ');
     }
   };
 

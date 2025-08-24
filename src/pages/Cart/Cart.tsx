@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Table, message, Button, Space, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import './Cart.scss';
-import api from '../../utils/api';
 import Section from '../../components/Section/Section';
 import { Link } from 'react-router-dom';
+import './Cart.scss';
 
 interface CartItem {
-  id: string; // cart_item id
   productId: string; // product id
   name: string;
   price: number;
@@ -17,30 +15,15 @@ interface CartItem {
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('http://localhost:3030/carts');
-
-      const data = response.data.cart_items.map((item: any) => ({
-        id: item.id,
-        productId: item.product.id,
-        name: item.product.name,
-        price: parseFloat(item.product.price),
-        quantity: item.quantity,
-        image: item.product.image || '',
-      }));
-
-      setCartItems(data);
-    } catch (error) {
-      message.error('Không thể tải giỏ hàng');
-      console.error(error);
-    } finally {
-      setLoading(false);
+  // Lấy giỏ hàng từ localStorage
+  const fetchCart = () => {
+    const cartData = localStorage.getItem('cart');
+    if (cartData) {
+      setCartItems(JSON.parse(cartData));
+    } else {
+      setCartItems([]);
     }
   };
 
@@ -48,98 +31,55 @@ const Cart: React.FC = () => {
     fetchCart();
   }, []);
 
-  // Xóa 1 sản phẩm (dùng cart_item.id)
-  const removeItem = async (cartItem: CartItem) => {
-    try {
-      setUpdatingId(cartItem.id);
-      await api.delete(`http://localhost:3030/carts/${cartItem.id}`);
-
-      setCartItems((prev) => prev.filter((item) => item.id !== cartItem.id));
-      message.success('Đã xóa sản phẩm khỏi giỏ');
-    } catch (err) {
-      message.error('Không thể xóa sản phẩm');
-      console.error(err);
-    } finally {
-      setUpdatingId(null);
-    }
+  // Lưu lại giỏ vào localStorage
+  const saveCart = (items: CartItem[]) => {
+    setCartItems(items);
+    localStorage.setItem('cart', JSON.stringify(items));
   };
 
-  // Xóa nhiều sản phẩm (dùng cart_item.id)
-  const removeSelected = async () => {
-    try {
-      setLoading(true);
-      await Promise.all(
-        selectedRowKeys.map((key) => api.delete(`http://localhost:3030/carts/${key}`))
-      );
+  // Xóa 1 sản phẩm
+  const removeItem = (cartItem: CartItem) => {
+    const updated = cartItems.filter((item) => item.productId !== cartItem.productId);
+    saveCart(updated);
+    message.success('Đã xóa sản phẩm khỏi giỏ');
+  };
 
-      setCartItems((prev) => prev.filter((item) => !selectedRowKeys.includes(item.id)));
-      setSelectedRowKeys([]);
-      message.success('Đã xóa các sản phẩm đã chọn');
-    } catch (err) {
-      message.error('Không thể xóa các sản phẩm đã chọn');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  // Xóa nhiều sản phẩm
+  const removeSelected = () => {
+    const updated = cartItems.filter((item) => !selectedRowKeys.includes(item.productId));
+    saveCart(updated);
+    setSelectedRowKeys([]);
+    message.success('Đã xóa các sản phẩm đã chọn');
   };
 
   // Tăng số lượng
-  const increaseQuantity = async (cartItem: CartItem) => {
-    try {
-      setUpdatingId(cartItem.id);
-      await api.post('http://localhost:3030/carts/add', {
-        productId: cartItem.productId,
-        quantity: 1,
-      });
-      setCartItems((prev) =>
-        prev.map((item) =>
-          item.id === cartItem.id ? { ...item, quantity: item.quantity + 1 } : item
-        )
-      );
-    } catch (err) {
-      message.error('Không thể tăng số lượng');
-      console.error(err);
-    } finally {
-      setUpdatingId(null);
-    }
+  const increaseQuantity = (cartItem: CartItem) => {
+    const updated = cartItems.map((item) =>
+      item.productId === cartItem.productId ? { ...item, quantity: item.quantity + 1 } : item
+    );
+    saveCart(updated);
   };
 
-  // Giảm số lượng (khi còn 1 thì xoá luôn bằng cart_item.id)
-  const decreaseQuantity = async (cartItem: CartItem) => {
-    try {
-      setUpdatingId(cartItem.id);
-
-      if (cartItem.quantity === 1) {
-        removeItem(cartItem);
-        setCartItems((prev) => prev.filter((item) => item.id !== cartItem.id));
-        message.success('Đã xóa sản phẩm khỏi giỏ');
-      } else {
-        await api.post('http://localhost:3030/carts/decrease', {
-          productId: cartItem.productId,
-          quantity: 1,
-        });
-        setCartItems((prev) =>
-          prev.map((item) =>
-            item.id === cartItem.id ? { ...item, quantity: item.quantity - 1 } : item
-          )
-        );
-      }
-    } catch (err) {
-      message.error('Không thể giảm số lượng');
-      console.error(err);
-    } finally {
-      setUpdatingId(null);
+  // Giảm số lượng (về 0 thì xóa luôn)
+  const decreaseQuantity = (cartItem: CartItem) => {
+    if (cartItem.quantity === 1) {
+      removeItem(cartItem);
+    } else {
+      const updated = cartItems.map((item) =>
+        item.productId === cartItem.productId ? { ...item, quantity: item.quantity - 1 } : item
+      );
+      saveCart(updated);
     }
   };
 
   const columns: ColumnsType<CartItem> = [
     {
       title: 'Hình ảnh',
-      dataIndex: 'image',
-      key: 'image',
-      render: (src, id) =>
+      dataIndex: 'img',
+      key: 'img',
+      render: (src, record) =>
         src ? (
-          <Link to={`/product/${id.productId}`}>
+          <Link to={`/product/${record.productId}`}>
             <img src={src} alt="product" className="object-cover w-14 h-14" />
           </Link>
         ) : (
@@ -191,7 +131,7 @@ const Cart: React.FC = () => {
           okText="Xóa"
           cancelText="Hủy"
         >
-          <Button danger size="small" disabled={updatingId === record.id}>
+          <Button danger size="small">
             Xóa
           </Button>
         </Popconfirm>
@@ -202,11 +142,15 @@ const Cart: React.FC = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: (newKeys: React.Key[]) => setSelectedRowKeys(newKeys),
+    // sử dụng productId làm rowKey
+    getCheckboxProps: (record: CartItem) => ({
+      value: record.productId,
+    }),
   };
 
   // Tính tổng tiền chỉ của item đã chọn
   const totalAmount = cartItems
-    .filter((item) => selectedRowKeys.includes(item.id))
+    .filter((item) => selectedRowKeys.includes(item.productId))
     .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -228,11 +172,14 @@ const Cart: React.FC = () => {
         )}
 
         <Table
-          rowSelection={rowSelection}
+          rowSelection={{
+            ...rowSelection,
+            selectedRowKeys,
+            onChange: (newKeys: React.Key[]) => setSelectedRowKeys(newKeys),
+          }}
           dataSource={cartItems}
           columns={columns}
-          rowKey="id"
-          loading={loading}
+          rowKey="productId"
           pagination={false}
         />
       </div>
