@@ -52,7 +52,7 @@ const ProductCard: React.FC<TProductCard> = ({
         cart.push({
           productId: id,
           name,
-          price,
+          price: Number(price),
           unit,
           img,
           quantity: 1,

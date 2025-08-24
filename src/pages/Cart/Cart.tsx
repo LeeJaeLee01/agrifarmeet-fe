@@ -181,6 +181,8 @@ const Cart: React.FC = () => {
           columns={columns}
           rowKey="productId"
           pagination={false}
+          scroll={{ x: 'max-content' }}
+          className="pb-10"
         />
       </div>
 

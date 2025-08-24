@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spin, Button, Space } from 'antd';
+import { Spin, Button, Space, Select } from 'antd';
 import api from '../../utils/api';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import './ProductList.scss';
@@ -18,12 +18,19 @@ interface Product {
   updatedAt: string;
 }
 
+interface Categories {
+  id: string;
+  name: string;
+}
+
 type SortType = 'priceAsc' | 'priceDesc' | 'newest' | 'best-seller';
 
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Categories[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [sortType, setSortType] = useState<SortType>('newest');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -37,8 +44,42 @@ const ProductList: React.FC = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('http://localhost:3030/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách danh mục:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProductsFromCategory = async (categoryId: string) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`http://localhost:3030/categories/${categoryId}`);
+      setProducts(response.data.products);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách danh mục:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    if (value === 'all') {
+      fetchProducts();
+    } else {
+      fetchProductsFromCategory(value);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const sortedProducts = [...products].sort((a, b) => {
@@ -59,7 +100,7 @@ const ProductList: React.FC = () => {
       <div className="container mx-auto">
         <h2 className="mb-5 text-xl font-semibold">Tất cả sản phẩm</h2>
 
-        <div className="items-center gap-3 mb-5 md:flex">
+        <div className="flex flex-col gap-3 mb-5 md:items-center md:flex-row">
           <span className="font-medium">Sắp xếp theo:</span>
           <Space.Compact>
             <Button
@@ -87,6 +128,22 @@ const ProductList: React.FC = () => {
               Bán chạy
             </Button>
           </Space.Compact>
+          <div className="flex items-center gap-3">
+            <span className="font-medium">Danh mục:</span>
+            <Select
+              style={{ width: 200 }}
+              placeholder="Chọn danh mục"
+              onChange={handleCategoryChange}
+              value={selectedCategory || 'all'}
+            >
+              <Select.Option value="all">Tất cả</Select.Option>
+              {categories.map((cat) => (
+                <Select.Option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         </div>
 
         {loading ? (
