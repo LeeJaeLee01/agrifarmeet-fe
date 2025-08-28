@@ -11,7 +11,7 @@ const Section: React.FC<SectionProps> = ({ children, secondary = false, fullScre
 
   return (
     <section
-      className={`w-full px-5 py-14 lg:py-24 lg:px-20 section ${bgClass} ${
+      className={`w-full px-5 lg:mt-24 md:mt-20 mt-10 lg:px-20 section ${bgClass} ${
         fullScreen && 'page-height'
       } `}
     >
