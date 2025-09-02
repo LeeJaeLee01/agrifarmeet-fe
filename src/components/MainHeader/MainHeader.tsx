@@ -56,10 +56,11 @@ const MainHeader = () => {
       <Header className="h-auto bg-white shadow-sm header">
         <div className="container flex items-center justify-between mx-auto">
           {/* Logo */}
-          <div className="logo">
+          <div className="flex items-center gap-10 logo">
             <NavLink to="/">
               <img src="/logo.png" alt="Logo" className="h-12" />
             </NavLink>
+            {/* <p className="m-0 text-green">Minh bạch - an toàn - bền vững</p> */}
           </div>
 
           {/* Menu desktop */}
