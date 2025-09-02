@@ -7,7 +7,7 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({ children, secondary = false, fullScreen }) => {
-  const bgClass = secondary ? 'bg-[#f6f6f6]' : 'bg-white';
+  const bgClass = secondary && 'bg-[#f6f6f6]';
 
   return (
     <section

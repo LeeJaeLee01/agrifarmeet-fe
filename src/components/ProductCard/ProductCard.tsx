@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { App } from 'antd';
+import './ProductCard.scss';
 
 const ProductCard: React.FC<TProductCard> = ({
   id,
@@ -70,7 +71,7 @@ const ProductCard: React.FC<TProductCard> = ({
   };
 
   return (
-    <div className="relative flex flex-col h-full pb-4 transition bg-white border rounded-lg cursor-pointer group">
+    <div className="relative flex flex-col h-full pb-4 transition bg-white rounded-lg cursor-pointer group card">
       <Link to={`/product/${id}`} className="flex-1">
         <div className="relative">
           <img src={img} alt={name} className="object-cover w-full h-40 rounded-lg" />

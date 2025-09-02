@@ -9,13 +9,124 @@ import {
   QrcodeOutlined,
   VideoCameraOutlined,
   TruckOutlined,
+  CheckCircleOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import WeeklyFarm from '../../modules/Home/WeeklyFarm';
+import { Button } from 'antd';
 
 const Home: React.FC = () => {
   return (
     <Fragment>
       <Hero />
+      <WeeklyFarm />
+      <Section>
+        <div className="container mx-auto">
+          <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
+            Gói phổ biến
+          </h2>
+          <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-3">
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
+                Gói Mini
+              </p>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, ipsam in harum
+                quidem soluta nulla ducimus ex cum illum reprehenderit, doloribus non veritatis
+                praesentium totam, enim fugiat minus? Possimus, aliquam!
+              </p>
+              <ul className="mb-5">
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+              </ul>
+              <Button
+                type="primary"
+                block
+                size="large"
+                className="text-base font-semibold bg-green"
+              >
+                Mua ngay
+              </Button>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
+                Gói Premium
+              </p>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, ipsam in harum
+                quidem soluta nulla ducimus ex cum illum reprehenderit, doloribus non veritatis
+                praesentium totam, enim fugiat minus? Possimus, aliquam!
+              </p>
+              <ul className="mb-5">
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+              </ul>
+              <Button
+                type="primary"
+                block
+                size="large"
+                className="text-base font-semibold bg-green"
+              >
+                Mua ngay
+              </Button>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-md">
+              <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
+                Gói Custom Hybrid
+              </p>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, ipsam in harum
+                quidem soluta nulla ducimus ex cum illum reprehenderit, doloribus non veritatis
+                praesentium totam, enim fugiat minus? Possimus, aliquam!
+              </p>
+              <ul className="mb-5">
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+                <li className="flex gap-2 mb-3">
+                  <CheckCircleOutlined className="text-base text-orange" />
+                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                </li>
+              </ul>
+              <Button
+                type="primary"
+                block
+                size="large"
+                className="text-base font-semibold bg-green"
+              >
+                Mua ngay
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Section>
       <Section>
         <div className="container mx-auto">
           <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
@@ -48,44 +159,6 @@ const Home: React.FC = () => {
           <Link to="/" className="text-base font-semibold lg:text-lg text-green">
             Tìm hiểu CSA
           </Link>
-        </div>
-      </Section>
-      <Section>
-        <div className="container mx-auto">
-          <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
-            Gói phổ biến
-          </h2>
-          <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-2">
-            <div className="flex gap-5 p-4 rounded-lg bg-gray">
-              <div className="w-20 h-20 lg:w-40 lg:h-40">
-                <img src="/hero.png" alt="" className="object-cover w-full h-full" />
-              </div>
-              <div className="">
-                <p className="mb-3 text-lg font-semibold lg:mb-5 lg:text-2xl text-text1">
-                  Trial Box 199k
-                </p>
-                <button className="px-4 py-2 font-medium text-white rounded-lg lg:px-10 lg:py-3 bg-green">
-                  Đặt ngay
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 p-4 rounded-lg bg-gray">
-              <div className="w-20 h-20 lg:w-40 lg:h-40">
-                <img src="/hero.png" alt="" className="object-cover w-full h-full" />
-              </div>
-              <div className="">
-                <div className="mb-3 lg:mb-5">
-                  <p className="mb-0 text-lg font-semibold lg:text-2xl text-text1">
-                    CSA Mini 8 tuần
-                  </p>
-                  <span>1,6 - 1,9tr/box</span>
-                </div>
-                <button className="px-4 py-2 font-medium text-white rounded-lg lg:px-10 lg:py-3 bg-green">
-                  Đặt ngay
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </Section>
     </Fragment>

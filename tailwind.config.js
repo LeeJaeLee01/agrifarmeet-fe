@@ -5,7 +5,8 @@ module.exports = {
     extend: {
       colors: {
         red: '#d60016',
-        green: '#2E7D32',
+        green: '#3da35d',
+        orange: '#f4a259',
         red: '#EB5757',
         text1: '#171725',
         text2: '#4B5264',
@@ -15,6 +16,7 @@ module.exports = {
         'bg-secondary': '#f6f6f6',
         'secondary-green': '#E8F5E9',
         gray: '#f0f4f5',
+        gray2: '#f9f9f9',
       },
     },
   },
