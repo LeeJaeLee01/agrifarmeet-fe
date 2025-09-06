@@ -11,6 +11,7 @@ const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
 const Cart = lazy(() => import('./pages/Cart/Cart'));
 const Products = lazy(() => import('./pages/ProductList/ProductList'));
 const Product = lazy(() => import('./pages/Product/Product'));
+const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<Product />} />
+                <Route path="/farm-stand" element={<FarmStand />} />
               </Route>
             </Routes>
           </Suspense>
