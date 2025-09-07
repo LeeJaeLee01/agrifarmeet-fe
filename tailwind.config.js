@@ -17,6 +17,7 @@ module.exports = {
         'secondary-green': '#E8F5E9',
         gray: '#f0f4f5',
         gray2: '#f9f9f9',
+        border: '#d9d9d9',
       },
     },
   },

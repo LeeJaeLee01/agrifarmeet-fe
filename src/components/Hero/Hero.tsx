@@ -1,10 +1,12 @@
 import React from 'react';
 import Section from '../Section/Section';
 import { CheckCircleFilled } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import { Button } from 'antd';
 
-const Hero = () => {
+type HeroProps = {
+  onScrollToPopular: () => void;
+};
+
+const Hero: React.FC<HeroProps> = ({ onScrollToPopular }) => {
   return (
     <Section>
       <div className="container mx-auto">
@@ -27,16 +29,18 @@ const Hero = () => {
               </div>
             </div>
             <div className="flex items-center gap-5">
-              <Link to="/">
-                <button className="px-10 py-3 text-base font-semibold text-white rounded-lg lg:text-lg bg-green">
-                  Đặt Trial 199k
-                </button>
-              </Link>
-              <Link to="/">
-                <button className="px-5 py-3 text-base font-semibold rounded-lg lg:text-lg bg-secondary-green text-text1">
-                  Xem gói CSA
-                </button>
-              </Link>
+              <button
+                onClick={onScrollToPopular}
+                className="px-10 py-3 text-base font-semibold text-white rounded-lg lg:text-lg bg-green"
+              >
+                Đặt Trial 199k
+              </button>
+              <button
+                onClick={onScrollToPopular}
+                className="px-5 py-3 text-base font-semibold rounded-lg lg:text-lg bg-secondary-green text-text1"
+              >
+                Xem gói CSA
+              </button>
             </div>
           </div>
           <div className="flex justify-center w-full">

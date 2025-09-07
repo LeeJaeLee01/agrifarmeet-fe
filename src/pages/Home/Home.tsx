@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useRef } from 'react';
 import Hero from '../../components/Hero/Hero';
 import './Home.scss';
 import 'swiper/css';
@@ -16,6 +16,8 @@ import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { Button } from 'antd';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setSelectedBoxId } from '../../store/slices/boxSlice';
 
 type Box = {
   id: string;
@@ -33,13 +35,17 @@ type Box = {
 const Home: React.FC = () => {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch();
+
+  // ref cho section gói phổ biến
+  const popularRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         const res = await axios.get<Box[]>('http://localhost:3030/boxes');
         setBoxes(res.data);
-        console.log(res.data);
       } catch (err) {
         console.error('Error fetching boxes:', err);
       } finally {
@@ -50,17 +56,23 @@ const Home: React.FC = () => {
     fetchProducts();
   }, []);
 
+  const scrollToPopular = () => {
+    if (popularRef.current) {
+      popularRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <Fragment>
-      <Hero />
-      <Section>
+      <Hero onScrollToPopular={scrollToPopular} />
+      <Section ref={popularRef}>
         <div className="container mx-auto">
           <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
             Gói phổ biến
           </h2>
           <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-3">
             {boxes.map((box) => (
-              <div className="p-4 bg-white rounded-lg shadow-md">
+              <div key={box.id} className="p-4 bg-white rounded-lg shadow-md">
                 <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
                   {box.name}
                 </p>
@@ -79,14 +91,17 @@ const Home: React.FC = () => {
                     <span>8 - 12 tuần</span>
                   </li>
                 </ul>
-                <Button
-                  type="primary"
-                  block
-                  size="large"
-                  className="text-base font-semibold bg-green"
-                >
-                  Mua ngay
-                </Button>
+                <Link to="/purchase">
+                  <Button
+                    type="primary"
+                    block
+                    size="large"
+                    className="text-base font-semibold bg-green"
+                    onClick={() => dispatch(setSelectedBoxId(box.id))}
+                  >
+                    Mua ngay
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>
