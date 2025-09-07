@@ -54,7 +54,7 @@ const FarmStand: React.FC = () => {
           name: item.product?.name || 'Không tên',
           image: item.product?.image,
           productWeight: item.product?.weight ? parseFloat(item.product.weight) : 0,
-          quantity: item.weight ? parseFloat(item.weight) : 0, // weight chính là số gram user chọn
+          quantity: item.quantity ? parseFloat(item.quantity) : 0,
         }));
 
         setBoxData({
