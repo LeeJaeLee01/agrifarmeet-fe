@@ -5,9 +5,7 @@ import Section from '../../components/Section/Section';
 import axios from 'axios';
 import './Purchase.scss';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type PurchaseForm = {
   boxId: string;
@@ -41,34 +39,29 @@ const PurchasePage: React.FC = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
   const [boxInfo, setBoxInfo] = useState<any>(null);
 
-  const boxId = useSelector((state: RootState) => state.box.selectedBoxId);
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // 🔹 Nếu không có boxId → quay về trang chủ
   useEffect(() => {
-    if (!boxId) {
-      toast.error('Bạn chưa chọn gói nào!');
-      navigate('/');
-      return;
-    }
-  }, [boxId, navigate]);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
 
   // 🔹 Lấy thông tin box từ API
   useEffect(() => {
-    if (!boxId) return;
+    if (!id) return;
     const fetchBox = async () => {
       try {
-        const res = await axios.get(`http://localhost:3030/boxes/${boxId}`);
+        const res = await axios.get(`http://localhost:3030/boxes/${id}`);
         setBoxInfo(res.data);
         // Set boxId vào form luôn
-        setValue('boxId', boxId);
+        setValue('boxId', id);
       } catch (err) {
         console.error(err);
         toast.error('Không tải được thông tin gói hàng');
       }
     };
     fetchBox();
-  }, [boxId, setValue]);
+  }, [id, setValue]);
 
   // 🔹 Lấy danh sách tỉnh
   useEffect(() => {
@@ -119,8 +112,10 @@ const PurchasePage: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:3030/boxes/purchase', payload);
+      const res = await axios.post('http://localhost:3030/boxes/purchase', payload);
       toast.success('Đặt hàng thành công!');
+      localStorage.setItem('userId', res?.data?.userId);
+      navigate('/farm-stand');
       reset();
     } catch (err) {
       console.error(err);

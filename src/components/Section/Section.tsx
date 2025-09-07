@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 
 interface SectionProps {
   children: React.ReactNode;
@@ -6,21 +6,18 @@ interface SectionProps {
   fullScreen?: boolean;
 }
 
-const Section = forwardRef<HTMLElement, SectionProps>(
-  ({ children, secondary = false, fullScreen }, ref) => {
-    const bgClass = secondary && 'bg-[#f6f6f6]';
+const Section: React.FC<SectionProps> = ({ children, secondary = false, fullScreen }) => {
+  const bgClass = secondary && 'bg-[#f6f6f6]';
 
-    return (
-      <section
-        ref={ref}
-        className={`w-full px-5 lg:mt-24 md:mt-20 mt-10 lg:px-20 section ${bgClass} ${
-          fullScreen && 'page-height'
-        }`}
-      >
-        {children}
-      </section>
-    );
-  }
-);
+  return (
+    <section
+      className={`w-full px-5 lg:mt-24 md:mt-20 mt-10 lg:px-20 section ${bgClass} ${
+        fullScreen && 'page-height'
+      } `}
+    >
+      {children}
+    </section>
+  );
+};
 
 export default Section;

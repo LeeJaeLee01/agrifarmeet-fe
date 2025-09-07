@@ -14,7 +14,6 @@ import {
 import { Link } from 'react-router-dom';
 import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { Button } from 'antd';
-import MainFooter from '../../components/MainFooter/MainFooter';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
@@ -30,6 +29,17 @@ type Box = {
   expiredAt: null;
   createdAt: string;
   updatedAt: string;
+  products: Product[];
+};
+
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  weight: string;
+  categoryId: string;
 };
 
 const Home: React.FC = () => {
@@ -46,6 +56,7 @@ const Home: React.FC = () => {
         setLoading(true);
         const res = await axios.get<Box[]>('http://localhost:3030/boxes');
         setBoxes(res.data);
+        console.log(res.data);
       } catch (err) {
         console.error('Error fetching boxes:', err);
       } finally {
@@ -65,8 +76,8 @@ const Home: React.FC = () => {
   return (
     <Fragment>
       <Hero onScrollToPopular={scrollToPopular} />
-      <Section ref={popularRef}>
-        <div className="container mx-auto">
+      <Section>
+        <div ref={popularRef} className="container mx-auto">
           <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
             Gói phổ biến
           </h2>
@@ -80,18 +91,20 @@ const Home: React.FC = () => {
                 <ul className="mb-5">
                   <li className="flex gap-2 mb-3">
                     <CheckCircleOutlined className="text-base text-orange" />
-                    <span>Rau, cà rốt</span>
+                    <span className="truncate">
+                      {box.products.map((product) => product.name).join(', ')}
+                    </span>
                   </li>
                   <li className="flex gap-2 mb-3">
                     <CheckCircleOutlined className="text-base text-orange" />
-                    <span>Khối lượng 4kg</span>
+                    <span>Khối lượng {box.totalWeight}g</span>
                   </li>
                   <li className="flex gap-2 mb-3">
                     <CheckCircleOutlined className="text-base text-orange" />
-                    <span>8 - 12 tuần</span>
+                    <span>{box.expiredAt} tuần</span>
                   </li>
                 </ul>
-                <Link to="/purchase">
+                <Link to={`/purchase/${box.id}`}>
                   <Button
                     type="primary"
                     block
@@ -165,7 +178,6 @@ const Home: React.FC = () => {
           </Link>
         </div>
       </Section>
-      <MainFooter />
     </Fragment>
   );
 };

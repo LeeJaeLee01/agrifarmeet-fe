@@ -34,24 +34,27 @@ const FarmStand: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.post(
-          'http://localhost:3030/boxes/active/user',
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        );
+        // Lấy userId từ localStorage
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+          console.error('UserId not found in localStorage');
+          return;
+        }
+
+        const res = await axios.post('http://localhost:3030/boxes/active/user', {
+          userId: userId, // truyền trong body
+        });
 
         const data = res.data;
+        console.log(data);
 
         const mappedItems: CartItem[] = data.boxUserProducts.map((item: any) => ({
-          productId: item.productId,
+          productId: item.product?.id, // chú ý lấy từ quan hệ product
           name: item.product?.name || 'Không tên',
           image: item.product?.image,
           productWeight: item.product?.weight ? parseFloat(item.product.weight) : 0,
-          quantity: item.quantity ? parseFloat(item.quantity) : 0,
+          quantity: item.weight ? parseFloat(item.weight) : 0, // weight chính là số gram user chọn
         }));
 
         setBoxData({
