@@ -53,9 +53,9 @@ const MainFooter: React.FC = () => {
               <FacebookOutlined className="flex items-center justify-center w-10 h-10 text-3xl lg:text-6xl" />
               <TikTokOutlined className="flex items-center justify-center w-10 h-10 text-3xl lg:text-6xl" />
               <img
-                src="/icon_of_Zalo.svg"
+                src="https://img.icons8.com/?size=100&id=0m71tmRjlxEe&format=png&color=000000"
                 alt=""
-                className="flex items-center justify-center w-10 h-10 p-1"
+                className="flex items-center justify-center w-12 h-12 p-1"
               />
             </div>
           </div>
