@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Hero from '../../components/Hero/Hero';
 import './Home.scss';
 import 'swiper/css';
@@ -15,8 +15,41 @@ import { Link } from 'react-router-dom';
 import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { Button } from 'antd';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import axios from 'axios';
+
+type Box = {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  price: string;
+  image: string;
+  totalWeight: string;
+  expiredAt: null;
+  createdAt: string;
+  updatedAt: string;
+};
 
 const Home: React.FC = () => {
+  const [boxes, setBoxes] = useState<Box[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get<Box[]>('http://localhost:3030/boxes');
+        setBoxes(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.error('Error fetching boxes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <Fragment>
       <Hero />
@@ -25,72 +58,37 @@ const Home: React.FC = () => {
           <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
             Gói phổ biến
           </h2>
-          <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-2">
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
-                Gói Trial 199k
-              </p>
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, ipsam in harum
-                quidem soluta nulla ducimus ex cum illum reprehenderit, doloribus non veritatis
-                praesentium totam, enim fugiat minus? Possimus, aliquam!
-              </p>
-              <ul className="mb-5">
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>Rau, cà rốt</span>
-                </li>
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>Khối lượng 4kg</span>
-                </li>
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>8 - 12 tuần</span>
-                </li>
-              </ul>
-              <Button
-                type="primary"
-                block
-                size="large"
-                className="text-base font-semibold bg-green"
-              >
-                Mua ngay
-              </Button>
-            </div>
-
-            <div className="p-4 bg-white rounded-lg shadow-md">
-              <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
-                Gói Mini CSA
-              </p>
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, ipsam in harum
-                quidem soluta nulla ducimus ex cum illum reprehenderit, doloribus non veritatis
-                praesentium totam, enim fugiat minus? Possimus, aliquam!
-              </p>
-              <ul className="mb-5">
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>Rau, cà rốt</span>
-                </li>
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>Khối lượng 4kg</span>
-                </li>
-                <li className="flex gap-2 mb-3">
-                  <CheckCircleOutlined className="text-base text-orange" />
-                  <span>8 - 12 tuần</span>
-                </li>
-              </ul>
-              <Button
-                type="primary"
-                block
-                size="large"
-                className="text-base font-semibold bg-green"
-              >
-                Mua ngay
-              </Button>
-            </div>
+          <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-3">
+            {boxes.map((box) => (
+              <div className="p-4 bg-white rounded-lg shadow-md">
+                <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
+                  {box.name}
+                </p>
+                <p>{box.description}</p>
+                <ul className="mb-5">
+                  <li className="flex gap-2 mb-3">
+                    <CheckCircleOutlined className="text-base text-orange" />
+                    <span>Rau, cà rốt</span>
+                  </li>
+                  <li className="flex gap-2 mb-3">
+                    <CheckCircleOutlined className="text-base text-orange" />
+                    <span>Khối lượng 4kg</span>
+                  </li>
+                  <li className="flex gap-2 mb-3">
+                    <CheckCircleOutlined className="text-base text-orange" />
+                    <span>8 - 12 tuần</span>
+                  </li>
+                </ul>
+                <Button
+                  type="primary"
+                  block
+                  size="large"
+                  className="text-base font-semibold bg-green"
+                >
+                  Mua ngay
+                </Button>
+              </div>
+            ))}
           </div>
         </div>
       </Section>

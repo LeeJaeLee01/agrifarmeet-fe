@@ -38,7 +38,7 @@ const BestSeller: React.FC = () => {
             <SwiperSlide key={item.id}>
               <ProductCard
                 id={item.id}
-                img={item.image}
+                image={item.image}
                 name={item.name}
                 unit="Cân"
                 oldPrice={item.oldPrice}
