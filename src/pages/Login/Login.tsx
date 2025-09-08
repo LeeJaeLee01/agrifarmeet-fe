@@ -3,7 +3,7 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, message } from 'antd';
 import './Login.scss';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useDispatch } from 'react-redux';
 import { setToken, setUsername } from '../../store/slices/authSlice'; // đường dẫn slice bạn đã tạo
 import { AppDispatch } from '../../store';
@@ -28,10 +28,11 @@ const LoginPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
     try {
-      const response = await axios.post('http://localhost:3030/users/login', {
-        username: data.email,
-        password: data.password,
-      });
+      const response = await api.post(
+        '/users/login',
+        { username: data.email, password: data.password },
+        { headers: { Authorization: false } }
+      );
 
       if (response.status === 201) {
         message.success('Đăng nhập thành công');

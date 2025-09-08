@@ -3,10 +3,9 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select } from 'antd';
 import Section from '../../components/Section/Section';
 import axios from 'axios';
-import './Purchase.scss';
+import './Order.scss';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../../utils/api';
 
 type PurchaseForm = {
   boxId: string;
@@ -23,7 +22,7 @@ type PurchaseForm = {
 
 const { Option } = Select;
 
-const PurchasePage: React.FC = () => {
+const Order: React.FC = () => {
   const {
     control,
     handleSubmit,
@@ -52,9 +51,7 @@ const PurchasePage: React.FC = () => {
     if (!id) return;
     const fetchBox = async () => {
       try {
-        const res = await api.get(`/boxes/${id}`, {
-          headers: { Authorization: false },
-        });
+        const res = await axios.get(`http://localhost:3030/boxes/${id}`);
         setBoxInfo(res.data);
         // Set boxId vào form luôn
         setValue('boxId', id);
@@ -115,9 +112,7 @@ const PurchasePage: React.FC = () => {
 
     try {
       setLoading(true);
-      const res = await api.post('/boxes/purchase', payload, {
-        headers: { Authorization: true },
-      });
+      const res = await axios.post('http://localhost:3030/boxes/purchase', payload);
       toast.success('Đặt hàng thành công!');
       localStorage.setItem('userId', res?.data?.userId);
       navigate('/farm-stand');
@@ -133,7 +128,7 @@ const PurchasePage: React.FC = () => {
   return (
     <Section>
       <div className="container mx-auto">
-        <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Đặt hàng</h1>
+        <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Thanh toán</h1>
         <div className="flex flex-col justify-between w-full gap-10 pb-10 mb-10 lg:flex-row item-center">
           {/* FORM */}
           <form
@@ -374,4 +369,4 @@ const PurchasePage: React.FC = () => {
   );
 };
 
-export default PurchasePage;
+export default Order;

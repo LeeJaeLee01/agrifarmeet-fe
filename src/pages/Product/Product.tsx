@@ -29,7 +29,9 @@ const Product: React.FC = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`http://localhost:3030/products/${id}`);
+      const res = await api.get(`/products/${id}`, {
+        headers: { Authorization: false },
+      });
       setProduct(res.data);
     } catch (error) {
       console.error('Lỗi khi fetch product:', error);
@@ -47,10 +49,11 @@ const Product: React.FC = () => {
     if (!product) return;
     try {
       setAdding(true);
-      await api.post('http://localhost:3030/carts/add', {
-        productId: product.id,
-        quantity,
-      });
+      await api.post(
+        '/carts/add',
+        { productId: product.id, quantity },
+        { headers: { Authorization: true } }
+      );
       toast.success('Thêm vào giỏ thành công!');
     } catch (err) {
       console.error(err);

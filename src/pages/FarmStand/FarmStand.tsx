@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import api from '../../utils/api';
 
 interface CartItem {
   productId: string;
@@ -42,9 +43,13 @@ const FarmStand: React.FC = () => {
           return;
         }
 
-        const res = await axios.post('http://localhost:3030/boxes/active/user', {
-          userId: userId, // truyền trong body
-        });
+        const res = await api.post(
+          '/boxes/active/user',
+          { userId },
+          {
+            headers: { Authorization: true },
+          }
+        );
 
         const data = res.data;
         console.log(data);
@@ -97,10 +102,8 @@ const FarmStand: React.FC = () => {
         })),
       };
 
-      await axios.put('http://localhost:3030/boxes/user-products/update-list', payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+      await api.put('/boxes/user-products/update-list', payload, {
+        headers: { Authorization: true },
       });
 
       toast.success('Cập nhật gói thành công!');

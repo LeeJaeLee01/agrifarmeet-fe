@@ -35,7 +35,9 @@ const ProductList: React.FC = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.get('http://localhost:3030/products');
+      const response = await api.get('/products', {
+        headers: { Authorization: false },
+      });
       setProducts(response.data);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách sản phẩm:', error);
@@ -47,7 +49,9 @@ const ProductList: React.FC = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await api.get('http://localhost:3030/categories');
+      const response = await api.get('/categories', {
+        headers: { Authorization: false },
+      });
       setCategories(response.data);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách danh mục:', error);
@@ -59,7 +63,9 @@ const ProductList: React.FC = () => {
   const fetchProductsFromCategory = async (categoryId: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`http://localhost:3030/categories/${categoryId}`);
+      const response = await api.get(`/categories/${categoryId}`, {
+        headers: { Authorization: false },
+      });
       setProducts(response.data.products);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách danh mục:', error);

@@ -17,6 +17,7 @@ import { Button } from 'antd';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
+import api from '../../utils/api';
 
 type Box = {
   id: string;
@@ -54,7 +55,9 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get<Box[]>('http://localhost:3030/boxes');
+        const res = await api.get<Box[]>('/boxes', {
+          headers: { Authorization: false }, // mặc định không cần token
+        });
         setBoxes(res.data);
         console.log(res.data);
       } catch (err) {
