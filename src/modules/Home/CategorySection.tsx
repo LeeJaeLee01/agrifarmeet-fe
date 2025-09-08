@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../../utils/api';
+import api, { BASE_URL } from '../../utils/api';
 import { message } from 'antd';
 import Section from '../../components/Section/Section';
 
@@ -14,7 +14,7 @@ const CategorySection: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get('http://localhost:3030/categories');
+      const response = await api.get(`${BASE_URL}:3030/categories`);
 
       setCategories(response.data);
       console.log(response.data);

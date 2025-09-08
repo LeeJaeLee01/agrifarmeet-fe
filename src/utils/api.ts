@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { store } from '../store';
 
 // const BASE_URL = 'http://localhost:3030';
-const BASE_URL = 'https://phungduccuong.site/api';
+export const BASE_URL = 'https://phungduccuong.site/api';
 
 const api = axios.create({
   baseURL: BASE_URL,

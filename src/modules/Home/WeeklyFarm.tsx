@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Spin } from 'antd';
 import { TProductCard } from '../../types/TProductCard';
+import { BASE_URL } from '../../utils/api';
 
 const WeeklyFarm: React.FC = () => {
   const [products, setProducts] = useState<TProductCard[]>([]);
@@ -16,7 +17,7 @@ const WeeklyFarm: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get<TProductCard[]>('http://localhost:3030/products');
+        const res = await axios.get<TProductCard[]>(`${BASE_URL}/products`);
         setProducts(res.data);
       } catch (err) {
         console.error('Error fetching products:', err);

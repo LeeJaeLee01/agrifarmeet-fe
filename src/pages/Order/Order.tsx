@@ -6,6 +6,7 @@ import axios from 'axios';
 import './Order.scss';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
+import { BASE_URL } from '../../utils/api';
 
 type PurchaseForm = {
   boxId: string;
@@ -51,7 +52,7 @@ const Order: React.FC = () => {
     if (!id) return;
     const fetchBox = async () => {
       try {
-        const res = await axios.get(`http://localhost:3030/boxes/${id}`);
+        const res = await axios.get(`${BASE_URL}/boxes/${id}`);
         setBoxInfo(res.data);
         // Set boxId vào form luôn
         setValue('boxId', id);
@@ -112,7 +113,7 @@ const Order: React.FC = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post('http://localhost:3030/boxes/purchase', payload);
+      const res = await axios.post(`${BASE_URL}/boxes/purchase`, payload);
       toast.success('Đặt hàng thành công!');
       localStorage.setItem('userId', res?.data?.userId);
       navigate('/farm-stand');
