@@ -198,7 +198,7 @@ const FarmStand: React.FC = () => {
       <div className="container mx-auto">
         <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Farm Stand</h2>
         <div className="flex flex-col justify-between w-full gap-5 mb-10 lg:flex-row item-center">
-          <div>
+          <div className="w-full max-w-lg">
             <p className="mb-3 text-lg font-semibold lg:mb-5 lg:text-2xl text-text1">
               {boxData.name}
             </p>

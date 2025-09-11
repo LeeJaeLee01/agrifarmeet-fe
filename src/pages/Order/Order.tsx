@@ -145,7 +145,7 @@ const Order: React.FC = () => {
                 control={control}
                 rules={{ required: 'Vui lòng nhập họ tên' }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập họ và tên" className="h-[52px]" />
+                  <Input {...field} disabled placeholder="Nhập họ và tên" className="h-[52px]" />
                 )}
               />
               {errors.fullname && <p className="text-xs text-red">{errors.fullname.message}</p>}
@@ -162,7 +162,7 @@ const Order: React.FC = () => {
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email không hợp lệ' },
                 }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập email" className="h-[52px]" />
+                  <Input {...field} disabled placeholder="Nhập email" className="h-[52px]" />
                 )}
               />
               {errors.email && <p className="text-xs text-red">{errors.email.message}</p>}
@@ -180,7 +180,12 @@ const Order: React.FC = () => {
                   pattern: { value: /^[0-9]{10}$/, message: 'Số điện thoại phải gồm 10 chữ số' },
                 }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập số điện thoại" className="h-[52px]" />
+                  <Input
+                    {...field}
+                    disabled
+                    placeholder="Nhập số điện thoại"
+                    className="h-[52px]"
+                  />
                 )}
               />
               {errors.phone && <p className="text-xs text-red">{errors.phone.message}</p>}
@@ -207,6 +212,7 @@ const Order: React.FC = () => {
                       setDistricts([]);
                       setWards([]);
                     }}
+                    disabled
                     placeholder="Chọn tỉnh"
                     className="w-full h-[52px]"
                   >
@@ -241,7 +247,7 @@ const Order: React.FC = () => {
                     }}
                     placeholder="Chọn quận/huyện"
                     className="w-full h-[52px]"
-                    disabled={!districts.length}
+                    disabled
                   >
                     {districts.map((d) => (
                       <Option key={d.code} value={d.code}>
@@ -271,7 +277,7 @@ const Order: React.FC = () => {
                     }}
                     placeholder="Chọn xã/phường"
                     className="w-full h-[52px]"
-                    disabled={!wards.length}
+                    disabled
                   >
                     {wards.map((w) => (
                       <Option key={w.code} value={w.code}>
@@ -292,7 +298,12 @@ const Order: React.FC = () => {
                 control={control}
                 rules={{ required: 'Vui lòng nhập địa chỉ chi tiết' }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Số nhà, đường, thôn..." className="h-[52px]" />
+                  <Input
+                    {...field}
+                    disabled
+                    placeholder="Số nhà, đường, thôn..."
+                    className="h-[52px]"
+                  />
                 )}
               />
               {errors.addressDetail && (
@@ -305,64 +316,39 @@ const Order: React.FC = () => {
           <div className="w-full lg:w-1/3 xl:w-1/4">
             <h2 className="mb-5 text-lg font-semibold lg:text-xl text-text1">Thông tin đơn hàng</h2>
 
-            {boxInfo ? (
+            {true ? (
               <>
                 <div className="flex w-full gap-5 pb-5 mb-5 border-b border-border">
                   <img
-                    src={boxInfo.image || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'}
+                    src={
+                      boxInfo?.image || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'
+                    }
                     alt=""
                     className="block object-cover rounded-lg w-28 h-28"
                   />
                   <div className="flex-1">
                     <p className="mb-1 text-sm font-medium lg:mb-2 lg:text-lg text-text1">
-                      {boxInfo.name}
+                      {boxInfo?.name}
                     </p>
                     <p className="mb-1 text-xs lg:mb-2 lg:text-sm text-text2">
-                      {boxInfo.description}
+                      {boxInfo?.description}
                     </p>
                     <p className="text-xs lg:text-sm text-text3">
-                      Khối lượng: <span>{boxInfo.totalWeight}g</span>
+                      Khối lượng: <span>{boxInfo?.totalWeight}g</span>
                     </p>
-                  </div>
-                </div>
-
-                <h3 className="mb-5 text-sm lg:text-base">Các sản phẩm có trong gói hàng</h3>
-                {boxInfo.products?.map((p: any) => (
-                  <div className="flex gap-5 mb-5" key={p.id}>
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="block object-cover w-20 h-20 rounded-lg"
-                    />
-                    <div>
-                      <p className="mb-1 text-sm lg:mb-2 text-text2">{p.name}</p>
-                      <p className="text-xs text-text3">
-                        Khối lượng tịnh: <span>{p.weight}g</span>
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                <div>
-                  <p className="text-lg text-end">
-                    Tổng số tiền: <span>{Number(boxInfo.price).toLocaleString()}đ</span>
-                  </p>
-                  <div className="flex justify-end w-full">
-                    <Button
-                      type="primary"
-                      block
-                      className="bg-green h-[52px]"
-                      loading={loading}
-                      onClick={() => handleSubmit(onSubmit)()}
-                    >
-                      Xác nhận đặt hàng
-                    </Button>
                   </div>
                 </div>
               </>
             ) : (
               <p>Đang tải thông tin gói hàng...</p>
             )}
+            <div className="w-full">
+              <h3 className="mb-5 text-sm lg:text-base">Mã QR thanh toán</h3>
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                alt=""
+              />
+            </div>
           </div>
         </div>
       </div>
