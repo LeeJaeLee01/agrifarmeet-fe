@@ -23,6 +23,7 @@ const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories'));
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
+const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
             >
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="boxes" element={<AdminBoxes />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>
