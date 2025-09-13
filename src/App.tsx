@@ -22,6 +22,7 @@ const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 // Admin pages
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories'));
+const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 
 function App() {
   return (
@@ -66,8 +67,9 @@ function App() {
               }
             >
               <Route path="categories" element={<AdminCategories />} />
+              <Route path="products" element={<AdminProducts />} />
             </Route>
-            <Route path="login" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>
         </AntdApp>
       </ConfigProvider>

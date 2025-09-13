@@ -1,8 +1,13 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 import { store } from '../store';
 
+export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  withAuth?: boolean;
+}
+
 // const BASE_URL = 'http://localhost:3030';
-export const BASE_URL = 'https://phungduccuong.site/api';
+const BASE_URL = 'https://phungduccuong.site/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -10,15 +15,14 @@ const api = axios.create({
 });
 
 // Interceptor cho request
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig & { withAuth?: boolean }) => {
   const token = store.getState().auth.token;
 
-  // Mặc định KHÔNG gắn token
-  // Nếu muốn gắn thì khi gọi API phải set headers.Authorization = true
-  if (token && config.headers?.Authorization === true) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    delete config.headers?.Authorization; // xoá nếu không dùng
+  if (token && config.withAuth) {
+    if (!config.headers) {
+      config.headers = {} as import('axios').AxiosRequestHeaders;
+    }
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
 
   return config;
@@ -27,15 +31,16 @@ api.interceptors.request.use((config) => {
 type ApiResponse<T> = Promise<AxiosResponse<T>>;
 
 const request = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig): ApiResponse<T> => api.get(url, config),
+  get: <T = any>(url: string, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
+    api.get(url, config),
 
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): ApiResponse<T> =>
+  post: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
     api.post(url, data, config),
 
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): ApiResponse<T> =>
+  put: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
     api.put(url, data, config),
 
-  delete: <T = any>(url: string, config?: AxiosRequestConfig): ApiResponse<T> =>
+  delete: <T = any>(url: string, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
     api.delete(url, config),
 };
 

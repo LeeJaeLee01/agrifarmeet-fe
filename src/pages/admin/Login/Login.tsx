@@ -1,10 +1,25 @@
 import React from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { Input, Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../../store';
+import { setToken } from '../../../store/slices/authSlice';
+import { jwtDecode } from 'jwt-decode';
+import api from '../../../utils/api';
 
 type LoginForm = {
-  email: string;
+  username: string;
   password: string;
+};
+
+type JwtPayload = {
+  sub: string;
+  username: string;
+  role: string;
+  iat: number;
+  exp: number;
 };
 
 const Login: React.FC = () => {
@@ -14,14 +29,41 @@ const Login: React.FC = () => {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
 
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch<AppDispatch>();
+
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
-    console.log('Form data:', data);
-    // TODO: call API login admin tại đây
+    try {
+      const res = await api.post('/users/login', {
+        username: data.username,
+        password: data.password,
+      });
+
+      if (res.data?.token) {
+        const decoded: JwtPayload = jwtDecode<JwtPayload>(res.data.token);
+
+        if (decoded.role === 'admin') {
+          localStorage.setItem('adminToken', res.data.token);
+          dispatch(setToken(res.data.token));
+
+          navigate('/admin');
+          toast.success('Đăng nhập thành công!');
+        } else {
+          toast.error('Tài khoản không có quyền admin');
+        }
+      } else {
+        toast.error('Đã có lỗi xảy ra, vui lòng thử lại');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
+    }
   };
 
   return (
@@ -44,18 +86,18 @@ const Login: React.FC = () => {
             <div>
               <label className="block mb-1 text-sm font-medium">Tên đăng nhập</label>
               <Controller
-                name="email"
+                name="username"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập email',
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Email không hợp lệ',
-                  },
+                  required: 'Vui lòng nhập tên đăng nhập',
                 }}
-                render={({ field }) => <Input {...field} placeholder="Nhập email" size="large" />}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Nhập tên đăng nhập" size="large" />
+                )}
               />
-              {errors.email && <p className="mt-1 text-xs text-red">{errors.email.message}</p>}
+              {errors.username && (
+                <p className="mt-1 text-xs text-red">{errors.username.message}</p>
+              )}
             </div>
 
             {/* Password */}

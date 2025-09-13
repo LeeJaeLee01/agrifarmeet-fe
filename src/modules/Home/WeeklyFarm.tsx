@@ -4,10 +4,9 @@ import SwiperList from '../../components/SwiperList/SwiperList';
 import { SwiperSlide } from 'swiper/react';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Spin } from 'antd';
 import { TProductCard } from '../../types/TProductCard';
-import { BASE_URL } from '../../utils/api';
+import api from '../../utils/api';
 
 const WeeklyFarm: React.FC = () => {
   const [products, setProducts] = useState<TProductCard[]>([]);
@@ -17,7 +16,7 @@ const WeeklyFarm: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get<TProductCard[]>(`${BASE_URL}/products`);
+        const res = await api.get('/products');
         setProducts(res.data);
       } catch (err) {
         console.error('Error fetching products:', err);

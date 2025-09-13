@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
-import { Outlet, Link } from 'react-router-dom';
+import { useLocation, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -15,11 +15,29 @@ import {
   DatabaseOutlined,
   CarryOutOutlined,
 } from '@ant-design/icons';
+import { setToken } from '../store/slices/authSlice';
+import { useDispatch } from 'react-redux';
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+
+  const location = useLocation();
+  const path = location.pathname.replace('/admin/', '') || 'dashboard';
+
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem('adminToken');
+    if (savedToken) {
+      dispatch(setToken(savedToken));
+    } else {
+      navigate('/admin/login');
+    }
+  }, [dispatch]);
 
   const menuItems = [
     {
@@ -83,7 +101,9 @@ const AdminLayout: React.FC = () => {
           label: 'Đăng xuất',
           onClick: () => {
             // TODO: handle logout logic
-            console.log('Logout clicked');
+            localStorage.removeItem('adminToken');
+            dispatch(setToken(''));
+            navigate('/admin/login');
           },
         },
       ]}
@@ -106,7 +126,12 @@ const AdminLayout: React.FC = () => {
         <div className="flex items-center justify-center h-16 text-base font-semibold lg:text-lg">
           Admin
         </div>
-        <Menu mode="inline" defaultSelectedKeys={['dashboard']} items={menuItems} />
+        <Menu
+          mode="inline"
+          selectedKeys={[path]}
+          defaultSelectedKeys={['dashboard']}
+          items={menuItems}
+        />
       </Sider>
 
       {/* Layout chính */}
