@@ -3,27 +3,20 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select } from 'antd';
 import './SignUp.scss';
 import { NavLink } from 'react-router-dom';
-
-type SignUpForm = {
-  email: string;
-  password: string;
-  phone: string;
-  province: string | null;
-  district: string | null;
-  ward: string | null;
-  addressDetail: string;
-  address: string;
-};
+import { TSignUp } from '../../types/TUser';
+import { useTitle } from '../../hooks/useTitle';
 
 const { Option } = Select;
 
 const SignUpPage: React.FC = () => {
+  useTitle('Đăng ký');
+
   const {
     control,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<SignUpForm>();
+  } = useForm<TSignUp>();
 
   const [provinces, setProvinces] = useState<any[]>([]);
   const [districts, setDistricts] = useState<any[]>([]);
@@ -62,7 +55,7 @@ const SignUpPage: React.FC = () => {
     }
   }, [selectedDistrict]);
 
-  const onSubmit: SubmitHandler<SignUpForm> = (data) => {
+  const onSubmit: SubmitHandler<TSignUp> = (data) => {
     // Tạo chuỗi địa chỉ đầy đủ
     const fullAddress = [data.addressDetail, data.ward, data.district, data.province]
       .filter(Boolean)

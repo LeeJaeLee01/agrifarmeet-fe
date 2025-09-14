@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { Input, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -8,26 +8,17 @@ import { AppDispatch } from '../../../store';
 import { setToken } from '../../../store/slices/authSlice';
 import { jwtDecode } from 'jwt-decode';
 import api from '../../../utils/api';
-
-type LoginForm = {
-  username: string;
-  password: string;
-};
-
-type JwtPayload = {
-  sub: string;
-  username: string;
-  role: string;
-  iat: number;
-  exp: number;
-};
+import { JwtPayload, TLogin } from '../../../types/TUser';
+import { useTitle } from '../../../hooks/useTitle';
 
 const Login: React.FC = () => {
+  useTitle('Đăng nhập - Admin');
+
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({
+  } = useForm<TLogin>({
     defaultValues: {
       username: '',
       password: '',
@@ -38,7 +29,23 @@ const Login: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+  // ✅ Nếu đã có token admin thì redirect luôn
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      try {
+        const decoded: JwtPayload = jwtDecode(token);
+        if (decoded.role === 'admin') {
+          navigate('/admin', { replace: true });
+        }
+      } catch (err) {
+        console.error('Invalid admin token:', err);
+        localStorage.removeItem('adminToken');
+      }
+    }
+  }, [navigate]);
+
+  const onSubmit: SubmitHandler<TLogin> = async (data) => {
     try {
       const res = await api.post('/users/login', {
         username: data.username,

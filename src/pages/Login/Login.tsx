@@ -7,18 +7,17 @@ import api from '../../utils/api';
 import { useDispatch } from 'react-redux';
 import { setToken, setUsername } from '../../store/slices/authSlice'; // đường dẫn slice bạn đã tạo
 import { AppDispatch } from '../../store';
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
+import { useTitle } from '../../hooks/useTitle';
+import { TLogin } from '../../types/TUser';
 
 const LoginPage: React.FC = () => {
+  useTitle('Đăng nhập');
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>();
+  } = useForm<TLogin>();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -26,11 +25,11 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/';
 
-  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+  const onSubmit: SubmitHandler<TLogin> = async (data) => {
     try {
       const response = await api.post(
         '/users/login',
-        { username: data.email, password: data.password },
+        { username: data.username, password: data.password },
         { headers: { Authorization: false } }
       );
 
@@ -75,14 +74,14 @@ const LoginPage: React.FC = () => {
           <div className="mb-4">
             <label className="inline-block mb-1 text-sm font-medium text-text2">Email</label>
             <Controller
-              name="email"
+              name="username"
               control={control}
               rules={{ required: 'Vui lòng nhập email' }}
               render={({ field }) => (
                 <Input {...field} placeholder="Nhập email" className="h-[52px]" />
               )}
             />
-            {errors.email && <p className="mt-1 text-xs text-red">{errors.email.message}</p>}
+            {errors.username && <p className="mt-1 text-xs text-red">{errors.username.message}</p>}
           </div>
 
           {/* Password */}

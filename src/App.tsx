@@ -5,6 +5,8 @@ import SpinnerAdmin from './components/Loading/SpinnerAdmin';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 import PrivateRoute from './routes/PrivateRoute';
+import AdminRoute from './routes/AdminRoute';
+import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
 
 // User pages
@@ -12,7 +14,6 @@ const Home = lazy(() => import('./pages/Home/Home'));
 const Login = lazy(() => import('./pages/Login/Login'));
 const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
 const Cart = lazy(() => import('./pages/Cart/Cart'));
-const Products = lazy(() => import('./pages/ProductList/ProductList'));
 const Product = lazy(() => import('./pages/Product/Product'));
 const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
 const Purchase = lazy(() => import('./pages/Purchase/Purchase'));
@@ -50,7 +51,6 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="/products" element={<Products />} />
               <Route path="/product/:id" element={<Product />} />
               <Route path="/farm-stand" element={<FarmStand />} />
               <Route path="/purchase/:id" element={<Purchase />} />
@@ -62,16 +62,25 @@ function App() {
             <Route
               path="/admin"
               element={
-                <Suspense fallback={<SpinnerAdmin />}>
-                  <AdminLayout />
-                </Suspense>
+                <AdminRoute>
+                  <Suspense fallback={<SpinnerAdmin />}>
+                    <AdminLayout />
+                  </Suspense>
+                </AdminRoute>
               }
             >
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="boxes" element={<AdminBoxes />} />
             </Route>
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/login"
+              element={
+                <AdminGuestRoute>
+                  <AdminLogin />
+                </AdminGuestRoute>
+              }
+            />
           </Routes>
         </AntdApp>
       </ConfigProvider>

@@ -6,6 +6,7 @@ import { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
+import { useTitle } from '../../hooks/useTitle';
 
 interface CartItem {
   productId: string;
@@ -24,6 +25,8 @@ interface BoxData {
 }
 
 const FarmStand: React.FC = () => {
+  useTitle('Farm stand');
+
   const [boxData, setBoxData] = useState<BoxData | null>(null);
 
   // tính tổng khối lượng hiện tại

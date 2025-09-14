@@ -4,6 +4,21 @@ export function formatVND(num: number | string): string {
   return n.toLocaleString('vi-VN') + ' ₫';
 }
 
+export function formatWeight(weight: string | number, unit: 'g' | 'kg' = 'g'): string {
+  const num = Number(weight);
+
+  if (isNaN(num)) return '0';
+
+  if (unit === 'kg') {
+    const kgValue = num / 1000;
+    // Nếu là số nguyên thì bỏ phần thập phân
+    return Number.isInteger(kgValue) ? `${kgValue} kg` : `${kgValue.toFixed(2)} kg`;
+  }
+
+  // Mặc định g
+  return Number.isInteger(num) ? `${num} g` : `${num} g`;
+}
+
 export const formatDate = (dateString: string) => {
   // 2025-08-23T01:36:27.354Z -> "23/08/2025 08:36:27"
   if (!dateString) return '';

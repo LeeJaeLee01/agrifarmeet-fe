@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select } from 'antd';
 import Section from '../../components/Section/Section';
-import axios from 'axios';
 import './Purchase.scss';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../utils/api';
+import { useTitle } from '../../hooks/useTitle';
 
 type PurchaseForm = {
   boxId: string;
@@ -24,6 +24,8 @@ type PurchaseForm = {
 const { Option } = Select;
 
 const PurchasePage: React.FC = () => {
+  useTitle('Đặt hàng');
+
   const {
     control,
     handleSubmit,

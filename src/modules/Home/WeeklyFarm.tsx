@@ -5,11 +5,11 @@ import { SwiperSlide } from 'swiper/react';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { Link } from 'react-router-dom';
 import { Spin } from 'antd';
-import { TProductCard } from '../../types/TProductCard';
+import { TProduct } from '../../types/TProduct';
 import api from '../../utils/api';
 
 const WeeklyFarm: React.FC = () => {
-  const [products, setProducts] = useState<TProductCard[]>([]);
+  const [products, setProducts] = useState<TProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -50,11 +50,12 @@ const WeeklyFarm: React.FC = () => {
                   id={item.id}
                   image={item.image}
                   name={item.name}
-                  unit={`${item.weight} g`} // lấy weight làm đơn vị
-                  oldPrice={undefined} // backend chưa trả => có thể bỏ
-                  // backend chưa trả => có thể bỏ
-                  discount={undefined}
-                  price={''}
+                  weight={item.weight}
+                  description={item.description}
+                  categoryId={item.categoryId}
+                  createdBy={item.createdBy}
+                  createdAt={item.createdAt}
+                  updatedAt={item.updatedAt}
                 />
               </SwiperSlide>
             ))}

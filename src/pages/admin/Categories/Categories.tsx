@@ -5,23 +5,19 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
-
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useTitle } from '../../../hooks/useTitle';
+import { TCategory } from '../../../types/TCategory';
 
 const Categories: React.FC = () => {
-  const [data, setData] = useState<Category[]>([]);
+  useTitle('Quản lý danh mục');
+
+  const [data, setData] = useState<TCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
 
   const [open, setOpen] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+  const [currentCategory, setCurrentCategory] = useState<TCategory | null>(null);
 
   const [form] = Form.useForm();
 
@@ -80,7 +76,7 @@ const Categories: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<Category> = [
+  const columns: ColumnsType<TCategory> = [
     {
       title: 'STT',
       dataIndex: 'index',
@@ -112,7 +108,7 @@ const Categories: React.FC = () => {
       title: 'Hành động',
       key: 'action',
       width: 150,
-      render: (_: any, record: Category) => (
+      render: (_: any, record: TCategory) => (
         <Space>
           <Button
             color="primary"

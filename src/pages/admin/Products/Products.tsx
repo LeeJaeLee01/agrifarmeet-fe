@@ -7,32 +7,21 @@ import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  description: string | null;
-  weight: number;
-  categoryId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
+import { useTitle } from '../../../hooks/useTitle';
+import { TProduct } from '../../../types/TProduct';
+import { TCategory } from '../../../types/TCategory';
 
 const Products: React.FC = () => {
-  const [data, setData] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  useTitle('Quản lý sản phẩm');
+
+  const [data, setData] = useState<TProduct[]>([]);
+  const [categories, setCategories] = useState<TCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
 
   const [open, setOpen] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [currentProduct, setCurrentProduct] = useState<TProduct | null>(null);
 
   const [form] = Form.useForm();
 
@@ -108,7 +97,7 @@ const Products: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<Product> = [
+  const columns: ColumnsType<TProduct> = [
     {
       title: 'STT',
       dataIndex: 'index',
@@ -163,7 +152,7 @@ const Products: React.FC = () => {
       title: 'Hành động',
       key: 'action',
       width: 150,
-      render: (_: any, record: Product) => (
+      render: (_: any, record: TProduct) => (
         <Space>
           <Button
             type="link"

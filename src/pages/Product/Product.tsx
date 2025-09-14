@@ -2,26 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './Product.scss';
 import Section from '../../components/Section/Section';
-import { Spin, Button, InputNumber } from 'antd';
+import { Spin, Button } from 'antd';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
-
-interface ProductType {
-  id: string;
-  name: string;
-  image: string;
-  price: string;
-  quantity: number;
-  description: string;
-  categoryId: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { TProduct } from '../../types/TProduct';
 
 const Product: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<ProductType | null>(null);
+  const [product, setProduct] = useState<TProduct | null>(null);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState<number>(1);
   const [adding, setAdding] = useState(false);
@@ -33,6 +21,7 @@ const Product: React.FC = () => {
         headers: { Authorization: false },
       });
       setProduct(res.data);
+      document.title = res.data.name;
     } catch (error) {
       console.error('Lỗi khi fetch product:', error);
       toast.error('Không thể tải thông tin sản phẩm');
@@ -87,43 +76,8 @@ const Product: React.FC = () => {
           {/* Thông tin */}
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-gray-800">{product.name}</h1>
-            <p className="text-lg font-semibold text-green-600">
-              {Number(product.price).toLocaleString()}₫
-            </p>
-            <p className="text-gray-600">Số lượng còn lại: {product.quantity}</p>
+
             <p className="text-gray-700">{product.description}</p>
-
-            {/* Chọn số lượng */}
-            <div className="flex items-center gap-3 mt-4">
-              <span>Số lượng:</span>
-              <div className="flex items-center border rounded-md">
-                <Button
-                  type="text"
-                  className="px-3"
-                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                >
-                  -
-                </Button>
-                <div className="px-4">{quantity}</div>
-                <Button
-                  type="text"
-                  className="px-3"
-                  onClick={() =>
-                    setQuantity((prev) =>
-                      product ? Math.min(product.quantity, prev + 1) : prev + 1
-                    )
-                  }
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Button type="primary" size="large" loading={adding} onClick={handleAddToCart}>
-                Thêm vào giỏ hàng
-              </Button>
-            </div>
           </div>
         </div>
       </div>

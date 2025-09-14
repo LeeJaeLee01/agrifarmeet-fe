@@ -14,10 +14,11 @@ import {
 import { Link } from 'react-router-dom';
 import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { Button } from 'antd';
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
 import api from '../../utils/api';
+import { useTitle } from '../../hooks/useTitle';
+import { formatWeight } from '../../utils/helper';
 
 type Box = {
   id: string;
@@ -44,6 +45,8 @@ type Product = {
 };
 
 const Home: React.FC = () => {
+  useTitle('Trang chủ - Agrifarmeet');
+
   const [boxes, setBoxes] = useState<Box[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -100,7 +103,7 @@ const Home: React.FC = () => {
                   </li>
                   <li className="flex gap-2 mb-3">
                     <CheckCircleOutlined className="text-base text-orange" />
-                    <span>Khối lượng {box.totalWeight}g</span>
+                    <span>Khối lượng {formatWeight(box.totalWeight, 'kg')}</span>
                   </li>
                   <li className="flex gap-2 mb-3">
                     <CheckCircleOutlined className="text-base text-orange" />

@@ -15,9 +15,10 @@ import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
-import { formatDate } from '../../../utils/helper';
+import { formatDate, formatVND, formatWeight } from '../../../utils/helper';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
+import { useTitle } from '../../../hooks/useTitle';
 
 interface Box {
   id: string;
@@ -40,6 +41,8 @@ interface Product {
 }
 
 const Boxes: React.FC = () => {
+  useTitle('Quản lý gói');
+
   const [data, setData] = useState<Box[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,7 +53,6 @@ const Boxes: React.FC = () => {
   const [currentBox, setCurrentBox] = useState<Box | null>(null);
 
   const [form] = Form.useForm();
-  const token = useSelector((state: RootState) => state.auth.token);
 
   // Normalize dữ liệu box trả về từ API
   const normalizeBox = (raw: any): Box => {
@@ -190,17 +192,14 @@ const Boxes: React.FC = () => {
       dataIndex: 'price',
       key: 'price',
       width: 120,
-      render: (p: number) =>
-        new Intl.NumberFormat('vi-VN', {
-          style: 'currency',
-          currency: 'VND',
-        }).format(p),
+      render: (p: number) => formatVND(p),
     },
     {
       title: 'Tổng KL (g)',
       dataIndex: 'totalWeight',
       key: 'totalWeight',
       width: 120,
+      render: (weight) => formatWeight(weight, 'kg'),
     },
     {
       title: 'Ngày tạo',

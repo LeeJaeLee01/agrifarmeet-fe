@@ -30,15 +30,6 @@ const AdminLayout: React.FC = () => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem('adminToken');
-    if (savedToken) {
-      dispatch(setToken(savedToken));
-    } else {
-      navigate('/admin/login');
-    }
-  }, [dispatch]);
-
   const menuItems = [
     {
       key: 'dashboard',
