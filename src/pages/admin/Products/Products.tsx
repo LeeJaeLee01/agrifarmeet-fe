@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
-import { formatDate } from '../../../utils/helper';
+import { formatDate, formatWeight } from '../../../utils/helper';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useTitle } from '../../../hooks/useTitle';
@@ -133,6 +133,7 @@ const Products: React.FC = () => {
       dataIndex: 'weight',
       key: 'weight',
       width: 150,
+      render: (weight) => formatWeight(weight),
     },
     {
       title: 'Ngày tạo',

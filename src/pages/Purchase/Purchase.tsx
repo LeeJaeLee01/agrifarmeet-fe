@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
 import { formatWeight } from '../../utils/helper';
+import { v4 as uuidv4 } from 'uuid';
 
 type PurchaseForm = {
   boxId: string;
@@ -55,9 +56,7 @@ const PurchasePage: React.FC = () => {
     if (!id) return;
     const fetchBox = async () => {
       try {
-        const res = await api.get(`/boxes/${id}`, {
-          headers: { Authorization: false },
-        });
+        const res = await api.get(`/boxes/${id}`);
         setBoxInfo(res.data);
         // Set boxId vào form luôn
         setValue('boxId', id);
@@ -106,23 +105,23 @@ const PurchasePage: React.FC = () => {
       .filter(Boolean)
       .join(', ');
 
-    const payload = {
-      boxId: boxInfo.id,
-      // fullname: data.fullname,
-      // email: data.email,
-      // phone: data.phone,
-      // address: fullAddress,
-      timeActive: new Date().toISOString(),
-      timeEnd: new Date(Date.now() + 10 * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    };
+    // lưu boxId vào localStorage để dùng sau khi quay lại
+    localStorage.setItem('lastBoxId', boxInfo.id);
+
+    // tạo orderId ngẫu nhiên
+    const orderId = uuidv4();
+    const amount = Number(boxInfo.price);
 
     try {
       setLoading(true);
-      const res = await api.post('/boxes/purchase', payload, { withAuth: true });
-      toast.success('Đặt hàng thành công!');
-      localStorage.setItem('userId', res?.data?.userId);
-      navigate('/farm-stand');
-      reset();
+
+      const res = await api.get(`/payment/create?orderId=${orderId}&amount=${amount / 100}`);
+      if (res.data && res.data.url) {
+        // redirect tới cổng thanh toán
+        window.location.href = res.data.url;
+      } else {
+        toast.error('Không tạo được link thanh toán');
+      }
     } catch (err) {
       console.error(err);
       toast.error('Có lỗi xảy ra khi đặt hàng!');

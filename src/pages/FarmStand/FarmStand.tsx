@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Section from '../../components/Section/Section';
-import { Button, Progress, Table, message } from 'antd';
+import { Button, Progress, Table } from 'antd';
 import { Link } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
+import { formatWeight } from '../../utils/helper';
 
 interface CartItem {
   productId: string;
@@ -17,7 +17,7 @@ interface CartItem {
 }
 
 interface BoxData {
-  id: string; // box_user_id
+  id: string;
   name: string;
   description: string;
   totalWeight: number;
@@ -28,37 +28,25 @@ const FarmStand: React.FC = () => {
   useTitle('Farm stand');
 
   const [boxData, setBoxData] = useState<BoxData | null>(null);
+  const [haveBox, setHaveBox] = useState<boolean>(false);
 
-  // tính tổng khối lượng hiện tại
   function getUsedWeight(items: CartItem[]) {
     return items.reduce((sum, item) => sum + item.quantity * item.productWeight, 0);
   }
 
-  // gọi API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Lấy userId từ localStorage
-        const userId = localStorage.getItem('userId');
+        const res = await api.get('/boxes/user/active', { withAuth: true });
+        const data = res.data;
 
-        if (!userId) {
-          console.error('UserId not found in localStorage');
+        if (!data || data === '') {
+          setHaveBox(true);
           return;
         }
 
-        const res = await api.post(
-          '/boxes/active/user',
-          { userId },
-          {
-            headers: { Authorization: true },
-          }
-        );
-
-        const data = res.data;
-        console.log(data);
-
         const mappedItems: CartItem[] = data.boxUserProducts.map((item: any) => ({
-          productId: item.product?.id, // chú ý lấy từ quan hệ product
+          productId: item.product?.id,
           name: item.product?.name || 'Không tên',
           image: item.product?.image,
           productWeight: item.product?.weight ? parseFloat(item.product.weight) : 0,
@@ -66,7 +54,7 @@ const FarmStand: React.FC = () => {
         }));
 
         setBoxData({
-          id: data.id, // box_user_id
+          id: data.id,
           name: data.box?.name || '',
           description: data.box?.description || '',
           totalWeight: data.box?.totalWeight ? parseFloat(data.box.totalWeight) : 0,
@@ -74,22 +62,20 @@ const FarmStand: React.FC = () => {
         });
       } catch (error) {
         console.error('Fetch error:', error);
+        setHaveBox(true);
       }
     };
 
     fetchData();
   }, []);
 
-  // xử lý tăng giảm số lượng
   const updateQuantity = (productId: string, delta: number) => {
     if (!boxData) return;
-
     const updatedProducts = boxData.products.map((item) =>
       item.productId === productId
         ? { ...item, quantity: Math.max(1, item.quantity + delta) }
         : item
     );
-
     setBoxData({ ...boxData, products: updatedProducts });
   };
 
@@ -98,17 +84,14 @@ const FarmStand: React.FC = () => {
 
     try {
       const payload = {
-        id: boxData.id, // box_user_id
+        id: boxData.id,
         products: boxData.products.map((p) => ({
           id: p.productId,
           quantity: p.quantity,
         })),
       };
 
-      await api.put('/boxes/user-products/update-list', payload, {
-        headers: { Authorization: true },
-      });
-
+      await api.put('/boxes/user-products/update', payload, { withAuth: true });
       toast.success('Cập nhật gói thành công!');
     } catch (error) {
       console.error(error);
@@ -116,9 +99,19 @@ const FarmStand: React.FC = () => {
     }
   };
 
+  if (haveBox) {
+    return (
+      <Section fullScreen>
+        <div className="container flex items-center justify-center mx-auto">
+          <p className="text-lg font-medium text-center text-text1">Khách hàng chưa đăng ký box</p>
+        </div>
+      </Section>
+    );
+  }
+
   if (!boxData) {
     return (
-      <Section>
+      <Section fullScreen>
         <div className="container mx-auto">Đang tải dữ liệu...</div>
       </Section>
     );
@@ -153,7 +146,6 @@ const FarmStand: React.FC = () => {
       key: 'quantity',
       render: (quantity: number, record) => {
         const disablePlus = usedWeight + record.productWeight > boxData.totalWeight;
-
         return (
           <div className="flex items-center gap-3 mt-4">
             <div className="flex items-center border rounded-md border-text4">
@@ -215,7 +207,7 @@ const FarmStand: React.FC = () => {
               strokeColor={progress < 50 ? '#d60016' : progress < 80 ? '#f4a259' : '#3da35d'}
             />
             <p className="m-0 text-sm text-text2">
-              Tổng: {usedWeight}g / {boxData.totalWeight}g
+              Tổng: {formatWeight(usedWeight, 'kg')} / {formatWeight(boxData.totalWeight, 'kg')}
             </p>
           </div>
         </div>

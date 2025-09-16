@@ -8,7 +8,7 @@ const MainLayout: React.FC = () => {
   return (
     <Fragment>
       <MainHeader />
-      <main>
+      <main className="page-height">
         <Outlet />
       </main>
       <MainFooter />

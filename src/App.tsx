@@ -8,6 +8,7 @@ import PrivateRoute from './routes/PrivateRoute';
 import AdminRoute from './routes/AdminRoute';
 import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
+import PaymentReturn from './pages/Purchase/PaymentReturn';
 
 // User pages
 const Home = lazy(() => import('./pages/Home/Home'));
@@ -55,6 +56,7 @@ function App() {
               <Route path="/purchase/:id" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
+              <Route path="/payment/return" element={<PaymentReturn />} />
             </Route>
 
             {/* Nhóm route Admin */}
