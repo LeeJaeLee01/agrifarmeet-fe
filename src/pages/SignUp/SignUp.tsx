@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { Input, Button, Select } from 'antd';
+import { Input, Button } from 'antd';
 import './SignUp.scss';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { TSignUp } from '../../types/TUser';
 import { useTitle } from '../../hooks/useTitle';
-
-const { Option } = Select;
+import api from '../../utils/api';
+import { toast } from 'react-toastify';
 
 const SignUpPage: React.FC = () => {
   useTitle('Đăng ký');
@@ -14,99 +14,64 @@ const SignUpPage: React.FC = () => {
   const {
     control,
     handleSubmit,
-    setValue,
+    watch,
     formState: { errors },
   } = useForm<TSignUp>();
 
-  const [provinces, setProvinces] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [wards, setWards] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const password = watch('password');
 
-  const [selectedProvince, setSelectedProvince] = useState<any>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
+  const onSubmit: SubmitHandler<TSignUp> = async (data) => {
+    try {
+      setLoading(true);
+      const response = await api.post('/users', {
+        username: data.username,
+        password: data.password,
+      });
 
-  // Lấy danh sách tỉnh
-  useEffect(() => {
-    fetch('https://provinces.open-api.vn/api/?depth=1')
-      .then((res) => res.json())
-      .then((data) => setProvinces(data));
-  }, []);
-
-  // Lấy danh sách huyện khi chọn tỉnh
-  useEffect(() => {
-    if (selectedProvince) {
-      fetch(`https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`)
-        .then((res) => res.json())
-        .then((data) => setDistricts(data.districts || []));
-    } else {
-      setDistricts([]);
-      setWards([]);
+      if (response.status === 201) {
+        toast.success('Đăng ký thành công, vui lòng đăng nhập tài khoản');
+        navigate('/login');
+      }
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast.error(error.response?.data?.message || 'Đăng ký thất bại');
+    } finally {
+      setLoading(false);
     }
-  }, [selectedProvince]);
-
-  // Lấy danh sách xã khi chọn huyện
-  useEffect(() => {
-    if (selectedDistrict) {
-      fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`)
-        .then((res) => res.json())
-        .then((data) => setWards(data.wards || []));
-    } else {
-      setWards([]);
-    }
-  }, [selectedDistrict]);
-
-  const onSubmit: SubmitHandler<TSignUp> = (data) => {
-    // Tạo chuỗi địa chỉ đầy đủ
-    const fullAddress = [data.addressDetail, data.ward, data.district, data.province]
-      .filter(Boolean)
-      .join(', ');
-
-    const finalData = {
-      ...data,
-      address: fullAddress,
-      addressDetail: undefined, // override lại address
-      province: undefined,
-      district: undefined,
-      ward: undefined,
-    };
-
-    console.log('Form Data:', finalData);
   };
 
   return (
     <div className="relative flex items-center justify-end w-full sign-up">
       <div className="absolute inset-0 -z-10 background">
-        <img
+        {/* <img
           src="https://foodtank.com/wp-content/uploads/2021/03/tim-mossholder-xDwEa2kaeJA-unsplash.jpg"
           alt="background"
           className="object-cover w-full h-full"
-        />
+        /> */}
       </div>
       <div className="flex items-center justify-center w-full h-full px-5 lg:justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10 m-5"
+          className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10 m-5 shadow-md"
         >
           <h1 className="mb-3 text-xl font-semibold text-center">Đăng ký</h1>
 
-          {/* Email */}
+          {/* Username */}
           <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Email</label>
+            <label className="inline-block mb-1 text-sm font-medium">Username</label>
             <Controller
-              name="email"
+              name="username"
               control={control}
               rules={{
-                required: 'Vui lòng nhập email',
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Email không hợp lệ',
-                },
+                required: 'Vui lòng nhập username',
               }}
               render={({ field }) => (
-                <Input {...field} placeholder="Nhập email" className="h-[52px]" />
+                <Input {...field} placeholder="Nhập username" className="h-[52px]" />
               )}
             />
-            {errors.email && <p className="text-xs text-red">{errors.email.message}</p>}
+            {errors.username && <p className="text-xs text-red">{errors.username.message}</p>}
           </div>
 
           {/* Password */}
@@ -126,142 +91,33 @@ const SignUpPage: React.FC = () => {
             {errors.password && <p className="text-xs text-red">{errors.password.message}</p>}
           </div>
 
-          {/* Phone */}
+          {/* Confirm Password */}
           <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Số điện thoại</label>
+            <label className="inline-block mb-1 text-sm font-medium">Nhập lại mật khẩu</label>
             <Controller
-              name="phone"
+              name="confirmPassword"
               control={control}
               rules={{
-                required: 'Vui lòng nhập số điện thoại',
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: 'Số điện thoại phải gồm 10 chữ số',
-                },
+                required: 'Vui lòng nhập lại mật khẩu',
+                validate: (value) => value === password || 'Mật khẩu nhập lại không khớp',
               }}
               render={({ field }) => (
-                <Input {...field} placeholder="Nhập số điện thoại" className="h-[52px]" />
+                <Input.Password {...field} placeholder="Nhập lại mật khẩu" className="h-[52px]" />
               )}
             />
-            {errors.phone && <p className="text-xs text-red">{errors.phone.message}</p>}
-          </div>
-
-          {/* Province */}
-          <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Tỉnh/Thành phố</label>
-            <Controller
-              name="province"
-              control={control}
-              rules={{ required: 'Chọn tỉnh/thành phố' }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  value={field.value || undefined}
-                  onChange={(val) => {
-                    const provinceObj = provinces.find((p) => p.code === val);
-                    setSelectedProvince(provinceObj);
-                    field.onChange(provinceObj?.name || null);
-
-                    // reset
-                    setValue('district', null);
-                    setValue('ward', null);
-                    setDistricts([]);
-                    setWards([]);
-                  }}
-                  placeholder="Chọn tỉnh"
-                  className="w-full h-[52px]"
-                >
-                  {provinces.map((p) => (
-                    <Option key={p.code} value={p.code}>
-                      {p.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.province && <p className="text-xs text-red">{errors.province.message}</p>}
-          </div>
-
-          {/* District */}
-          <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Quận/Huyện</label>
-            <Controller
-              name="district"
-              control={control}
-              rules={{ required: 'Chọn quận/huyện' }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  value={field.value || undefined}
-                  onChange={(val) => {
-                    const districtObj = districts.find((d) => d.code === val);
-                    setSelectedDistrict(districtObj);
-                    field.onChange(districtObj?.name || null);
-
-                    // reset
-                    setValue('ward', null);
-                  }}
-                  placeholder="Chọn quận/huyện"
-                  className="w-full h-[52px]"
-                  disabled={!districts.length}
-                >
-                  {districts.map((d) => (
-                    <Option key={d.code} value={d.code}>
-                      {d.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.district && <p className="text-xs text-red">{errors.district.message}</p>}
-          </div>
-
-          {/* Ward */}
-          <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Xã/Phường</label>
-            <Controller
-              name="ward"
-              control={control}
-              rules={{ required: 'Chọn xã/phường' }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  value={field.value || undefined}
-                  onChange={(val) => {
-                    const wardObj = wards.find((w) => w.name === val);
-                    field.onChange(wardObj?.name || null);
-                  }}
-                  placeholder="Chọn xã/phường"
-                  className="w-full h-[52px]"
-                  disabled={!wards.length}
-                >
-                  {wards.map((w) => (
-                    <Option key={w.code} value={w.name}>
-                      {w.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            />
-            {errors.ward && <p className="text-xs text-red">{errors.ward.message}</p>}
-          </div>
-
-          {/* Address detail */}
-          <div className="mb-4">
-            <label className="inline-block mb-1 text-sm font-medium">Địa chỉ chi tiết</label>
-            <Controller
-              name="addressDetail"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} placeholder="Số nhà, đường, thôn..." className="h-[52px]" />
-              )}
-            />
-            {errors.addressDetail && (
-              <p className="text-xs text-red">{errors.addressDetail.message}</p>
+            {errors.confirmPassword && (
+              <p className="text-xs text-red">{errors.confirmPassword.message}</p>
             )}
           </div>
 
-          <Button type="primary" htmlType="submit" block className="bg-green h-[52px]">
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            className="bg-green h-[52px]"
+            loading={loading}
+            disabled={loading}
+          >
             Đăng ký
           </Button>
 

@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
+import { formatWeight } from '../../utils/helper';
 
 type PurchaseForm = {
   boxId: string;
@@ -107,19 +108,17 @@ const PurchasePage: React.FC = () => {
 
     const payload = {
       boxId: boxInfo.id,
-      fullname: data.fullname,
-      email: data.email,
-      phone: data.phone,
-      address: fullAddress,
+      // fullname: data.fullname,
+      // email: data.email,
+      // phone: data.phone,
+      // address: fullAddress,
       timeActive: new Date().toISOString(),
       timeEnd: new Date(Date.now() + 10 * 7 * 24 * 60 * 60 * 1000).toISOString(),
     };
 
     try {
       setLoading(true);
-      const res = await api.post('/boxes/purchase', payload, {
-        headers: { Authorization: true },
-      });
+      const res = await api.post('/boxes/purchase', payload, { withAuth: true });
       toast.success('Đặt hàng thành công!');
       localStorage.setItem('userId', res?.data?.userId);
       navigate('/farm-stand');
@@ -327,7 +326,7 @@ const PurchasePage: React.FC = () => {
                       {boxInfo.description}
                     </p>
                     <p className="text-xs lg:text-sm text-text3">
-                      Khối lượng: <span>{boxInfo.totalWeight}g</span>
+                      Khối lượng: <span>{formatWeight(boxInfo.totalWeight, 'kg')}</span>
                     </p>
                   </div>
                 </div>
@@ -343,7 +342,7 @@ const PurchasePage: React.FC = () => {
                     <div>
                       <p className="mb-1 text-sm lg:mb-2 text-text2">{p.name}</p>
                       <p className="text-xs text-text3">
-                        Khối lượng tịnh: <span>{p.weight}g</span>
+                        Khối lượng tịnh: <span>{formatWeight(p.weight)}</span>
                       </p>
                     </div>
                   </div>

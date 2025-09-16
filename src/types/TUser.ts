@@ -4,14 +4,9 @@ export type TLogin = {
 };
 
 export type TSignUp = {
-  email: string;
+  username: string;
   password: string;
-  phone: string;
-  province: string | null;
-  district: string | null;
-  ward: string | null;
-  addressDetail: string;
-  address: string;
+  confirmPassword: string;
 };
 
 export type JwtPayload = {

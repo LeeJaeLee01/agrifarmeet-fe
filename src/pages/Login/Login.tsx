@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, message } from 'antd';
 import './Login.scss';
@@ -9,6 +9,7 @@ import { setToken, setUsername } from '../../store/slices/authSlice'; // đườ
 import { AppDispatch } from '../../store';
 import { useTitle } from '../../hooks/useTitle';
 import { TLogin } from '../../types/TUser';
+import { toast } from 'react-toastify';
 
 const LoginPage: React.FC = () => {
   useTitle('Đăng nhập');
@@ -19,6 +20,8 @@ const LoginPage: React.FC = () => {
     formState: { errors },
   } = useForm<TLogin>();
 
+  const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
 
   const navigate = useNavigate();
@@ -27,14 +30,14 @@ const LoginPage: React.FC = () => {
 
   const onSubmit: SubmitHandler<TLogin> = async (data) => {
     try {
-      const response = await api.post(
-        '/users/login',
-        { username: data.username, password: data.password },
-        { headers: { Authorization: false } }
-      );
+      setLoading(true);
+      const response = await api.post('/users/login', {
+        username: data.username,
+        password: data.password,
+      });
 
-      if (response.status === 201) {
-        message.success('Đăng nhập thành công');
+      if (response.status === 200) {
+        toast.success('Đăng nhập thành công');
 
         if (response.data.token) {
           // ✅ lưu vào Redux
@@ -50,23 +53,25 @@ const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      message.error(error.response?.data?.message || 'Đăng nhập thất bại');
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="relative flex items-center justify-end w-full login">
       <div className="absolute inset-0 -z-10 background">
-        <img
+        {/* <img
           src="https://foodtank.com/wp-content/uploads/2021/03/tim-mossholder-xDwEa2kaeJA-unsplash.jpg"
           alt="background"
           className="object-cover w-full h-full"
-        />
+        /> */}
       </div>
       <div className="flex items-center justify-center w-full h-full px-5 lg:justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10"
+          className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10 shadow-md"
         >
           <h1 className="mb-3 text-xl font-semibold text-center">Đăng nhập</h1>
 
@@ -109,6 +114,8 @@ const LoginPage: React.FC = () => {
             htmlType="submit"
             block
             className="bg-green h-[52px] text-base font-semibold"
+            loading={loading}
+            disabled={loading}
           >
             Đăng nhập
           </Button>

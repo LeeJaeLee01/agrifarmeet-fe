@@ -30,7 +30,7 @@ const MainHeader = () => {
       },
       {
         key: 'order',
-        label: <Link to="/order">Đơn mua</Link>,
+        label: <Link to="#">Đơn mua</Link>,
       },
       {
         key: 'logout',
@@ -88,9 +88,9 @@ const MainHeader = () => {
               </NavLink>
             )}
 
-            <NavLink to="/cart" className={navLinkClass}>
+            {/* <NavLink to="/cart" className={navLinkClass}>
               <ShoppingCartOutlined className="text-xl cursor-pointer" />
-            </NavLink>
+            </NavLink> */}
           </div>
 
           {/* Mobile toggle button */}
@@ -114,6 +114,10 @@ const MainHeader = () => {
               Trang chủ
             </NavLink>
 
+            <NavLink to="/farm-stand" className={navLinkClass} onClick={() => setOpen(false)}>
+              Farm stand
+            </NavLink>
+
             {token ? (
               <>
                 <NavLink
@@ -132,10 +136,6 @@ const MainHeader = () => {
                 Đăng nhập
               </NavLink>
             )}
-
-            <NavLink to="/cart" className={navLinkClass} onClick={() => setOpen(false)}>
-              Giỏ hàng
-            </NavLink>
 
             <span
               className={`${
