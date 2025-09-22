@@ -6,8 +6,8 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   withAuth?: boolean;
 }
 
-// const BASE_URL = 'http://localhost:3030';
-const BASE_URL = 'https://phungduccuong.site/api';
+const BASE_URL = 'http://localhost:3030';
+// const BASE_URL = 'https://phungduccuong.site/api';
 
 const api = axios.create({
   baseURL: BASE_URL,

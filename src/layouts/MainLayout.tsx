@@ -11,7 +11,7 @@ const MainLayout: React.FC = () => {
       <main className="page-height">
         <Outlet />
       </main>
-      <MainFooter />
+      {/* <MainFooter /> */}
     </Fragment>
   );
 };

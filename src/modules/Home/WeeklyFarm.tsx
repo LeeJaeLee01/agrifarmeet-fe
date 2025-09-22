@@ -29,11 +29,11 @@ const WeeklyFarm: React.FC = () => {
   }, []);
 
   return (
-    <Section>
+    <Section secondary>
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Các sản phẩm</h2>
-          <Link to="/" className="text-text3">
+          <Link to="/" className="text-text3 hover:text-orange2">
             Xem tất cả
           </Link>
         </div>

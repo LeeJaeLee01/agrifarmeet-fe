@@ -1,16 +1,9 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
-import Hero from '../../components/Hero/Hero';
 import './Home.scss';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import Section from '../../components/Section/Section';
-import {
-  CalendarOutlined,
-  QrcodeOutlined,
-  VideoCameraOutlined,
-  TruckOutlined,
-  CheckCircleOutlined,
-} from '@ant-design/icons';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { Button } from 'antd';
@@ -58,11 +51,8 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get<Box[]>('/boxes', {
-          headers: { Authorization: false }, // mặc định không cần token
-        });
+        const res = await api.get<Box[]>('/boxes');
         setBoxes(res.data);
-        console.log(res.data);
       } catch (err) {
         console.error('Error fetching boxes:', err);
       } finally {
@@ -81,8 +71,40 @@ const Home: React.FC = () => {
 
   return (
     <Fragment>
-      <Hero onScrollToPopular={scrollToPopular} />
-      <Section>
+      {/* Banner */}
+      <div className="banner relative w-full h-[350px] md:h-[650px] overflow-hidden">
+        <div className="absolute inset-0 background">
+          <img
+            src="/banner.jpg"
+            alt="Banner"
+            className="object-cover object-bottom w-full h-full"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        <div className="relative z-10 grid items-center justify-center h-full grid-cols-1 lg:justify-end lg:grid-cols-2">
+          <div className="flex items-center justify-center order-last w-full h-full">
+            <div className="w-full p-5 text-center rounded-lg md:max-w-md lg:p-10 lg:text-left">
+              <h1 className="text-2xl font-bold text-white lg:text-4xl">Tươi ngon từ nông trại</h1>
+              <p className="text-sm text-white lg:text-base">
+                Chúng tôi giao những nông sản tươi ngon nhất của mùa và các sản phẩm nông trại lành
+                mạnh đến tận cửa nhà bạn. Chúng tôi giúp bạn đơn giản hóa việc tận hưởng một cuộc
+                sống với thực phẩm tốt.
+              </p>
+              <Button
+                onClick={scrollToPopular}
+                type="primary"
+                size="large"
+                className="text-base font-semibold"
+              >
+                Xem các gói
+              </Button>
+            </div>
+          </div>
+          <div className="hidden lg:block"></div>
+        </div>
+      </div>
+      {/* Gói */}
+      <Section secondary>
         <div ref={popularRef} className="container mx-auto">
           <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
             Gói phổ biến
@@ -115,7 +137,7 @@ const Home: React.FC = () => {
                     type="primary"
                     block
                     size="large"
-                    className="text-base font-semibold bg-green"
+                    className="text-base font-semibold"
                     onClick={() => dispatch(setSelectedBoxId(box.id))}
                   >
                     Mua ngay
@@ -126,64 +148,172 @@ const Home: React.FC = () => {
           </div>
         </div>
       </Section>
-      <Section>
+      {/* How it work */}
+      <Section secondary>
         <div className="container mx-auto">
-          <div className="flex flex-col gap-5 md:flex-row">
-            <div className="w-full max-w-md">
-              <img
-                src="https://thanhnien.mediacdn.vn/Uploaded/ngocthanh/2015_10_25/trai-cay_CZLU.jpg?width=500"
-                alt=""
-                className="object-cover w-full rounded-lg shadow-md"
-              />
+          <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
+            Hoạt động như thế nào?
+          </h2>
+          <div className="grid grid-cols-1 mb-10 lg:gap-5 md:grid-cols-2 lg:mb-10 gap-y-5 lg:gap-y-10 lg:grid-cols-4">
+            <div className="flex flex-col items-center">
+              <img src="/illustration-fc-box.png" alt="" className="w-40 mb-3 text-center" />
+              <p className="w-full mb-5 text-2xl font-semibold text-text1">Lựa chọn gói</p>
+              <span className="text-sm text-text2">
+                Dù bạn là tín đồ trái cây, fan cứng của rau củ hay yêu thích tất cả, bạn đều có thể
+                chọn (và thay đổi) kích cỡ hộp nông sản phù hợp với mình.
+              </span>
             </div>
-            <div className="">
-              <p className="lg:text-base text-text1">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis est autem fugit
-                assumenda perspiciatis quaerat ad laudantium quam iure repellendus? Id harum
-                laudantium voluptatem atque dolore, quia ipsum assumenda vitae.
+            <div className="flex flex-col items-center">
+              <img src="/illustration-fc-swap.png" alt="" className="w-40 mb-3 text-center" />
+              <p className="w-full mb-5 text-2xl font-semibold text-text1">Tùy chỉnh sản phẩm</p>
+              <span className="text-sm text-text2">
+                Muốn thay đổi các loại nông sản trong đơn giao của bạn? Không vấn đề gì! Bạn có thể
+                dễ dàng thêm hoặc thay thế sản phẩm trong Farm Stand trực tuyến của chúng tôi.
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <img src="/illustration-fc-jam-eggs.png" alt="" className="w-40 mb-3 text-center" />
+              <p className="w-full mb-5 text-2xl font-semibold text-text1">
+                Thêm sản phẩm từ nông trại
               </p>
-              <Link to="/about" className="text-base font-semibold lg:text-lg text-green">
+              <span className="text-sm text-text2">
+                Thêm vào đơn giao của bạn những sản phẩm thủ công từ nông trại như mứt đặc biệt làm
+                thủ công, trứng gà thả vườn, dầu ô liu, mật ong địa phương, các sản phẩm sữa và
+                nhiều hơn nữa...
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <img src="/illustration-fc-door.png" alt="" className="w-40 mb-3 text-center" />
+              <p className="w-full mb-5 text-2xl font-semibold text-text1">
+                Giao hàng và tận hưởng
+              </p>
+              <span className="text-sm text-text2">
+                Khám phá sự tiện lợi và thú vị khi mở cửa đón nhận những hộp nông sản tươi ngon! Bạn
+                có thể bỏ qua một lần giao hoặc thay đổi tần suất giao hàng để phù hợp với lịch
+                trình hay kỳ nghỉ của mình.
+              </span>
+            </div>
+          </div>
+          <div className="w-full text-center">
+            <Link
+              to="/boxes"
+              className="text-base font-semibold lg:text-lg text-orange hover:text-orange2"
+            >
+              Xem thêm
+            </Link>
+          </div>
+        </div>
+      </Section>
+      {/* About */}
+      <div className="w-full mt-10 lg:mt-24 md:mt-20">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="h-[500px] hidden md:block">
+            <img src="/about.jpg" alt="" className="object-cover w-full h-full" />
+          </div>
+          <div className="flex items-center justify-center w-full h-full px-5 py-10 bg-beige lg:p-20">
+            <div className="text-center lg:text-left">
+              <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-brown">
+                Hành trình nông sản sạch
+              </h2>
+              <p className="max-w-md text-text2">
+                Chúng tôi khởi đầu từ niềm đam mê với nông sản sạch và hữu cơ, luôn tận tâm trồng
+                trọt và tuyển chọn những thực phẩm tươi ngon, đồng thời thúc đẩy các thực hành nông
+                nghiệp bền vững để mang đến giá trị tốt nhất cho cộng đồng.
+              </p>
+              <Link
+                to="/about"
+                className="text-base font-semibold lg:text-lg text-orange hover:text-orange2"
+              >
                 Xem thêm
               </Link>
             </div>
           </div>
         </div>
-      </Section>
-      <WeeklyFarm />
-      <Section>
+      </div>
+      {/* Blog */}
+      <Section secondary>
         <div className="container mx-auto">
-          <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
-            Vì sao CSA khác biệt?
-          </h2>
-          <div className="grid grid-cols-2 gap-5 mb-10 lg:mb-10 gap-y-10 lg:grid-cols-4">
-            <div className="text-center lg:text-left">
-              <CalendarOutlined className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-              <p className="mb-2 text-base font-medium lg:text-lg text-text1">Đặt gói mùa vụ</p>
-              <span className="text-xs lg:text-sm text-text2">Ổn định giá</span>
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
+              Thông tin mới và Blog
+            </h2>
+            <Link to="/" className="text-text3 hover:text-orange2">
+              Xem tất cả
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 mb-10 lg:gap-5 md:grid-cols-2 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-4">
+            <div className="rounded-lg shadow-md">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7K5A41Y2QT8db6KbhiE8xrCzSQCNk_7egIA&s"
+                alt=""
+                className="object-cover w-full h-40 rounded-lg"
+              />
+              <div className="p-3">
+                <p className="text-sm font-medium lg:text-base line-clamp-2 text-text1">
+                  Công thức nấu ăn cà tím ngon nhất
+                </p>
+                <span className="text-xs text-text2 line-clamp-3">
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Praesentium similique
+                  aut possimus neque nemo nobis accusamus porro dicta dolorum et. Est odit explicabo
+                  doloremque quasi sed, nam corrupti delectus. Consequuntur.
+                </span>
+              </div>
             </div>
-            <div className="text-center lg:text-left">
-              <QrcodeOutlined className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-              <p className="mb-2 text-base font-medium lg:text-lg text-text1">QR truy xuất</p>
-              <span className="text-xs lg:text-sm text-text2">Minh bạch</span>
+            <div className="rounded-lg shadow-md">
+              <img
+                src="https://cdn.tgdd.vn/Files/2019/11/11/1217643/trung-ga-va-mot-so-mon-an-thuoc-giup-chua-benh-hieu-qua-201911110959178469.jpg"
+                alt=""
+                className="object-cover w-full h-40 rounded-lg"
+              />
+              <div className="p-3">
+                <p className="text-sm font-medium lg:text-base line-clamp-2 text-text1">
+                  Trứng gà rất tốt cho sức khỏe
+                </p>
+                <span className="text-xs text-text2 line-clamp-3">
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Praesentium similique
+                  aut possimus neque nemo nobis accusamus porro dicta dolorum et. Est odit explicabo
+                  doloremque quasi sed, nam corrupti delectus. Consequuntur.
+                </span>
+              </div>
             </div>
-            <div className="text-center lg:text-left">
-              <VideoCameraOutlined className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-              <p className="mb-2 text-base font-medium lg:text-lg text-text1">
-                Livestream/ Farm tour
-              </p>
-              <span className="text-xs lg:text-sm text-text2">Ổn định giá</span>
+            <div className="rounded-lg shadow-md">
+              <img
+                src="https://assets.unileversolutions.com/v1/60221576.png"
+                alt=""
+                className="object-cover w-full h-40 rounded-lg"
+              />
+              <div className="p-3">
+                <p className="text-sm font-medium lg:text-base line-clamp-2 text-text1">
+                  Danh sách thực phẩm sắp tới
+                </p>
+                <span className="text-xs text-text2 line-clamp-3">
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Praesentium similique
+                  aut possimus neque nemo nobis accusamus porro dicta dolorum et. Est odit explicabo
+                  doloremque quasi sed, nam corrupti delectus. Consequuntur.
+                </span>
+              </div>
             </div>
-            <div className="text-center lg:text-left">
-              <TruckOutlined className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-              <p className="mb-2 text-base font-medium lg:text-lg text-text1">Giao định kỳ</p>
-              <span className="text-xs lg:text-sm text-text2">Tiện lợi</span>
+            <div className="rounded-lg shadow-md">
+              <img
+                src="https://kimnonggoldstar.vn/wp-content/uploads/2023/03/so-luoc-ve-cay-du-du-kimnonggoldtar-vn-5.jpg"
+                alt=""
+                className="object-cover w-full h-40 rounded-lg"
+              />
+              <div className="p-3">
+                <p className="text-sm font-medium lg:text-base line-clamp-2 text-text1">
+                  Đu đủ Thái giá rẻ
+                </p>
+                <span className="text-xs text-text2 line-clamp-3">
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Praesentium similique
+                  aut possimus neque nemo nobis accusamus porro dicta dolorum et. Est odit explicabo
+                  doloremque quasi sed, nam corrupti delectus. Consequuntur.
+                </span>
+              </div>
             </div>
           </div>
-          <Link to="/" className="text-base font-semibold lg:text-lg text-green">
-            Tìm hiểu CSA
-          </Link>
         </div>
       </Section>
+      <WeeklyFarm />
     </Fragment>
   );
 };

@@ -10,12 +10,8 @@ const Section: React.FC<SectionProps> = ({ children, secondary = false, fullScre
   const bgClass = secondary && 'bg-[#f6f6f6]';
 
   return (
-    <section
-      className={`w-full px-5 lg:mt-24 md:mt-20 mt-10 lg:px-20 section ${bgClass} ${
-        fullScreen && 'page-height'
-      } `}
-    >
-      {children}
+    <section className={`w-full section ${bgClass} ${fullScreen && 'page-height'} overflow-hidden`}>
+      <div className="px-5 mt-10 content lg:mt-24 md:mt-20 lg:px-20">{children}</div>
     </section>
   );
 };

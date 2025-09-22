@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './index.scss';
@@ -9,12 +8,22 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { Provider } from 'react-redux';
 import { store } from './store/index';
+import { ConfigProvider } from 'antd';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <BrowserRouter>
     <Provider store={store}>
-      <App />
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: '#3da35d',
+            colorPrimaryHover: '#1DC071',
+          },
+        }}
+      >
+        <App />
+      </ConfigProvider>
       <ToastContainer />
     </Provider>
   </BrowserRouter>

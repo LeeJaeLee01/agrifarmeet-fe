@@ -20,6 +20,7 @@ const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
 const Purchase = lazy(() => import('./pages/Purchase/Purchase'));
 const Order = lazy(() => import('./pages/Order/Order'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
+const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
 
 // Admin pages
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
@@ -55,6 +56,7 @@ function App() {
               />
               <Route path="/purchase/:id" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
+              <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
               <Route path="/payment/return" element={<PaymentReturn />} />
             </Route>

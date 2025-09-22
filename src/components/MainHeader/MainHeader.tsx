@@ -1,5 +1,5 @@
 import { MenuProps, Dropdown, Layout } from 'antd';
-import { MenuOutlined, CloseOutlined, BellOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { MenuOutlined, CloseOutlined, BellOutlined } from '@ant-design/icons';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './MainHeader.scss';
 import { RootState } from '../../store';
@@ -44,7 +44,7 @@ const MainHeader = () => {
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block px-3 py-2 text-[16px] transition-colors duration-200 ${
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
       isActive ? 'text-green font-semibold' : 'text-gray-700'
     }`;
 
@@ -58,7 +58,7 @@ const MainHeader = () => {
           {/* Logo */}
           <div className="flex items-center gap-10 logo">
             <NavLink to="/">
-              <img src="/logo.png" alt="Logo" className="h-12" />
+              <img src="/logo.png" alt="Logo" className="h-20 py-2" />
             </NavLink>
             {/* <p className="m-0 text-green">Minh bạch - an toàn - bền vững</p> */}
           </div>
@@ -71,6 +71,14 @@ const MainHeader = () => {
 
             <NavLink to="/farm-stand" className={navLinkClass}>
               Farm stand
+            </NavLink>
+
+            <NavLink to="/event" className={navLinkClass}>
+              Sự kiện
+            </NavLink>
+
+            <NavLink to="/about" className={navLinkClass}>
+              Về chúng tôi
             </NavLink>
 
             {token ? (
@@ -118,6 +126,14 @@ const MainHeader = () => {
               Farm stand
             </NavLink>
 
+            <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
+              Sự kiện
+            </NavLink>
+
+            <NavLink to="/about" className={navLinkClass} onClick={() => setOpen(false)}>
+              Về chúng tôi
+            </NavLink>
+
             {token ? (
               <>
                 <NavLink
@@ -140,7 +156,7 @@ const MainHeader = () => {
             <span
               className={`${
                 token ? 'flex' : 'hidden'
-              } px-3 py-2 items-center h-20 text-base cursor-pointer text-red`}
+              } items-center h-16 text-base cursor-pointer text-red`}
               onClick={handleLogout}
             >
               Đăng xuất
