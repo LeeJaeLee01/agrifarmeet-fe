@@ -22,6 +22,7 @@ interface BoxData {
   description: string;
   totalWeight: number;
   products: CartItem[];
+  isTrial: boolean;
 }
 
 const FarmStand: React.FC = () => {
@@ -59,6 +60,7 @@ const FarmStand: React.FC = () => {
           description: data.box?.description || '',
           totalWeight: data.box?.totalWeight ? parseFloat(data.box.totalWeight) : 0,
           products: mappedItems,
+          isTrial: data.box.isTrial,
         });
       } catch (error) {
         console.error('Fetch error:', error);
@@ -200,12 +202,14 @@ const FarmStand: React.FC = () => {
             <span className="text-text2">{boxData.description}</span>
           </div>
           <div className="flex justify-between w-full font-semibold text-right lg:block lg:justify-start">
-            <Progress
-              percent={Math.round(progress)}
-              status="active"
-              className="w-full max-w-[150px] lg:mb-5"
-              strokeColor={progress < 50 ? '#d60016' : progress < 80 ? '#f4a259' : '#3da35d'}
-            />
+            {!boxData.isTrial && (
+              <Progress
+                percent={Math.round(progress)}
+                status="active"
+                className="w-full max-w-[150px] lg:mb-5"
+                strokeColor={progress < 50 ? '#d60016' : progress < 80 ? '#f4a259' : '#3da35d'}
+              />
+            )}
             <p className="m-0 text-sm text-text2">
               Tổng: {formatWeight(usedWeight, 'kg')} / {formatWeight(boxData.totalWeight, 'kg')}
             </p>

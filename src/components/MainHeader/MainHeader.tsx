@@ -30,7 +30,7 @@ const MainHeader = () => {
       },
       {
         key: 'order',
-        label: <Link to="#">Đơn mua</Link>,
+        label: <Link to="/shipping">Đơn mua</Link>,
       },
       {
         key: 'logout',

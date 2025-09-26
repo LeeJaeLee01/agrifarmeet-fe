@@ -12,35 +12,12 @@ import { setSelectedBoxId } from '../../store/slices/boxSlice';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
 import { formatWeight } from '../../utils/helper';
-
-type Box = {
-  id: string;
-  name: string;
-  description: string;
-  status: string;
-  price: string;
-  image: string;
-  totalWeight: string;
-  expiredAt: null;
-  createdAt: string;
-  updatedAt: string;
-  products: Product[];
-};
-
-type Product = {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  image: string;
-  weight: string;
-  categoryId: string;
-};
+import { TBox } from '../../types/TBox';
 
 const Home: React.FC = () => {
   useTitle('Trang chủ - Agrifarmeet');
 
-  const [boxes, setBoxes] = useState<Box[]>([]);
+  const [boxes, setBoxes] = useState<TBox[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
 
@@ -51,7 +28,7 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get<Box[]>('/boxes');
+        const res = await api.get<TBox[]>('/boxes');
         setBoxes(res.data);
       } catch (err) {
         console.error('Error fetching boxes:', err);
@@ -82,7 +59,7 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         </div>
         <div className="relative z-10 grid items-center justify-center h-full grid-cols-1 lg:justify-end lg:grid-cols-2">
-          <div className="flex items-center justify-center order-last w-full h-full">
+          <div className="flex items-center justify-center w-full h-full">
             <div className="w-full p-5 text-center rounded-lg md:max-w-md lg:p-10 lg:text-left">
               <h1 className="text-2xl font-bold text-white lg:text-4xl">Tươi ngon từ nông trại</h1>
               <p className="text-sm text-white lg:text-base">
@@ -112,26 +89,28 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-3">
             {boxes.map((box) => (
               <div key={box.id} className="p-4 bg-white rounded-lg shadow-md">
-                <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
-                  {box.name}
-                </p>
-                <p>{box.description}</p>
-                <ul className="mb-5">
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span className="truncate">
-                      {box.products.map((product) => product.name).join(', ')}
-                    </span>
-                  </li>
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span>Khối lượng {formatWeight(box.totalWeight, 'kg')}</span>
-                  </li>
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span>{box.expiredAt} tuần</span>
-                  </li>
-                </ul>
+                <Link to={`/boxes/${box.id}`} className="block hover:text-inherit h-fit">
+                  <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
+                    {box.name}
+                  </p>
+                  <p className="h-11 line-clamp-2">{box.description}</p>
+                  <ul className="mb-5">
+                    <li className="flex gap-2 mb-3">
+                      <CheckCircleOutlined className="text-base text-orange" />
+                      <span className="truncate">
+                        {box.products.map((product) => product.name).join(', ')}
+                      </span>
+                    </li>
+                    <li className="flex gap-2 mb-3">
+                      <CheckCircleOutlined className="text-base text-orange" />
+                      <span>Khối lượng {formatWeight(box.totalWeight, 'kg')}</span>
+                    </li>
+                    <li className="flex gap-2 mb-3">
+                      <CheckCircleOutlined className="text-base text-orange" />
+                      <span>{box.expiredAt} tuần</span>
+                    </li>
+                  </ul>
+                </Link>
                 <Link to={`/purchase/${box.id}`}>
                   <Button
                     type="primary"

@@ -21,12 +21,14 @@ const Purchase = lazy(() => import('./pages/Purchase/Purchase'));
 const Order = lazy(() => import('./pages/Order/Order'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
+const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
 
 // Admin pages
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories'));
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
+const AdminShipping = lazy(() => import('./pages/admin/Shipping/Shipping'));
 
 function App() {
   return (
@@ -59,6 +61,7 @@ function App() {
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
               <Route path="/payment/return" element={<PaymentReturn />} />
+              <Route path="/shipping" element={<Shipping />} />
             </Route>
 
             {/* Nhóm route Admin */}
@@ -75,6 +78,7 @@ function App() {
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="boxes" element={<AdminBoxes />} />
+              <Route path="shippings" element={<AdminShipping />} />
             </Route>
             <Route
               path="/admin/login"

@@ -13,4 +13,5 @@ export type TBox = {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  isTrial: boolean;
 };

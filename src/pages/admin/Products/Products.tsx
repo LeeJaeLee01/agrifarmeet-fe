@@ -156,7 +156,8 @@ const Products: React.FC = () => {
       render: (_: any, record: TProduct) => (
         <Space>
           <Button
-            type="link"
+            color="primary"
+            variant="text"
             icon={<EditOutlined />}
             onClick={() => {
               setIsEdit(true);
@@ -177,7 +178,7 @@ const Products: React.FC = () => {
             okText="Xóa"
             cancelText="Hủy"
           >
-            <Button type="link" danger icon={<DeleteOutlined />} />
+            <Button color="danger" variant="text" icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),

@@ -10,6 +10,7 @@ import {
   Popconfirm,
   Select,
   InputNumber,
+  Card,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -53,6 +54,8 @@ const Boxes: React.FC = () => {
   const [currentBox, setCurrentBox] = useState<Box | null>(null);
 
   const [form] = Form.useForm();
+
+  const imageValue = Form.useWatch('image', form);
 
   // Normalize dữ liệu box trả về từ API
   const normalizeBox = (raw: any): Box => {
@@ -221,14 +224,19 @@ const Boxes: React.FC = () => {
       width: 150,
       render: (_: any, record: Box) => (
         <Space>
-          <Button type="link" icon={<EditOutlined />} onClick={() => openEditModal(record)} />
+          <Button
+            color="primary"
+            variant="text"
+            icon={<EditOutlined />}
+            onClick={() => openEditModal(record)}
+          />
           <Popconfirm
             title="Xóa gói?"
             onConfirm={() => handleDelete(record.id)}
             okText="Xóa"
             cancelText="Hủy"
           >
-            <Button type="link" danger icon={<DeleteOutlined />} />
+            <Button color="danger" variant="text" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
@@ -323,6 +331,21 @@ const Boxes: React.FC = () => {
           <Form.Item name="image" label="Ảnh (URL)">
             <Input />
           </Form.Item>
+
+          {/* Preview ảnh chỉ hiện khi có link */}
+          {imageValue && (
+            <Card
+              hoverable
+              style={{
+                width: 240,
+                height: 300,
+                backgroundImage: `url('${imageValue}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: 16,
+              }}
+            />
+          )}
 
           <Form.Item
             name="productIds"
