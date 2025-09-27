@@ -1,67 +1,56 @@
 import React from 'react';
 import './MainFooter.scss';
 import { Link } from 'react-router-dom';
-import { FacebookOutlined, TikTokOutlined } from '@ant-design/icons';
+import { FacebookOutlined, MailOutlined, PhoneOutlined, TikTokOutlined } from '@ant-design/icons';
 
 const MainFooter: React.FC = () => {
   return (
-    <footer className="w-full px-5 mt-10 lg:mt-24 md:mt-20 lg:px-20 bg-green">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 pt-10 text-white gap-y-10 lg:pt-20 md:grid-cols-2 lg:grid-cols-3">
-          <div className="logo-footer">
-            <img src="/logo-footer.png" alt="" className="h-20" />
+    <footer className="w-full bg-green">
+      <div className="bg-secondary-green">
+        <div className="flex items-center justify-center gap-5 p-5 content">
+          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
+            <FacebookOutlined className="text-2xl" />
           </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="nav-footer">
-              <p className="text-lg font-medium">Menu</p>
-              <ul>
-                <li className="mb-2">
-                  <Link to="/about">CSA</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">HTX</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">Về chúng tôi</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">Điều khoản</Link>
-                </li>
-              </ul>
-            </div>
-            <div className="nav-footer">
-              <p className="text-lg font-medium">Menu</p>
-              <ul>
-                <li className="mb-2">
-                  <Link to="/about">CSA</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">HTX</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">Về chúng tôi</Link>
-                </li>
-                <li className="mb-2">
-                  <Link to="/about">Điều khoản</Link>
-                </li>
-              </ul>
-            </div>
+          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
+            <TikTokOutlined className="text-2xl" />
           </div>
-          <div className="contact">
-            <p className="text-lg font-medium">Liên hệ</p>
-            <div className="flex items-center gap-5">
-              <FacebookOutlined className="flex items-center justify-center w-10 h-10 text-3xl lg:text-6xl" />
-              <TikTokOutlined className="flex items-center justify-center w-10 h-10 text-3xl lg:text-6xl" />
-              <img
-                src="https://img.icons8.com/?size=100&id=0m71tmRjlxEe&format=png&color=000000"
-                alt=""
-                className="flex items-center justify-center w-12 h-12 p-1"
-              />
-            </div>
+          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
+            <MailOutlined className="text-2xl" />
+          </div>
+          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
+            <img
+              src="https://page.widget.zalo.me/static/images/2.0/Logo.svg"
+              alt=""
+              className="flex items-center justify-center w-6 h-6"
+            />
+          </div>
+          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
+            <PhoneOutlined className="text-2xl" />
           </div>
         </div>
-        <div className="flex items-center justify-center h-10 mt-10 text-center text-white">
-          <p className="p-0 m-0">© Agrifarmeet</p>
+      </div>
+      <div className="p-10 content">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="w-full">
+            <img src="/logo-footer.png" alt="" className="w-80" />
+          </div>
+          <div className="text-white">
+            <p>Menu</p>
+            <ul>
+              <li className="mb-2">
+                <Link to="/">Trang chủ</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/farm-stand">Farm stand</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/event">Sự kiện</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/about">Về chúng tôi</Link>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </footer>

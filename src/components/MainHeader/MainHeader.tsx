@@ -5,22 +5,41 @@ import './MainHeader.scss';
 import { RootState } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearToken } from '../../store/slices/authSlice';
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 
 const { Header } = Layout;
 
-const MainHeader = () => {
+type MainHeaderProps = {
+  sticky?: boolean;
+};
+
+const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
   const token = useSelector((state: RootState) => state.auth.token);
   const username = useSelector((state: RootState) => state.auth.username);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
+  const [isFixed, setIsFixed] = useState(false);
+  const headerRef = useRef<HTMLDivElement | null>(null);
   const handleLogout = () => {
     dispatch(clearToken());
     navigate('/');
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (sticky) return;
+    const handleScroll = () => {
+      const height = headerRef.current?.offsetHeight || 96;
+      if (window.scrollY > height) {
+        setIsFixed(true);
+      } else {
+        setIsFixed(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [sticky]);
 
   const userMenu: MenuProps = {
     items: [
@@ -45,22 +64,24 @@ const MainHeader = () => {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
-      isActive ? 'text-green font-semibold' : 'text-gray-700'
+      isActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
+
+  const headerClass = `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${
+    open ? 'header-drop' : ''
+  }`;
+
+  const logoSrc = sticky || isFixed || open ? '/logo.png' : '/logo-white.png';
 
   return (
     <Fragment>
-      <div className="flex items-center justify-center w-full h-10 text-center text-white bg-green">
-        Minh bạch - an toàn - bền vững
-      </div>
-      <Header className="h-auto bg-white shadow-sm header">
-        <div className="container flex items-center justify-between mx-auto">
+      <header className={headerClass} ref={headerRef}>
+        <div className="flex items-center justify-between content">
           {/* Logo */}
           <div className="flex items-center gap-10 logo">
             <NavLink to="/">
-              <img src="/logo.png" alt="Logo" className="h-20 py-2" />
+              <img src={logoSrc} alt="Logo" className="h-20 py-4 lg:h-24" />
             </NavLink>
-            {/* <p className="m-0 text-green">Minh bạch - an toàn - bền vững</p> */}
           </div>
 
           {/* Menu desktop */}
@@ -68,15 +89,12 @@ const MainHeader = () => {
             <NavLink to="/" className={navLinkClass}>
               Trang chủ
             </NavLink>
-
             <NavLink to="/farm-stand" className={navLinkClass}>
               Farm stand
             </NavLink>
-
             <NavLink to="/event" className={navLinkClass}>
               Sự kiện
             </NavLink>
-
             <NavLink to="/about" className={navLinkClass}>
               Về chúng tôi
             </NavLink>
@@ -95,10 +113,6 @@ const MainHeader = () => {
                 Đăng nhập
               </NavLink>
             )}
-
-            {/* <NavLink to="/cart" className={navLinkClass}>
-              <ShoppingCartOutlined className="text-xl cursor-pointer" />
-            </NavLink> */}
           </div>
 
           {/* Mobile toggle button */}
@@ -113,27 +127,23 @@ const MainHeader = () => {
 
         {/* Mobile menu dropdown */}
         <div
-          className={`absolute border border-gray max-h-fit -z-10 left-0 w-full shadow-sm transition-all overflow-hidden bg-white top-20 md:hidden bg-gray-50 ${
+          className={`absolute max-h-fit -z-10 left-0 w-full shadow-sm transition-all overflow-hidden bg-white top-20 md:hidden bg-gray-50 ${
             open ? 'h-screen' : 'h-0'
           }`}
         >
-          <nav className="flex flex-col gap-1 px-5 py-3">
+          <nav className="flex flex-col gap-1 px-5 py-10 space-y-5 text-text1">
             <NavLink to="/" className={navLinkClass} onClick={() => setOpen(false)}>
               Trang chủ
             </NavLink>
-
             <NavLink to="/farm-stand" className={navLinkClass} onClick={() => setOpen(false)}>
               Farm stand
             </NavLink>
-
             <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
               Sự kiện
             </NavLink>
-
             <NavLink to="/about" className={navLinkClass} onClick={() => setOpen(false)}>
               Về chúng tôi
             </NavLink>
-
             {token ? (
               <>
                 <NavLink
@@ -152,18 +162,17 @@ const MainHeader = () => {
                 Đăng nhập
               </NavLink>
             )}
-
             <span
               className={`${
                 token ? 'flex' : 'hidden'
-              } items-center h-16 text-base cursor-pointer text-red`}
+              } items-center text-base cursor-pointer text-red`}
               onClick={handleLogout}
             >
               Đăng xuất
             </span>
           </nav>
         </div>
-      </Header>
+      </header>
     </Fragment>
   );
 };
