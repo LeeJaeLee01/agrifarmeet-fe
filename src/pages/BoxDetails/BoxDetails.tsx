@@ -9,6 +9,7 @@ import { TProduct } from '../../types/TProduct';
 import { QRCodeCanvas } from 'qrcode.react';
 import * as htmlToImage from 'html-to-image';
 import MainHeader from '../../components/MainHeader/MainHeader';
+import MainFooter from '../../components/MainFooter/MainFooter';
 
 const BoxDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +54,7 @@ const BoxDetails: React.FC = () => {
   return (
     <Fragment>
       <MainHeader sticky />
-      <Section>
+      <Section spaceBottom>
         <div className="container mx-auto">
           {loading ? (
             <div className="flex justify-center py-20">
@@ -145,6 +146,7 @@ const BoxDetails: React.FC = () => {
           )}
         </div>
       </Section>
+      <MainFooter />
     </Fragment>
   );
 };

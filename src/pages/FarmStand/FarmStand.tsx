@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import Section from '../../components/Section/Section';
 import { Button, Progress, Table } from 'antd';
 import { Link } from 'react-router-dom';
@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
 import { formatWeight } from '../../utils/helper';
+import MainHeader from '../../components/MainHeader/MainHeader';
+import MainFooter from '../../components/MainFooter/MainFooter';
 
 interface CartItem {
   productId: string;
@@ -191,49 +193,55 @@ const FarmStand: React.FC = () => {
   ];
 
   return (
-    <Section>
-      <div className="container mx-auto">
-        <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Farm Stand</h2>
-        <div className="flex flex-col justify-between w-full gap-5 mb-10 lg:flex-row item-center">
-          <div className="w-full max-w-lg">
-            <p className="mb-3 text-lg font-semibold lg:mb-5 lg:text-2xl text-text1">
-              {boxData.name}
-            </p>
-            <span className="text-text2">{boxData.description}</span>
+    <Fragment>
+      <MainHeader sticky />
+      <Section spaceBottom>
+        <div className="container mx-auto">
+          <h2 className="section-title">Farm Stand</h2>
+          <div className="flex flex-col justify-between w-full gap-5 mb-10 lg:flex-row item-center">
+            <div className="w-full max-w-lg">
+              <p className="mb-3 text-lg font-semibold lg:mb-5 lg:text-2xl text-text1">
+                {boxData.name}
+              </p>
+              <span className="text-text2">{boxData.description}</span>
+            </div>
+            <div className="flex justify-between w-full font-semibold text-right lg:block lg:justify-start">
+              {!boxData.isTrial && (
+                <Progress
+                  percent={Math.round(progress)}
+                  status="active"
+                  className="w-full max-w-[150px] lg:mb-5"
+                  strokeColor={progress < 50 ? '#d60016' : progress < 80 ? '#f4a259' : '#3da35d'}
+                />
+              )}
+              <p className="m-0 text-sm text-text2">
+                Tổng: {formatWeight(usedWeight, 'kg')} / {formatWeight(boxData.totalWeight, 'kg')}
+              </p>
+            </div>
           </div>
-          <div className="flex justify-between w-full font-semibold text-right lg:block lg:justify-start">
-            {!boxData.isTrial && (
-              <Progress
-                percent={Math.round(progress)}
-                status="active"
-                className="w-full max-w-[150px] lg:mb-5"
-                strokeColor={progress < 50 ? '#d60016' : progress < 80 ? '#f4a259' : '#3da35d'}
-              />
-            )}
-            <p className="m-0 text-sm text-text2">
-              Tổng: {formatWeight(usedWeight, 'kg')} / {formatWeight(boxData.totalWeight, 'kg')}
-            </p>
-          </div>
+          <Table
+            dataSource={boxData.products}
+            columns={columns}
+            rowKey="productId"
+            pagination={false}
+            scroll={{ x: 'max-content' }}
+            className="mb-10"
+          />
+          {!boxData.isTrial && (
+            <div className="flex justify-end pb-10">
+              <Button
+                type="primary"
+                className="text-white rounded-lg bg-green"
+                onClick={handleUpdateList}
+              >
+                Điều chỉnh thông tin gói
+              </Button>
+            </div>
+          )}
         </div>
-        <Table
-          dataSource={boxData.products}
-          columns={columns}
-          rowKey="productId"
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          className="mb-10"
-        />
-        <div className="flex justify-end pb-10">
-          <Button
-            type="primary"
-            className="text-white rounded-lg bg-green"
-            onClick={handleUpdateList}
-          >
-            Điều chỉnh thông tin gói
-          </Button>
-        </div>
-      </div>
-    </Section>
+      </Section>
+      <MainFooter />
+    </Fragment>
   );
 };
 

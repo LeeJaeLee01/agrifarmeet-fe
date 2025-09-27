@@ -5,16 +5,21 @@ import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import {
   CalendarFilled,
+  CalendarOutlined,
   CheckCircleOutlined,
   QrcodeOutlined,
   TruckFilled,
+  TruckOutlined,
   VideoCameraFilled,
+  VideoCameraOutlined,
 } from '@ant-design/icons';
-import { formatWeight } from '../../utils/helper';
+import { formatVND, formatWeight } from '../../utils/helper';
 import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
+import MainHeader from '../../components/MainHeader/MainHeader';
+import MainFooter from '../../components/MainFooter/MainFooter';
 
 const Boxes: React.FC = () => {
   const [boxes, setBoxes] = useState<TBox[]>([]);
@@ -36,108 +41,149 @@ const Boxes: React.FC = () => {
 
   return (
     <Fragment>
-      <div className="banner relative w-full h-fit md:h-[500px] overflow-hidden">
-        <div className="absolute inset-0 background">
-          <img src="/banner-box.jpg" alt="" className="object-cover object-bottom w-full h-full" />
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        </div>
-        <div className="relative z-10 items-center justify-center h-full">
-          <div className="flex items-center justify-center order-last w-full h-full">
-            <div className="w-full px-5 py-10 text-center rounded-lg lg:p-10 lg:text-left">
-              <h2 className="text-2xl font-bold text-center text-white lg:mb-10 md:text-3xl lg:text-4xl">
-                Vì sao CSA khác biệt?
-              </h2>
-              <div className="grid grid-cols-2 gap-5 lg:mb-10 gap-y-10 lg:grid-cols-4">
-                <div className="flex flex-col items-center justify-center text-center">
-                  <CalendarFilled className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-                  <p className="mb-2 text-base font-medium text-white lg:text-lg">Đặt gói mùa vụ</p>
-                  <span className="text-xs text-white lg:text-sm">Ổn định giá</span>
+      <MainHeader sticky />
+
+      <Section>
+        <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
+          Lựa chọn gói dành riêng cho bạn
+        </h2>
+        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+          Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
+        </p>
+        <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
+          {boxes.map((box) => (
+            <div
+              key={box.id}
+              className="flex flex-col justify-between h-full p-8 bg-white border sm:p-10 rounded-3xl border-gray-border"
+            >
+              <Link to={`/boxes/${box.id}`} className="hover:text-inherit">
+                <div className="flex items-start justify-between">
+                  <p className="m-0 font-semibold text-base/7 text-orange">{box.name}</p>
+                  {box.isTrial && (
+                    <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
+                      Dùng thử
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col items-center justify-center text-center">
-                  <QrcodeOutlined className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-                  <p className="mb-2 text-base font-medium text-white lg:text-lg">QR truy xuất</p>
-                  <span className="text-xs text-white lg:text-sm">Minh bạch</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-center">
-                  <VideoCameraFilled className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-                  <p className="mb-2 text-base font-medium text-white lg:text-lg">
-                    Livestream/ Farm tour
-                  </p>
-                  <span className="text-xs text-white lg:text-sm">Tin cậy</span>
-                </div>
-                <div className="flex flex-col items-center justify-center text-center">
-                  <TruckFilled className="mb-5 text-6xl text-center md:text-7xl lg:text-8xl text-green" />
-                  <p className="mb-2 text-base font-medium text-white lg:text-lg">Giao định kỳ</p>
-                  <span className="text-xs text-white lg:text-sm">Tiện lợi</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Section secondary>
-        <div className="container mx-auto">
-          <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
-            Tất cả gói
-          </h1>
-          <div className="grid grid-cols-1 mb-10 lg:gap-5 lg:mb-10 gap-y-3 lg:gap-y-10 lg:grid-cols-3">
-            {boxes.map((box) => (
-              <div key={box.id} className="p-4 bg-white rounded-lg shadow-md">
-                <p className="mb-3 text-lg font-semibold text-center lg:mb-5 lg:text-2xl text-text1">
-                  {box.name}
+                <p className="m-0 mt-4 text-sm/6 text-text2">{box.description}</p>
+                <p className="flex items-baseline m-0 mt-6 gap-x-2">
+                  <span className="text-4xl font-semibold tracking-tight">
+                    {formatVND(box.price)}
+                  </span>
+                  <span className="text-sm">/{box.expiredAt} tuần</span>
                 </p>
-                <p>{box.description}</p>
-                <ul className="mb-5">
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span className="truncate">
-                      {box.products.map((product) => product.name).join(', ')}
-                    </span>
+
+                <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
+                  <li className="flex gap-x-3">
+                    <CheckCircleOutlined
+                      aria-hidden="true"
+                      className="flex-none w-5 h-6 text-orange"
+                    />
+                    Khối lượng {formatWeight(box.totalWeight, 'kg')}
                   </li>
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span>Khối lượng {formatWeight(box.totalWeight, 'kg')}</span>
+                  <li className="flex gap-x-3">
+                    <CheckCircleOutlined
+                      aria-hidden="true"
+                      className="flex-none w-5 h-6 text-orange"
+                    />
+                    Bao gồm {box.products.length} sản phẩm
                   </li>
-                  <li className="flex gap-2 mb-3">
-                    <CheckCircleOutlined className="text-base text-orange" />
-                    <span>{box.expiredAt} tuần</span>
-                  </li>
+                  {!box.isTrial && (
+                    <li className="flex gap-x-3">
+                      <CheckCircleOutlined
+                        aria-hidden="true"
+                        className="flex-none w-5 h-6 text-orange"
+                      />
+                      Tùy chỉnh sản phẩm trong gói
+                    </li>
+                  )}
                 </ul>
-                <Link to={`/purchase/${box.id}`}>
-                  <Button
-                    type="primary"
-                    block
-                    size="large"
-                    className="text-base font-semibold"
+              </Link>
+
+              <Link to={`/purchase/${box.id}`}>
+                {box.isTrial ? (
+                  <button
+                    className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
                     onClick={() => dispatch(setSelectedBoxId(box.id))}
                   >
                     Mua ngay
-                  </Button>
-                </Link>
-              </div>
-            ))}
-          </div>
+                  </button>
+                ) : (
+                  <button
+                    className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                    onClick={() => dispatch(setSelectedBoxId(box.id))}
+                  >
+                    Mua ngay
+                  </button>
+                )}
+              </Link>
+            </div>
+          ))}
         </div>
       </Section>
-      <div className="w-full mt-10 lg:mt-24 md:mt-20">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="h-[500px] hidden md:block">
-            <img src="/fc-box-bg.jpg" alt="" className="object-cover w-full h-full" />
-          </div>
-          <div className="flex items-center justify-center w-full h-full px-5 py-10 bg-beige lg:p-20">
-            <div className="text-center lg:text-left">
-              <h2 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-brown">
-                Cảm nhận từ khách hàng
-              </h2>
-              <p className="max-w-md text-text2">
-                "Dịch vụ này giúp tôi ăn uống lành mạnh hơn rất nhiều và thật tuyệt khi biết rằng
-                mình đang ủng hộ các doanh nghiệp địa phương”
+
+      <Section spaceBottom>
+        <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
+          Vì sao CSA khác biệt?
+        </h2>
+        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+          Mỗi gói CSA không chỉ mang đến nông sản tươi sạch theo mùa mà còn giúp bạn gắn kết trực
+          tiếp với người nông dân và hành trình canh tác bền vững.
+        </p>
+        <div className="grid items-center max-w-4xl grid-cols-1 mx-auto mt-16 gap-y-10 gap-x-8 sm:mt-20 lg:grid-cols-2">
+          <div className="flex gap-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green2">
+              <CalendarOutlined className="text-xl text-center text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-base/7">Đặt gói mùa vụ</p>
+              <p className="mt-2 mb-0 text-text2 text-base/7">
+                Chọn gói CSA theo mùa để luôn nhận được rau củ quả tươi ngon, đúng thời điểm thu
+                hoạch.
               </p>
-              <p className="text-brown">— Phùng Đức Cường</p>
+            </div>
+          </div>
+
+          <div className="flex gap-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green2">
+              <QrcodeOutlined className="text-xl text-center text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-base/7">QR truy xuất</p>
+              <p className="mt-2 mb-0 text-text2 text-base/7">
+                Mỗi sản phẩm đều có mã QR để bạn dễ dàng kiểm tra nguồn gốc và minh bạch.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green2">
+              <VideoCameraOutlined className="text-xl text-center text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-base/7">Livestream/ Farm tour</p>
+              <p className="mt-2 mb-0 text-text2 text-base/7">
+                Theo dõi trực tiếp quá trình thu hoạch hoặc tham gia farm tour để gắn kết cùng nông
+                trại.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green2">
+              <TruckOutlined className="text-xl text-center text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-base/7">Giao định kỳ</p>
+              <p className="mt-2 mb-0 text-text2 text-base/7">
+                Nhận nông sản tại nhà hàng tuần với lịch giao cố định, đảm bảo tươi mới và tiện lợi.
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      </Section>
+
+      <MainFooter />
     </Fragment>
   );
 };

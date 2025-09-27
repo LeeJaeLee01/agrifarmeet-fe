@@ -44,6 +44,9 @@ const MainFooter: React.FC = () => {
                 <Link to="/farm-stand">Farm stand</Link>
               </li>
               <li className="mb-2">
+                <Link to="/boxes">Tất cả gói</Link>
+              </li>
+              <li className="mb-2">
                 <Link to="/event">Sự kiện</Link>
               </li>
               <li className="mb-2">

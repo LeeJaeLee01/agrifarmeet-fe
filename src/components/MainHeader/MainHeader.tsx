@@ -92,6 +92,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
             <NavLink to="/farm-stand" className={navLinkClass}>
               Farm stand
             </NavLink>
+            <NavLink to="/boxes" className={navLinkClass}>
+              Tất cả gói
+            </NavLink>
             <NavLink to="/event" className={navLinkClass}>
               Sự kiện
             </NavLink>
@@ -137,6 +140,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
             </NavLink>
             <NavLink to="/farm-stand" className={navLinkClass} onClick={() => setOpen(false)}>
               Farm stand
+            </NavLink>
+            <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
+              Tất cả gói
             </NavLink>
             <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
               Sự kiện
