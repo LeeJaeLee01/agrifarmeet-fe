@@ -4,24 +4,24 @@ import { TBox } from '../../types/TBox';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import {
-  CalendarFilled,
   CalendarOutlined,
   CheckCircleOutlined,
   QrcodeOutlined,
-  TruckFilled,
   TruckOutlined,
-  VideoCameraFilled,
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { formatVND, formatWeight } from '../../utils/helper';
 import { Link } from 'react-router-dom';
-import { Button } from 'antd';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { Spin } from 'antd';
+import { useTitle } from '../../hooks/useTitle';
 
 const Boxes: React.FC = () => {
+  useTitle('Tất cả gói');
+
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -51,74 +51,80 @@ const Boxes: React.FC = () => {
           Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
         </p>
         <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
-          {boxes.map((box) => (
-            <div
-              key={box.id}
-              className="flex flex-col justify-between h-full p-8 bg-white border sm:p-10 rounded-3xl border-gray-border"
-            >
-              <Link to={`/boxes/${box.id}`} className="hover:text-inherit">
-                <div className="flex items-start justify-between">
-                  <p className="m-0 font-semibold text-base/7 text-orange">{box.name}</p>
-                  {box.isTrial && (
-                    <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
-                      Dùng thử
-                    </p>
-                  )}
-                </div>
-                <p className="m-0 mt-4 text-sm/6 text-text2">{box.description}</p>
-                <p className="flex items-baseline m-0 mt-6 gap-x-2">
-                  <span className="text-4xl font-semibold tracking-tight">
-                    {formatVND(box.price)}
-                  </span>
-                  <span className="text-sm">/{box.expiredAt} tuần</span>
-                </p>
+          {loading ? (
+            <div className="flex items-center justify-center col-span-3 py-20">
+              <Spin size="large" tip="Đang tải gói..." />
+            </div>
+          ) : (
+            boxes.map((box) => (
+              <div
+                key={box.id}
+                className="flex flex-col justify-between h-full p-8 bg-white border sm:p-10 rounded-3xl border-gray-border"
+              >
+                <Link to={`/boxes/${box.id}`} className="hover:text-inherit">
+                  <div className="flex items-start justify-between">
+                    <p className="m-0 font-semibold text-base/7 text-orange">{box.name}</p>
+                    {box.isTrial && (
+                      <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
+                        Dùng thử
+                      </p>
+                    )}
+                  </div>
+                  <p className="m-0 mt-4 text-sm/6 text-text2">{box.description}</p>
+                  <p className="flex items-baseline m-0 mt-6 gap-x-2">
+                    <span className="text-4xl font-semibold tracking-tight">
+                      {formatVND(box.price)}
+                    </span>
+                    <span className="text-sm">/{box.expiredAt} tuần</span>
+                  </p>
 
-                <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
-                  <li className="flex gap-x-3">
-                    <CheckCircleOutlined
-                      aria-hidden="true"
-                      className="flex-none w-5 h-6 text-orange"
-                    />
-                    Khối lượng {formatWeight(box.totalWeight, 'kg')}
-                  </li>
-                  <li className="flex gap-x-3">
-                    <CheckCircleOutlined
-                      aria-hidden="true"
-                      className="flex-none w-5 h-6 text-orange"
-                    />
-                    Bao gồm {box.products.length} sản phẩm
-                  </li>
-                  {!box.isTrial && (
+                  <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
                     <li className="flex gap-x-3">
                       <CheckCircleOutlined
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      Tùy chỉnh sản phẩm trong gói
+                      Khối lượng {formatWeight(box.totalWeight, 'kg')}
                     </li>
-                  )}
-                </ul>
-              </Link>
+                    <li className="flex gap-x-3">
+                      <CheckCircleOutlined
+                        aria-hidden="true"
+                        className="flex-none w-5 h-6 text-orange"
+                      />
+                      Bao gồm {box.products.length} sản phẩm
+                    </li>
+                    {!box.isTrial && (
+                      <li className="flex gap-x-3">
+                        <CheckCircleOutlined
+                          aria-hidden="true"
+                          className="flex-none w-5 h-6 text-orange"
+                        />
+                        Tùy chỉnh sản phẩm trong gói
+                      </li>
+                    )}
+                  </ul>
+                </Link>
 
-              <Link to={`/purchase/${box.id}`}>
-                {box.isTrial ? (
-                  <button
-                    className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
-                    onClick={() => dispatch(setSelectedBoxId(box.id))}
-                  >
-                    Mua ngay
-                  </button>
-                ) : (
-                  <button
-                    className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
-                    onClick={() => dispatch(setSelectedBoxId(box.id))}
-                  >
-                    Mua ngay
-                  </button>
-                )}
-              </Link>
-            </div>
-          ))}
+                <Link to={`/purchase/${box.id}`}>
+                  {box.isTrial ? (
+                    <button
+                      className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                      onClick={() => dispatch(setSelectedBoxId(box.id))}
+                    >
+                      Mua ngay
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                      onClick={() => dispatch(setSelectedBoxId(box.id))}
+                    >
+                      Mua ngay
+                    </button>
+                  )}
+                </Link>
+              </div>
+            ))
+          )}
         </div>
       </Section>
 

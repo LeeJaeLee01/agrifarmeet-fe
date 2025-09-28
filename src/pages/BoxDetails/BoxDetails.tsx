@@ -10,8 +10,11 @@ import { QRCodeCanvas } from 'qrcode.react';
 import * as htmlToImage from 'html-to-image';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { useTitle } from '../../hooks/useTitle';
 
 const BoxDetails: React.FC = () => {
+  useTitle('Tất cả gói');
+
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [box, setBox] = useState<TBox | null>(null);
@@ -63,10 +66,8 @@ const BoxDetails: React.FC = () => {
           ) : box ? (
             <>
               {/* Thông tin box */}
-              <div className="flex items-center justify-between mb-10">
-                <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
-                  {box.name}
-                </h1>
+              <div className="flex items-start justify-between">
+                <h1 className="section-title">{box.name}</h1>
                 <Button type="primary" icon={<ShareAltOutlined />} onClick={() => setOpen(true)}>
                   Chia sẻ
                 </Button>

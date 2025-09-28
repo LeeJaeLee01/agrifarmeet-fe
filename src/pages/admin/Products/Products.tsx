@@ -1,12 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select } from 'antd';
+import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { formatDate, formatWeight } from '../../../utils/helper';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
 import { useTitle } from '../../../hooks/useTitle';
 import { TProduct } from '../../../types/TProduct';
 import { TCategory } from '../../../types/TCategory';
@@ -23,16 +21,24 @@ const Products: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [currentProduct, setCurrentProduct] = useState<TProduct | null>(null);
 
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+  const [search, setSearch] = useState<string>('');
+
   const [form] = Form.useForm();
 
-  const token = useSelector((state: RootState) => state.auth.token);
+  const imageValue = Form.useWatch('image', form);
 
   // Lấy danh sách sản phẩm
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = 1, limit = 20, keyword = '') => {
     try {
       setLoading(true);
-      const res = await api.get('/products');
-      setData(res.data);
+      const res = await api.get(`/products?page=${page}&limit=${limit}&search=${keyword}`);
+      setData(res.data.data);
+      setPagination({
+        current: page,
+        pageSize: limit,
+        total: res.data.total,
+      });
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải sản phẩm');
@@ -45,7 +51,7 @@ const Products: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const res = await api.get('/categories');
-      setCategories(res.data);
+      setCategories(res.data.data);
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh mục');
@@ -53,7 +59,7 @@ const Products: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(pagination.current, pagination.pageSize, search);
     fetchCategories();
   }, []);
 
@@ -62,7 +68,7 @@ const Products: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-
+      values.weight = Number(values.weight);
       if (isEdit && currentProduct) {
         await api.put(`/products/${currentProduct.id}`, values, { withAuth: true });
         toast.success('Cập nhật sản phẩm thành công!');
@@ -76,7 +82,7 @@ const Products: React.FC = () => {
       setCurrentProduct(null);
       setIsEdit(false);
 
-      fetchProducts();
+      fetchProducts(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error(isEdit ? 'Cập nhật sản phẩm thất bại!' : 'Thêm sản phẩm thất bại!');
@@ -90,7 +96,7 @@ const Products: React.FC = () => {
     try {
       await api.delete(`/products/${id}`, { withAuth: true });
       toast.success('Xóa sản phẩm thành công!');
-      fetchProducts();
+      fetchProducts(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error('Xóa sản phẩm thất bại!');
@@ -134,6 +140,13 @@ const Products: React.FC = () => {
       key: 'weight',
       width: 150,
       render: (weight) => formatWeight(weight),
+    },
+    {
+      title: 'Danh mục',
+      dataIndex: 'category',
+      key: 'category',
+      width: 150,
+      render: (category: TCategory) => category?.name || null,
     },
     {
       title: 'Ngày tạo',
@@ -188,7 +201,18 @@ const Products: React.FC = () => {
   return (
     <Fragment>
       <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý sản phẩm</h1>
-      <div className="flex justify-end w-full mb-5">
+      <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
+        <Input.Search
+          placeholder="Tìm kiếm sản phẩm"
+          allowClear
+          enterButton
+          style={{ maxWidth: 300 }}
+          onSearch={(value) => {
+            setSearch(value);
+            fetchProducts(1, pagination.pageSize, value);
+          }}
+        />
+
         <Button
           type="primary"
           onClick={() => {
@@ -208,7 +232,13 @@ const Products: React.FC = () => {
           columns={columns}
           dataSource={data}
           bordered
-          pagination={{ pageSize: 20 }}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            onChange: (page, pageSize) => fetchProducts(page, pageSize, search),
+            onShowSizeChange: (current, size) => fetchProducts(current, size, search),
+          }}
           scroll={{ x: 1200 }}
         />
       </Spin>
@@ -217,6 +247,7 @@ const Products: React.FC = () => {
       <Modal
         title={isEdit ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
         open={open}
+        centered
         onCancel={() => {
           setOpen(false);
           form.resetFields();
@@ -258,6 +289,20 @@ const Products: React.FC = () => {
           >
             <Input placeholder="Dán link ảnh vào đây" />
           </Form.Item>
+
+          {imageValue && (
+            <Card
+              hoverable
+              style={{
+                width: 240,
+                height: 300,
+                backgroundImage: `url('${imageValue}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: 16,
+              }}
+            />
+          )}
 
           <Form.Item name="description" label="Mô tả">
             <Input.TextArea rows={3} placeholder="Nhập mô tả sản phẩm" />

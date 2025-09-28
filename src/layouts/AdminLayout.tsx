@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
 import { useLocation, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
@@ -12,8 +12,9 @@ import {
   ProfileOutlined,
   ProductOutlined,
   CodeSandboxOutlined,
-  DatabaseOutlined,
   CarryOutOutlined,
+  TagOutlined,
+  TruckOutlined,
 } from '@ant-design/icons';
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
@@ -24,7 +25,8 @@ const AdminLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const location = useLocation();
-  const path = location.pathname.replace('/admin/', '') || 'dashboard';
+  let path = location.pathname.replace(/^\/admin\/?/, '');
+  if (path === '') path = 'dashboard';
 
   const navigate = useNavigate();
 
@@ -43,7 +45,7 @@ const AdminLayout: React.FC = () => {
     },
     {
       key: 'categories',
-      icon: <DatabaseOutlined />,
+      icon: <TagOutlined />,
       label: <Link to="/admin/categories">Quản lý Danh mục</Link>,
     },
     {
@@ -57,13 +59,8 @@ const AdminLayout: React.FC = () => {
       label: <Link to="/admin/boxes">Quản lý gói</Link>,
     },
     {
-      key: 'orders',
-      icon: <ShoppingCartOutlined />,
-      label: <Link to="/admin/orders">Quản lý Orders</Link>,
-    },
-    {
       key: 'shippings',
-      icon: <CarryOutOutlined />,
+      icon: <TruckOutlined />,
       label: <Link to="/admin/shippings">Quản lý giao hàng</Link>,
     },
   ];
@@ -114,8 +111,8 @@ const AdminLayout: React.FC = () => {
         trigger={null}
         className="bg-white shadow"
       >
-        <div className="flex items-center justify-center h-16 text-base font-semibold lg:text-lg">
-          Admin
+        <div className="flex items-center justify-center h-16 py-3 text-base font-semibold lg:text-lg">
+          <img src="/logo.png" alt="" className="object-cover h-full" />
         </div>
         <Menu
           mode="inline"
@@ -136,9 +133,7 @@ const AdminLayout: React.FC = () => {
               onClick={() => setCollapsed(!collapsed)}
               className="mr-4"
             />
-            <h1 className="mb-0 text-base font-semibold text-gray-700 lg:text-lg">
-              Admin Dashboard
-            </h1>
+            <h1 className="mb-0 text-base font-semibold text-gray-700 lg:text-lg">Admin</h1>
           </div>
 
           {/* Avatar + Dropdown */}
