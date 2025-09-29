@@ -77,7 +77,9 @@ const Login: React.FC = () => {
     <main>
       <div className="grid w-full min-h-screen admin-login lg:grid-cols-2">
         {/* Cột trái */}
-        <div className="relative w-full h-full bg-[#1677ff]">
+        <div className="relative w-full h-full bg-green">
+          <img src="/banner.jpg" alt="" className="inset-0 object-cover w-full h-full" />
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="absolute text-lg font-semibold text-white -translate-x-1/2 -translate-y-1/2 lg:text-2xl top-1/2 left-1/2">
             Welcome back admin
           </div>

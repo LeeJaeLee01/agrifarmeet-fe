@@ -1,13 +1,38 @@
 .header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  color: white;
+  background: transparent;
+  transition: background 0.3s ease, transform 0.3s ease;
+
+  &.header-hidden {
+    transform: translateY(-100%);
+  }
+}
+
+.header-drop {
+  @apply text-text1;
+  background: white;
+}
+
+.header-sticky {
   position: sticky;
   top: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  padding: 0 20px;
-  height: 80px;
-  z-index: 1000;
+  z-index: 999;
+  background: white;
+  transform: translateY(0);
+  @apply text-text1 shadow-sm;
+}
+
+.header-fixed {
+  position: fixed;
+  top: 0;
+  z-index: 999;
+  background: white;
+  transform: translateY(0);
+  @apply text-text1 shadow-sm;
 }
 
 .logo {

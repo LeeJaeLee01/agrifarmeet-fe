@@ -7,11 +7,9 @@ import './MainLayout.scss';
 const MainLayout: React.FC = () => {
   return (
     <Fragment>
-      <MainHeader />
       <main className="page-height">
         <Outlet />
       </main>
-      {/* <MainFooter /> */}
     </Fragment>
   );
 };

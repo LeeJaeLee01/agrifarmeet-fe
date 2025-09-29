@@ -11,14 +11,13 @@ import {
   Select,
   InputNumber,
   Card,
+  Tag,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { formatDate, formatVND, formatWeight } from '../../../utils/helper';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
 import { useTitle } from '../../../hooks/useTitle';
 
 interface Box {
@@ -53,6 +52,9 @@ const Boxes: React.FC = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [currentBox, setCurrentBox] = useState<Box | null>(null);
 
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+  const [search, setSearch] = useState<string>('');
+
   const [form] = Form.useForm();
 
   const imageValue = Form.useWatch('image', form);
@@ -79,12 +81,17 @@ const Boxes: React.FC = () => {
   };
 
   // Fetch boxes
-  const fetchBoxes = async () => {
+  const fetchBoxes = async (page = 1, limit = 20, keyword = '') => {
     try {
       setLoading(true);
-      const res = await api.get('/boxes');
-      const normalized = res.data.map((b: any) => normalizeBox(b));
+      const res = await api.get(`/boxes?page=${page}&limit=${limit}&search=${keyword}`);
+      const normalized = res.data.data.map((b: any) => normalizeBox(b));
       setData(normalized);
+      setPagination({
+        current: page,
+        pageSize: limit,
+        total: res.data.total,
+      });
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh sách gói');
@@ -97,7 +104,7 @@ const Boxes: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const res = await api.get('/products');
-      setProducts(res.data);
+      setProducts(res.data.data);
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải sản phẩm');
@@ -105,7 +112,7 @@ const Boxes: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchBoxes();
+    fetchBoxes(pagination.current, pagination.pageSize, search);
     fetchProducts();
   }, []);
 
@@ -114,7 +121,8 @@ const Boxes: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-
+      values.totalWeight = Number(values.totalWeight);
+      values.price = Number(values.price);
       if (isEdit && currentBox) {
         await api.put(`/boxes/${currentBox.id}`, values, { withAuth: true });
         toast.success('Cập nhật gói thành công!');
@@ -127,7 +135,7 @@ const Boxes: React.FC = () => {
       form.resetFields();
       setCurrentBox(null);
       setIsEdit(false);
-      fetchBoxes();
+      fetchBoxes(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error(isEdit ? 'Cập nhật gói thất bại!' : 'Thêm gói thất bại!');
@@ -141,7 +149,7 @@ const Boxes: React.FC = () => {
     try {
       await api.delete(`/boxes/${id}`, { withAuth: true });
       toast.success('Xóa gói thành công!');
-      fetchBoxes();
+      fetchBoxes(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error('Xóa gói thất bại!');
@@ -189,6 +197,12 @@ const Boxes: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       width: 120,
+      render: (status: string) =>
+        status === 'active' ? (
+          <Tag color="green">Hiệu lực</Tag>
+        ) : (
+          <Tag color="red">Hết hiệu lực</Tag>
+        ),
     },
     {
       title: 'Giá',
@@ -247,7 +261,17 @@ const Boxes: React.FC = () => {
     <Fragment>
       <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý gói</h1>
 
-      <div className="flex justify-end w-full mb-5">
+      <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
+        <Input.Search
+          placeholder="Tìm kiếm theo tên gói"
+          allowClear
+          enterButton
+          style={{ maxWidth: 300 }}
+          onSearch={(value) => {
+            setSearch(value);
+            fetchBoxes(1, pagination.pageSize, value);
+          }}
+        />
         <Button
           type="primary"
           onClick={() => {
@@ -267,7 +291,13 @@ const Boxes: React.FC = () => {
           columns={columns}
           dataSource={data}
           bordered
-          pagination={{ pageSize: 20 }}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            onChange: (page, pageSize) => fetchBoxes(page, pageSize, search),
+            onShowSizeChange: (current, size) => fetchBoxes(current, size, search),
+          }}
           scroll={{ x: 1200 }}
         />
       </Spin>
@@ -294,11 +324,11 @@ const Boxes: React.FC = () => {
             label="Tên gói"
             rules={[{ required: true, message: 'Vui lòng nhập tên gói' }]}
           >
-            <Input />
+            <Input placeholder="Nhập tên gói" />
           </Form.Item>
 
           <Form.Item name="description" label="Mô tả">
-            <Input.TextArea rows={3} />
+            <Input.TextArea rows={3} placeholder="Nhập mô tả" />
           </Form.Item>
 
           <Form.Item
@@ -306,7 +336,7 @@ const Boxes: React.FC = () => {
             label="Trạng thái"
             rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
           >
-            <Select>
+            <Select placeholder="Chọn trạng thái">
               <Select.Option value="active">Active</Select.Option>
               <Select.Option value="inactive">Inactive</Select.Option>
             </Select>
@@ -317,7 +347,16 @@ const Boxes: React.FC = () => {
             label="Giá (₫)"
             rules={[{ required: true, message: 'Vui lòng nhập giá' }]}
           >
-            <InputNumber className="w-full" min={0} />
+            <InputNumber<number>
+              className="w-full"
+              min={0}
+              placeholder="Nhập giá"
+              formatter={(value) => (value ? formatVND(value) : '')}
+              parser={(value) => {
+                const num = value ? value.replace(/[^\d]/g, '') : '';
+                return num ? parseInt(num, 10) : 0;
+              }}
+            />
           </Form.Item>
 
           <Form.Item
@@ -325,11 +364,11 @@ const Boxes: React.FC = () => {
             label="Tổng khối lượng (g)"
             rules={[{ required: true, message: 'Vui lòng nhập khối lượng' }]}
           >
-            <InputNumber className="w-full" min={0} />
+            <InputNumber className="w-full" min={0} placeholder="Nhập tổng khối lượng gói" />
           </Form.Item>
 
           <Form.Item name="image" label="Ảnh (URL)">
-            <Input />
+            <Input placeholder="Nhập đường dẫn ảnh" />
           </Form.Item>
 
           {/* Preview ảnh chỉ hiện khi có link */}
@@ -376,7 +415,7 @@ const Boxes: React.FC = () => {
             label="Thời hạn (tuần)"
             rules={[{ required: true, message: 'Nhập số ngày hết hạn' }]}
           >
-            <InputNumber className="w-full" min={1} />
+            <InputNumber className="w-full" min={1} placeholder="Nhập thời hạn" />
           </Form.Item>
         </Form>
       </Modal>

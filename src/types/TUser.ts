@@ -14,3 +14,11 @@ export type JwtPayload = {
   username: string;
   role: string;
 };
+
+export type TUser = {
+  id: string;
+  username: string;
+  role: 'admin' | 'customer' | 'farmer';
+  createdAt: string;
+  updatedAt: string;
+};

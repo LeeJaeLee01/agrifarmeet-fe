@@ -11,10 +11,18 @@
 body {
   margin: 0;
   padding: 0;
-  background: #fcfcfd;
-  @apply bg-gray-secondary;
+  background: white;
+  @apply bg-gray-secondary text-text1;
 }
 
 .page-height {
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 96px);
+}
+
+.content {
+  @apply px-6 w-full mx-auto max-w-7xl lg:px-8;
+}
+
+.section-title {
+  @apply text-4xl font-semibold tracking-tight text-pretty sm:text-5xl mb-10;
 }

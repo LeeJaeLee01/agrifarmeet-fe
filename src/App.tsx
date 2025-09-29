@@ -1,7 +1,6 @@
 import { Fragment, lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import Loading from './components/Loading/Loading';
-import SpinnerAdmin from './components/Loading/SpinnerAdmin';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 import PrivateRoute from './routes/PrivateRoute';
@@ -25,6 +24,8 @@ const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
 
 // Admin pages
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard/Dashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/Users/Users'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories'));
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
@@ -69,12 +70,14 @@ function App() {
               path="/admin"
               element={
                 <AdminRoute>
-                  <Suspense fallback={<SpinnerAdmin />}>
+                  <Suspense fallback={<Loading />}>
                     <AdminLayout />
                   </Suspense>
                 </AdminRoute>
               }
             >
+              <Route path="" element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="boxes" element={<AdminBoxes />} />

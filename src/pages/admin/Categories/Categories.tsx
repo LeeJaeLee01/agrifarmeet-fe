@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm } from 'antd';
+import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
@@ -19,13 +19,23 @@ const Categories: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [currentCategory, setCurrentCategory] = useState<TCategory | null>(null);
 
-  const [form] = Form.useForm();
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+  const [search, setSearch] = useState<string>('');
 
-  const fetchCategories = async () => {
+  const [form] = Form.useForm();
+  const imageValue = Form.useWatch('image', form);
+
+  const fetchCategories = async (page = 1, limit = 20, keyword = '') => {
     try {
       setLoading(true);
-      const categories = await api.get('/categories');
-      setData(categories.data);
+      const res = await api.get(`/categories?page=${page}&limit=${limit}&search=${keyword}`);
+
+      setData(res.data.data);
+      setPagination({
+        current: page,
+        pageSize: limit,
+        total: res.data.total,
+      });
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh mục');
@@ -56,7 +66,7 @@ const Categories: React.FC = () => {
       setCurrentCategory(null);
       setIsEdit(false);
 
-      fetchCategories();
+      fetchCategories(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error(isEdit ? 'Cập nhật danh mục thất bại!' : 'Thêm danh mục thất bại!');
@@ -69,7 +79,7 @@ const Categories: React.FC = () => {
     try {
       await api.delete(`/categories/${id}`, { withAuth: true });
       toast.success('Xóa danh mục thành công!');
-      fetchCategories();
+      fetchCategories(pagination.current, pagination.pageSize, search);
     } catch (error) {
       console.error(error);
       toast.error('Xóa danh mục thất bại!');
@@ -140,7 +150,19 @@ const Categories: React.FC = () => {
   return (
     <Fragment>
       <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý danh mục</h1>
-      <div className="flex justify-end w-full mb-5">
+
+      <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
+        <Input.Search
+          placeholder="Tìm kiếm theo tên danh mục"
+          allowClear
+          enterButton
+          style={{ maxWidth: 300 }}
+          onSearch={(value) => {
+            setSearch(value);
+            fetchCategories(1, pagination.pageSize, value);
+          }}
+        />
+
         <Button
           type="primary"
           onClick={() => {
@@ -162,7 +184,13 @@ const Categories: React.FC = () => {
           dataSource={data}
           scroll={{ x: 800 }}
           bordered
-          pagination={{ pageSize: 20 }}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            onChange: (page, pageSize) => fetchCategories(page, pageSize, search),
+            onShowSizeChange: (current, size) => fetchCategories(current, size, search),
+          }}
         />
       </Spin>
 
@@ -170,6 +198,7 @@ const Categories: React.FC = () => {
       <Modal
         title={isEdit ? 'Sửa danh mục' : 'Thêm danh mục'}
         open={open}
+        centered
         onCancel={() => {
           setOpen(false);
           form.resetFields();
@@ -195,10 +224,23 @@ const Categories: React.FC = () => {
             name="image"
             label="Ảnh (URL)"
             className="[&_.ant-form-item-explain-error]:text-xs"
-            rules={[{ required: true, message: 'Vui lòng nhập URL ảnh' }]}
           >
             <Input placeholder="Dán link ảnh vào đây" />
           </Form.Item>
+
+          {imageValue && (
+            <Card
+              hoverable
+              style={{
+                width: 240,
+                height: 300,
+                backgroundImage: `url('${imageValue}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                marginBottom: 16,
+              }}
+            />
+          )}
         </Form>
       </Modal>
     </Fragment>
