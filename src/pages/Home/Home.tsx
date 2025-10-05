@@ -5,7 +5,6 @@ import 'swiper/css/navigation';
 import Section from '../../components/Section/Section';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import WeeklyFarm from '../../modules/Home/WeeklyFarm';
 import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
 import api from '../../utils/api';
@@ -132,7 +131,7 @@ const Home: React.FC = () => {
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           Lựa chọn gói dành riêng cho bạn
         </h2>
-        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+        <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
           Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
         </p>
         <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
@@ -239,7 +238,7 @@ const Home: React.FC = () => {
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           Thông tin mới và blog
         </h2>
-        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+        <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
           Learn how to grow your business with our expert advice.
         </p>
         <div className="grid items-stretch grid-cols-1 gap-5 mx-auto mt-16 gap-y-8 sm:mt-20 lg:grid-cols-3">

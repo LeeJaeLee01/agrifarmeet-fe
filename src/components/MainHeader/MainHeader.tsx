@@ -7,8 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearToken } from '../../store/slices/authSlice';
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 
-const { Header } = Layout;
-
 type MainHeaderProps = {
   sticky?: boolean;
 };
@@ -95,12 +93,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
             <NavLink to="/boxes" className={navLinkClass}>
               Tất cả gói
             </NavLink>
-            <NavLink to="/event" className={navLinkClass}>
+            {/* <NavLink to="/event" className={navLinkClass}>
               Sự kiện
             </NavLink>
             <NavLink to="/about" className={navLinkClass}>
               Về chúng tôi
-            </NavLink>
+            </NavLink> */}
 
             {token ? (
               <div className="flex items-center gap-5">
@@ -144,12 +142,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
               Tất cả gói
             </NavLink>
-            <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
+            {/* <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
               Sự kiện
             </NavLink>
             <NavLink to="/about" className={navLinkClass} onClick={() => setOpen(false)}>
               Về chúng tôi
-            </NavLink>
+            </NavLink> */}
             {token ? (
               <>
                 <NavLink
@@ -159,7 +157,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
                 >
                   Thông tin của tôi
                 </NavLink>
-                <NavLink to="/order" className={navLinkClass} onClick={() => setOpen(false)}>
+                <NavLink to="/shipping" className={navLinkClass} onClick={() => setOpen(false)}>
                   Đơn mua
                 </NavLink>
               </>

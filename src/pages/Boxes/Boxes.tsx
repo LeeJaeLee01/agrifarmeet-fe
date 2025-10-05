@@ -47,7 +47,7 @@ const Boxes: React.FC = () => {
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           Lựa chọn gói dành riêng cho bạn
         </h2>
-        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+        <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
           Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
         </p>
         <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
@@ -132,7 +132,7 @@ const Boxes: React.FC = () => {
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           Vì sao CSA khác biệt?
         </h2>
-        <p className="max-w-2xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
+        <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
           Mỗi gói CSA không chỉ mang đến nông sản tươi sạch theo mùa mà còn giúp bạn gắn kết trực
           tiếp với người nông dân và hành trình canh tác bền vững.
         </p>

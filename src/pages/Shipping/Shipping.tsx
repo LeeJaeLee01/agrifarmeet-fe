@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { Fragment, useState } from 'react';
 import Section from '../../components/Section/Section';
+import MainHeader from '../../components/MainHeader/MainHeader';
+import MainFooter from '../../components/MainFooter/MainFooter';
+import { TShipping } from '../../types/TShipping';
 
-const Shipping = () => {
+const Shipping: React.FC = () => {
+  const [shipping, setShipping] = useState<TShipping[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
   return (
-    <Section>
-      <div className="container mx-auto">
-        <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Đơn mua</h1>
-        <div className=""></div>
-      </div>
-    </Section>
+    <Fragment>
+      <MainHeader sticky />
+      <Section spaceBottom>
+        <div className="container mx-auto">
+          <h1 className="section-title">Giao hàng</h1>
+          <div className=""></div>
+        </div>
+      </Section>
+      <MainFooter />
+    </Fragment>
   );
 };
 
