@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { Input, Button } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../store';
@@ -31,17 +31,28 @@ const Login: React.FC = () => {
 
   // ✅ Nếu đã có token admin thì redirect luôn
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      try {
-        const decoded: JwtPayload = jwtDecode(token);
+    const adminToken = localStorage.getItem('adminToken');
+    const shipperToken = localStorage.getItem('shipperToken');
+
+    try {
+      if (adminToken) {
+        const decoded: JwtPayload = jwtDecode(adminToken);
         if (decoded.role === 'admin') {
           navigate('/admin', { replace: true });
+          return;
         }
-      } catch (err) {
-        console.error('Invalid admin token:', err);
-        localStorage.removeItem('adminToken');
       }
+      if (shipperToken) {
+        const decoded: JwtPayload = jwtDecode(shipperToken);
+        if (decoded.role === 'shipper') {
+          navigate('/shipper', { replace: true });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Invalid token:', err);
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('shipperToken');
     }
   }, [navigate]);
 
@@ -60,9 +71,14 @@ const Login: React.FC = () => {
           dispatch(setToken(res.data.token));
 
           navigate('/admin');
-          toast.success('Đăng nhập thành công!');
+          toast.success('Đăng nhập admin thành công!');
+        } else if (decoded.role === 'shipper') {
+          localStorage.setItem('shipperToken', res.data.token);
+          dispatch(setToken(res.data.token));
+          navigate('/shipper');
+          toast.success('Đăng nhập shipper thành công!');
         } else {
-          toast.error('Tài khoản không có quyền admin');
+          toast.error('Tài khoản không có quyền hợp lệ');
         }
       } else {
         toast.error('Đã có lỗi xảy ra, vui lòng thử lại');
@@ -135,6 +151,8 @@ const Login: React.FC = () => {
             >
               Đăng nhập
             </Button>
+
+            <Link to="/">Trở về trang chính</Link>
           </form>
         </div>
       </div>

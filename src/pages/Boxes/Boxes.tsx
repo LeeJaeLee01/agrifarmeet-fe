@@ -63,7 +63,9 @@ const Boxes: React.FC = () => {
               >
                 <Link to={`/boxes/${box.id}`} className="hover:text-inherit">
                   <div className="flex items-start justify-between">
-                    <p className="m-0 font-semibold text-base/7 text-orange">{box.name}</p>
+                    <p className="m-0 font-semibold text-base/7 text-orange line-clamp-2">
+                      {box.name}
+                    </p>
                     {box.isTrial && (
                       <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
                         Dùng thử

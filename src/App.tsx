@@ -8,6 +8,8 @@ import AdminRoute from './routes/AdminRoute';
 import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import PaymentReturn from './pages/Purchase/PaymentReturn';
+import ShipperRoute from './routes/ShipperRoute';
+import ShipperLayout from './layouts/ShipperLayout';
 
 // User pages
 const Home = lazy(() => import('./pages/Home/Home'));
@@ -30,6 +32,9 @@ const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories')
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
 const AdminShipping = lazy(() => import('./pages/admin/Shipping/Shipping'));
+
+// Shipper
+const Shipper = lazy(() => import('./pages/Shipper/Shipper'));
 
 function App() {
   return (
@@ -91,6 +96,18 @@ function App() {
                 </AdminGuestRoute>
               }
             />
+            <Route
+              path="/shipper"
+              element={
+                <ShipperRoute>
+                  <Suspense fallback={<Loading />}>
+                    <ShipperLayout />
+                  </Suspense>
+                </ShipperRoute>
+              }
+            >
+              <Route path="" element={<Shipper />} />
+            </Route>
           </Routes>
         </AntdApp>
       </ConfigProvider>

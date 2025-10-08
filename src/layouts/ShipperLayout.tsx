@@ -1,83 +1,82 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
 import { useLocation, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
   HomeOutlined,
-  ShoppingCartOutlined,
+  TruckOutlined,
   SettingOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  ProductOutlined,
-  CodeSandboxOutlined,
-  CarryOutOutlined,
-  TagOutlined,
-  TruckOutlined,
 } from '@ant-design/icons';
+import { jwtDecode } from 'jwt-decode';
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
 
 const { Header, Sider, Content } = Layout;
 
-const AdminLayout: React.FC = () => {
+interface JwtPayload {
+  sub: string;
+  username: string;
+  role: string;
+  exp?: number;
+}
+
+const ShipperLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const location = useLocation();
-  let path = location.pathname.replace(/^\/admin\/?/, '');
+  let path = location.pathname.replace(/^\/shipper\/?/, '');
   if (path === '') path = 'dashboard';
 
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
 
+  // ✅ Kiểm tra token shipper khi vào layout
+  useEffect(() => {
+    const shipperToken = localStorage.getItem('shipperToken');
+
+    if (!shipperToken) {
+      navigate('/shipper/login', { replace: true });
+      return;
+    }
+
+    try {
+      const decoded: JwtPayload = jwtDecode(shipperToken);
+      if (decoded.role !== 'shipper') {
+        navigate('/', { replace: true });
+        return;
+      }
+    } catch (error) {
+      console.error('Invalid shipper token:', error);
+      localStorage.removeItem('shipperToken');
+      navigate('/shipper/login', { replace: true });
+    }
+  }, [navigate]);
+
+  // ✅ Menu bên trái
   const menuItems = [
     {
       key: 'dashboard',
-      icon: <HomeOutlined />,
-      label: <Link to="/admin">Dashboard</Link>,
-    },
-    {
-      key: 'users',
-      icon: <UserOutlined />,
-      label: <Link to="/admin/users">Quản lý Users</Link>,
-    },
-    {
-      key: 'categories',
-      icon: <TagOutlined />,
-      label: <Link to="/admin/categories">Quản lý Danh mục</Link>,
-    },
-    {
-      key: 'products',
-      icon: <ProductOutlined />,
-      label: <Link to="/admin/products">Quản lý sản phẩm</Link>,
-    },
-    {
-      key: 'boxes',
-      icon: <CodeSandboxOutlined />,
-      label: <Link to="/admin/boxes">Quản lý gói</Link>,
-    },
-    {
-      key: 'shippings',
       icon: <TruckOutlined />,
-      label: <Link to="/admin/shippings">Quản lý giao hàng</Link>,
+      label: <Link to="/shipper">Danh sách đơn hàng</Link>,
     },
   ];
 
-  // Menu dropdown của avatar
+  // ✅ Menu dropdown user
   const userMenu = (
     <Menu
       items={[
         {
           key: 'profile',
           icon: <ProfileOutlined />,
-          label: <Link to="/admin/profile">Thông tin tài khoản</Link>,
+          label: <Link to="/shipper/profile">Thông tin cá nhân</Link>,
         },
         {
           key: 'settings',
           icon: <SettingOutlined />,
-          label: <Link to="/admin/settings">Cài đặt</Link>,
+          label: <Link to="/shipper/settings">Cài đặt</Link>,
         },
         {
           type: 'divider',
@@ -88,8 +87,7 @@ const AdminLayout: React.FC = () => {
           icon: <LogoutOutlined />,
           label: 'Đăng xuất',
           onClick: () => {
-            // TODO: handle logout logic
-            localStorage.removeItem('adminToken');
+            localStorage.removeItem('shipperToken');
             dispatch(setToken(''));
             navigate('/admin/login');
           },
@@ -100,7 +98,7 @@ const AdminLayout: React.FC = () => {
 
   return (
     <Layout className="min-h-screen">
-      {/* Sidebar menu bên trái */}
+      {/* Sidebar */}
       <Sider
         collapsible
         collapsed={collapsed}
@@ -112,7 +110,7 @@ const AdminLayout: React.FC = () => {
         className="bg-white shadow"
       >
         <div className="flex items-center justify-center h-16 py-3 text-base font-semibold lg:text-lg">
-          <img src="/logo.png" alt="" className="object-cover h-full" />
+          <img src="/logo.png" alt="logo" className="object-cover h-full" />
         </div>
         <Menu
           mode="inline"
@@ -122,9 +120,8 @@ const AdminLayout: React.FC = () => {
         />
       </Sider>
 
-      {/* Layout chính */}
+      {/* Main layout */}
       <Layout>
-        {/* Header */}
         <Header className="flex items-center justify-between h-16 px-4 bg-white shadow">
           <div className="flex items-center">
             <Button
@@ -133,10 +130,12 @@ const AdminLayout: React.FC = () => {
               onClick={() => setCollapsed(!collapsed)}
               className="mr-4"
             />
-            <h1 className="mb-0 text-base font-semibold text-gray-700 lg:text-lg">Admin</h1>
+            <h1 className="mb-0 text-base font-semibold text-gray-700 lg:text-lg">
+              Shipper Dashboard
+            </h1>
           </div>
 
-          {/* Avatar + Dropdown */}
+          {/* Avatar dropdown */}
           <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
             <div className="flex items-center gap-2 cursor-pointer">
               <Avatar
@@ -147,8 +146,7 @@ const AdminLayout: React.FC = () => {
           </Dropdown>
         </Header>
 
-        {/* Content */}
-        <Content className="p-6 overflow-hidden bg-gray-50">
+        <Content className="p-6 bg-gray-50">
           <Outlet />
         </Content>
       </Layout>
@@ -156,4 +154,4 @@ const AdminLayout: React.FC = () => {
   );
 };
 
-export default AdminLayout;
+export default ShipperLayout;
