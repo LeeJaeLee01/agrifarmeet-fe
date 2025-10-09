@@ -1,0 +1,7 @@
+.progress-circle {
+  @apply z-10 inline-flex items-center justify-center text-center transition-all duration-300 border rounded-full w-7 h-7;
+}
+
+.progress-line {
+  @apply absolute h-1 w-1/2 transition-all duration-300 -translate-y-1/2 top-1/2;
+}

@@ -5,12 +5,13 @@ import MainFooter from '../../components/MainFooter/MainFooter';
 import { TShipping } from '../../types/TShipping';
 import { TBox } from '../../types/TBox';
 import { useTitle } from '../../hooks/useTitle';
-import { Spin, Tag, Empty, Card, Progress } from 'antd';
+import { Spin, Tag, Empty } from 'antd';
 import { formatDate, formatVND } from '../../utils/helper';
 import api from '../../utils/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import dayjs from 'dayjs';
+import './Shipping.scss';
 
 const Shipping: React.FC = () => {
   useTitle('Tình trạng giao hàng');
@@ -70,22 +71,6 @@ const Shipping: React.FC = () => {
     }
   };
 
-  // ✅ Map trạng thái sang % progress bar
-  const getProgressPercent = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 33;
-      case 'preparing':
-        return 66;
-      case 'delivering':
-        return 90;
-      case 'delivered':
-        return 100;
-      default:
-        return 0;
-    }
-  };
-
   return (
     <Fragment>
       <MainHeader sticky />
@@ -131,11 +116,9 @@ const Shipping: React.FC = () => {
         </div>
       </Section>
 
-      {/* ============ TÌNH TRẠNG GIAO HÀNG ============ */}
       <Section spaceBottom>
         <div className="container mx-auto">
           <h2 className="section-title">Tình trạng giao hàng</h2>
-
           {loading ? (
             <div className="flex justify-center py-20">
               <Spin size="large" />
@@ -144,70 +127,49 @@ const Shipping: React.FC = () => {
             <Empty description="Chưa có đơn giao hàng nào" className="mt-10" />
           ) : (
             <div className="flex flex-col gap-6">
-              {/* 🔹 ĐƠN GẦN NHẤT VỚI HIỆN TẠI */}
               {nearestOrder && (
-                <Card
-                  className="border-2 border-green-500 shadow-md rounded-2xl"
-                  bodyStyle={{ padding: '1.5rem' }}
-                >
-                  <div className="flex flex-col justify-between gap-2 sm:flex-row">
-                    <div>
-                      <p className="font-semibold text-green-700">
-                        🌿 Đơn hàng gần nhất — Tuần {nearestOrder.deliveryWeek.replace('2025-', '')}
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        Dự kiến giao: {formatDate(nearestOrder.scheduledAt)}
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        Ghi chú: {nearestOrder.deliveryNote || 'Không có ghi chú'}
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        Địa chỉ: {nearestOrder.deliveryAddress || 'Chưa cập nhật'}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end justify-between">
-                      {renderStatusTag(nearestOrder.status)}
-                      <p className="mt-1 text-xs text-gray-500">
-                        Shipper: {nearestOrder.shipper?.username || 'Chưa phân công'}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
+                <div>
+                  <p className="text-lg font-semibold tmb-3 lg:mb-5 lg:text-2xl text-text1">
+                    Đơn hàng gần nhất — Tuần {nearestOrder.deliveryWeek.replace('2025-', '')}
+                  </p>
+                  <ShippingProgress status={nearestOrder.status} />
+                  <p className="mt-10 text-sm text-gray-700">
+                    Dự kiến giao: {formatDate(nearestOrder.scheduledAt)}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    Ghi chú: {nearestOrder.deliveryNote || 'Không có ghi chú'}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    Địa chỉ: {nearestOrder.deliveryAddress || 'Chưa cập nhật'}
+                  </p>
+                </div>
               )}
 
-              {/* 🔸 CÁC ĐƠN CÒN LẠI */}
               {shipping
                 .filter((s) => s.id !== nearestOrder?.id)
                 .map((item) => (
-                  <Card
-                    key={item.id}
-                    className="transition-all shadow-sm hover:shadow-md rounded-2xl"
-                    bodyStyle={{ padding: '1.5rem' }}
-                  >
-                    <div className="flex flex-col justify-between gap-2 sm:flex-row">
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          Tuần {item.deliveryWeek.replace('2025-', '')} —{' '}
-                          <span className="capitalize">{item.deliveryDay}</span>
-                        </p>
-                        <p className="text-sm text-gray-600">
+                  <div key={item.id} className="p-3 border rounded-lg border-gray-border">
+                    <div className="flex flex-col justify-between w-full gap-2 sm:flex-row">
+                      <div className="w-full">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-text1">
+                            Tuần {item.deliveryWeek.replace('2025-', '')} —{' '}
+                            <span className="capitalize">{item.deliveryDay}</span>
+                          </p>
+                          <span>{renderStatusTag(item.status)}</span>
+                        </div>
+                        <p className="text-sm text-text2">
                           Dự kiến giao: {formatDate(item.scheduledAt)}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-text2">
                           Ghi chú: {item.deliveryNote || 'Không có ghi chú'}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-text2">
                           Địa chỉ: {item.deliveryAddress || 'Chưa cập nhật'}
                         </p>
                       </div>
-                      <div className="flex flex-col items-end justify-between">
-                        {renderStatusTag(item.status)}
-                        <p className="mt-1 text-xs text-gray-500">
-                          Shipper: {item.shipper?.username || 'Chưa phân công'}
-                        </p>
-                      </div>
                     </div>
-                  </Card>
+                  </div>
                 ))}
             </div>
           )}
@@ -216,6 +178,63 @@ const Shipping: React.FC = () => {
 
       <MainFooter />
     </Fragment>
+  );
+};
+
+const ShippingProgress: React.FC<{ status: string }> = ({ status }) => {
+  const getStepFromStatus = (status: string) => {
+    switch (status) {
+      case 'preparing':
+        return 1;
+      case 'delivering':
+        return 2;
+      case 'delivered':
+        return 3;
+      default:
+        return 0;
+    }
+  };
+
+  const step = getStepFromStatus(status);
+
+  const getCircleClass = (index: number) => {
+    if (status === 'cancelled') return 'bg-red text-white border-red';
+    if (step >= index) return 'bg-green text-white border-green';
+    return 'bg-white text-text3 border-text3';
+  };
+
+  const getLineClass = (index: number) => {
+    if (status === 'cancelled') return 'bg-red';
+    return step > index ? 'bg-green' : 'bg-gray-border';
+  };
+
+  return (
+    <div className="grid grid-cols-3 mt-10">
+      <div className="w-full text-center">
+        <div className="relative flex items-center justify-center mb-2">
+          <span className={`progress-circle ${getCircleClass(1)}`}>1</span>
+          <div className={`progress-line right-0 ${getLineClass(1)}`}></div>
+        </div>
+        <p>Đang chuẩn bị</p>
+      </div>
+
+      <div className="w-full text-center">
+        <div className="relative flex items-center justify-center mb-2">
+          <div className={`progress-line left-0 ${getLineClass(1)}`}></div>
+          <span className={`progress-circle ${getCircleClass(2)}`}>2</span>
+          <div className={`progress-line right-0 ${getLineClass(2)}`}></div>
+        </div>
+        <p>Đang giao hàng</p>
+      </div>
+
+      <div className="w-full text-center">
+        <div className="relative flex items-center justify-center mb-2">
+          <div className={`progress-line left-0 ${getLineClass(2)}`}></div>
+          <span className={`progress-circle ${getCircleClass(3)}`}>3</span>
+        </div>
+        <p>Hoàn thành</p>
+      </div>
+    </div>
   );
 };
 
