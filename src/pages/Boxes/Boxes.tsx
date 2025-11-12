@@ -44,7 +44,7 @@ const Boxes: React.FC = () => {
       <MainHeader sticky />
 
       <Section>
-        <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
+        <h2 className="max-w-4xl mx-auto mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           Lựa chọn gói dành riêng cho bạn
         </h2>
         <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">

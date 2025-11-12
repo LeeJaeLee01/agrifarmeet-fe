@@ -50,7 +50,7 @@ const Home: React.FC = () => {
     <Fragment>
       <MainHeader />
       {/* Banner */}
-      <div className="relative w-full h-screen max-h-[850px] overflow-hidden banner">
+      <div className="relative w-full h-screen overflow-hidden banner">
         <div className="absolute inset-0 background">
           <img
             src="/banner.jpg"

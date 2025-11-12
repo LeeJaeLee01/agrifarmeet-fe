@@ -19,8 +19,8 @@ const PaymentReturn: React.FC = () => {
           if (boxId) {
             const payload = {
               boxId,
-              timeActive: new Date().toISOString(),
-              timeEnd: new Date(Date.now() + 10 * 7 * 24 * 60 * 60 * 1000).toISOString(),
+              // timeActive: new Date().toISOString(),
+              // timeEnd: new Date(Date.now() + 10 * 7 * 24 * 60 * 60 * 1000).toISOString(),
             };
             await api.post('/boxes/purchase', payload, { withAuth: true });
           }
