@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
-import { store } from '../store';
+import { RootState, store } from '../store';
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   withAuth?: boolean;
@@ -16,7 +16,7 @@ const api = axios.create({
 
 // Interceptor cho request
 api.interceptors.request.use((config: InternalAxiosRequestConfig & { withAuth?: boolean }) => {
-  const token = store.getState().auth.token;
+  const token = (store.getState() as RootState).auth.token;
 
   if (token && config.withAuth) {
     if (!config.headers) {

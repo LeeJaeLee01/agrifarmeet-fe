@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
+      toast.error('Sai Email hoặc Mật khẩu');
     } finally {
       setLoading(false);
     }

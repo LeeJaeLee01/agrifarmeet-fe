@@ -117,7 +117,21 @@ const PurchasePage: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await api.get(`/payment/create?orderId=${orderId}&amount=${amount / 100}`);
+      // Tạo body request
+      const requestBody = {
+        orderId,
+        amount,
+        name: data.fullname,
+        email: data.email,
+        phone: data.phone,
+        fullAddress,
+      };
+
+      console.log(requestBody);
+
+      const res = await api.post('/payment/create', requestBody, {
+        withAuth: true,
+      });
       if (res.data && res.data.url) {
         // redirect tới cổng thanh toán
         window.location.href = res.data.url;

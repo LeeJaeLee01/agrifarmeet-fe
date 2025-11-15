@@ -58,6 +58,8 @@ const Login: React.FC = () => {
 
   const onSubmit: SubmitHandler<TLogin> = async (data) => {
     try {
+      console.log(data);
+
       const res = await api.post('/users/login', {
         username: data.username,
         password: data.password,
@@ -85,7 +87,7 @@ const Login: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
+      toast.error('Đăng nhập thất bại');
     }
   };
 
