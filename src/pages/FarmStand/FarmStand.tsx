@@ -205,7 +205,7 @@ const FarmStand: React.FC = () => {
               </p>
               <span className="text-text2">{boxData.description}</span>
             </div>
-            <div className="flex justify-between w-full font-semibold text-right lg:block lg:justify-start">
+            {/* <div className="flex justify-between w-full font-semibold text-right lg:block lg:justify-start">
               {!boxData.isTrial && (
                 <Progress
                   percent={Math.round(progress)}
@@ -217,7 +217,7 @@ const FarmStand: React.FC = () => {
               <p className="m-0 text-sm text-text2">
                 Tổng: {formatWeight(usedWeight, 'kg')} / {formatWeight(boxData.totalWeight, 'kg')}
               </p>
-            </div>
+            </div> */}
           </div>
           <Table
             dataSource={boxData.products}

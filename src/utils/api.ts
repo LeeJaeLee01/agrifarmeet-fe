@@ -6,8 +6,13 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   withAuth?: boolean;
 }
 
-const BASE_URL = 'http://localhost:3030';
-// const BASE_URL = 'https://phungduccuong.site/api';
+// Configure API base URL based on environment
+// Priority: REACT_APP_API_URL env variable > NODE_ENV auto detection
+// Local development: http://localhost:3030
+// Production: /api (will be proxied by nginx to http://127.0.0.1:3030/api/)
+const BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3030');
 
 const api = axios.create({
   baseURL: BASE_URL,
