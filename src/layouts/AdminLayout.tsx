@@ -6,7 +6,6 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
   HomeOutlined,
-  ShoppingCartOutlined,
   SettingOutlined,
   LogoutOutlined,
   ProfileOutlined,
@@ -62,6 +61,11 @@ const AdminLayout: React.FC = () => {
       key: 'shippings',
       icon: <TruckOutlined />,
       label: <Link to="/admin/shippings">Quản lý giao hàng</Link>,
+    },
+    {
+      key: 'shippers',
+      icon: <TruckOutlined />,
+      label: <Link to="/admin/shippers">Shipper</Link>,
     },
   ];
 

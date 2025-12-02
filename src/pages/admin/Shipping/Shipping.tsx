@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Tag, Select, DatePicker, Button, DatePickerProps } from 'antd';
+import { Table, Spin, Tag, Select, DatePicker, Button, Modal, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import 'dayjs/locale/vi';
-import { SyncOutlined } from '@ant-design/icons';
+import { SyncOutlined, EditOutlined } from '@ant-design/icons';
 
 dayjs.extend(isoWeek);
 dayjs.extend(weekOfYear);
@@ -24,14 +24,31 @@ interface Shipping {
   deliveryWeek: string;
   createdAt: string;
   updatedAt: string;
+  shipperId?: string | null;
+  shipperName?: string | null;
   shipperConfidence?: string | null;
   trafficCondition?: string | null;
   weatherCondition?: string | null;
 }
 
+interface ShipperOption {
+  id: string;
+  name: string;
+}
+
 const AdminShipping: React.FC = () => {
   const [data, setData] = useState<Shipping[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [assigning, setAssigning] = useState<boolean>(false);
+  const [selectedShipping, setSelectedShipping] = useState<Shipping | null>(null);
+  const [selectedShipper, setSelectedShipper] = useState<string | undefined>(undefined);
+
+  // Fake danh sách shipper – có thể thay bằng API sau này
+  const shippers: ShipperOption[] = [
+    { id: 'S-001', name: 'Nguyễn Văn A' },
+    { id: 'S-002', name: 'Trần Thị B' },
+    { id: 'S-003', name: 'Lê Văn C' },
+  ];
 
   const getInitialDelivery = () => {
     const today = dayjs();
@@ -159,14 +176,33 @@ const AdminShipping: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: 'Thời tiết / Giao thông',
-      key: 'conditions',
-      width: 200,
+      title: 'Shipper',
+      dataIndex: 'shipperName',
+      key: 'shipperName',
+      width: 180,
+      render: (name: string | null | undefined) =>
+        name ? (
+          <span>{name}</span>
+        ) : (
+          <span className="text-text3">Chưa phân công</span>
+        ),
+    },
+    {
+      title: 'Update',
+      key: 'update',
+      width: 120,
+      align: 'center',
       render: (_, record) => (
-        <>
-          {record.weatherCondition && <Tag color="blue">{record.weatherCondition}</Tag>}
-          {record.trafficCondition && <Tag color="volcano">{record.trafficCondition}</Tag>}
-        </>
+        <Tooltip title="Cập nhật shipper">
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setSelectedShipping(record);
+              setSelectedShipper(record.shipperId || undefined);
+            }}
+          />
+        </Tooltip>
       ),
     },
   ];
@@ -237,6 +273,54 @@ const AdminShipping: React.FC = () => {
           scroll={{ x: 1200 }}
         />
       </Spin>
+
+      <Modal
+        title="Cập nhật shipper"
+        open={!!selectedShipping}
+        onCancel={() => {
+          setSelectedShipping(null);
+          setSelectedShipper(undefined);
+        }}
+        onOk={() => {
+          if (!selectedShipping || !selectedShipper) {
+            return;
+          }
+          // Fake cập nhật trên client – sau này thay bằng API assign shipper
+          const shipperInfo = shippers.find((s) => s.id === selectedShipper);
+          setAssigning(true);
+          setTimeout(() => {
+            setData((prev) =>
+              prev.map((item) =>
+                item.id === selectedShipping.id
+                  ? {
+                      ...item,
+                      shipperId: selectedShipper,
+                      shipperName: shipperInfo?.name || item.shipperName,
+                    }
+                  : item
+              )
+            );
+            setAssigning(false);
+            setSelectedShipping(null);
+            setSelectedShipper(undefined);
+          }, 500);
+        }}
+        confirmLoading={assigning}
+        okText="Lưu"
+        cancelText="Hủy"
+        centered
+      >
+        <p className="mb-2 text-sm text-text2">
+          Chọn shipper cho đơn hàng <strong>{selectedShipping?.id}</strong>
+        </p>
+        <Select
+          value={selectedShipper}
+          onChange={(value) => setSelectedShipper(value)}
+          placeholder="Chọn shipper"
+          style={{ width: '100%' }}
+          options={shippers.map((s) => ({ label: s.name, value: s.id }))}
+        />
+      </Modal>
     </Fragment>
   );
 };
