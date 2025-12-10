@@ -33,7 +33,10 @@ interface Shipping {
 
 interface ShipperOption {
   id: string;
-  name: string;
+  username: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const AdminShipping: React.FC = () => {
@@ -42,13 +45,8 @@ const AdminShipping: React.FC = () => {
   const [assigning, setAssigning] = useState<boolean>(false);
   const [selectedShipping, setSelectedShipping] = useState<Shipping | null>(null);
   const [selectedShipper, setSelectedShipper] = useState<string | undefined>(undefined);
-
-  // Fake danh sách shipper – có thể thay bằng API sau này
-  const shippers: ShipperOption[] = [
-    { id: 'S-001', name: 'Nguyễn Văn A' },
-    { id: 'S-002', name: 'Trần Thị B' },
-    { id: 'S-003', name: 'Lê Văn C' },
-  ];
+  const [shippers, setShippers] = useState<ShipperOption[]>([]);
+  const [loadingShippers, setLoadingShippers] = useState<boolean>(false);
 
   const getInitialDelivery = () => {
     const today = dayjs();
@@ -84,7 +82,9 @@ const AdminShipping: React.FC = () => {
   const fetchShipping = async (day: string, week: string) => {
     try {
       setLoading(true);
-      const res = await api.get(`/shipping/delivery?day=${day}&week=${week}`);
+      const res = await api.get(`/shipping/delivery?day=${day}&week=${week}`, {
+        withAuth: true,
+      });
       setData(res.data);
     } catch (error) {
       console.error(error);
@@ -94,8 +94,25 @@ const AdminShipping: React.FC = () => {
     }
   };
 
+  // Gọi API lấy danh sách shippers
+  const fetchShippers = async () => {
+    try {
+      setLoadingShippers(true);
+      const res = await api.get(`/users/shippers`, {
+        withAuth: true,
+      });
+      setShippers(res.data.data || []);
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể tải danh sách shipper!');
+    } finally {
+      setLoadingShippers(false);
+    }
+  };
+
   useEffect(() => {
     fetchShipping(selectedDay, selectedWeek);
+    fetchShippers();
   }, []);
 
   // Chuyển status sang tiếng Việt
@@ -281,29 +298,32 @@ const AdminShipping: React.FC = () => {
           setSelectedShipping(null);
           setSelectedShipper(undefined);
         }}
-        onOk={() => {
+        onOk={async () => {
           if (!selectedShipping || !selectedShipper) {
             return;
           }
-          // Fake cập nhật trên client – sau này thay bằng API assign shipper
-          const shipperInfo = shippers.find((s) => s.id === selectedShipper);
-          setAssigning(true);
-          setTimeout(() => {
-            setData((prev) =>
-              prev.map((item) =>
-                item.id === selectedShipping.id
-                  ? {
-                      ...item,
-                      shipperId: selectedShipper,
-                      shipperName: shipperInfo?.name || item.shipperName,
-                    }
-                  : item
-              )
+          try {
+            setAssigning(true);
+            await api.put(
+              `/shipping/${selectedShipping.id}/assign-shipper`,
+              {
+                shipperId: selectedShipper,
+                note: 'Assigned by admin',
+              },
+              { withAuth: true }
             );
-            setAssigning(false);
+            
+            toast.success('Cập nhật shipper thành công!');
             setSelectedShipping(null);
             setSelectedShipper(undefined);
-          }, 500);
+            // Refresh lại danh sách shipping để lấy dữ liệu mới nhất
+            await fetchShipping(selectedDay, selectedWeek);
+          } catch (error) {
+            console.error(error);
+            toast.error('Cập nhật shipper thất bại!');
+          } finally {
+            setAssigning(false);
+          }
         }}
         confirmLoading={assigning}
         okText="Lưu"
@@ -318,7 +338,8 @@ const AdminShipping: React.FC = () => {
           onChange={(value) => setSelectedShipper(value)}
           placeholder="Chọn shipper"
           style={{ width: '100%' }}
-          options={shippers.map((s) => ({ label: s.name, value: s.id }))}
+          loading={loadingShippers}
+          options={shippers.map((s) => ({ label: s.username, value: s.id }))}
         />
       </Modal>
     </Fragment>
