@@ -6,6 +6,7 @@ import { RootState } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearToken } from '../../store/slices/authSlice';
 import React, { Fragment, useState, useEffect, useRef } from 'react';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 
 type MainHeaderProps = {
   sticky?: boolean;
@@ -108,11 +109,15 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
                   </span>
                 </Dropdown>
                 <BellOutlined className="text-xl cursor-pointer" />
+                <LanguageSwitcher />
               </div>
             ) : (
-              <NavLink to="/login" className={navLinkClass}>
-                Đăng nhập
-              </NavLink>
+              <div className="flex items-center gap-5">
+                <LanguageSwitcher />
+                <NavLink to="/login" className={navLinkClass}>
+                  Đăng nhập
+                </NavLink>
+              </div>
             )}
           </div>
 

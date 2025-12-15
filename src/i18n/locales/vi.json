@@ -1,0 +1,93 @@
+{
+  "common": {
+    "home": "Trang chủ",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "signup": "Đăng ký",
+    "search": "Tìm kiếm",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "add": "Thêm",
+    "update": "Cập nhật",
+    "confirm": "Xác nhận",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "loading": "Đang tải...",
+    "noData": "Không có dữ liệu",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "warning": "Cảnh báo"
+  },
+  "home": {
+    "title": "Tươi ngon từ nông trại",
+    "subtitle": "Chúng tôi giao những nông sản tươi ngon nhất của mùa và các sản phẩm nông trại lành mạnh đến tận cửa nhà bạn",
+    "explore": "Khám phá ngay"
+  },
+  "admin": {
+    "dashboard": "Bảng điều khiển",
+    "users": "Quản lý Users",
+    "categories": "Quản lý Danh mục",
+    "products": "Quản lý sản phẩm",
+    "boxes": "Quản lý gói",
+    "shippings": "Quản lý giao hàng",
+    "shippers": "Shipper",
+    "shippingManagement": "Quản lý giao hàng",
+    "shipperList": "Danh sách Shipper",
+    "shippingList": "Danh sách giao hàng theo Shipper",
+    "updateShipper": "Cập nhật shipper",
+    "selectShipper": "Chọn shipper",
+    "selectShipperForOrder": "Chọn shipper cho đơn hàng",
+    "refresh": "Cập nhật",
+    "scheduledDate": "Ngày giao dự kiến",
+    "status": "Trạng thái",
+    "deliveryAddress": "Địa chỉ giao hàng",
+    "assignedShipper": "Shipper phụ trách",
+    "notAssigned": "Chưa phân công",
+    "searchByShipper": "Tìm kiếm theo tên shipper",
+    "searchByUsername": "Tìm kiếm theo username"
+  },
+  "status": {
+    "pending": "Đang chờ",
+    "preparing": "Đang chuẩn bị",
+    "delivering": "Đang giao hàng",
+    "delivered": "Đã giao",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy",
+    "canceled": "Đã hủy"
+  },
+  "days": {
+    "monday": "Thứ hai",
+    "tuesday": "Thứ ba",
+    "wednesday": "Thứ tư",
+    "thursday": "Thứ năm",
+    "friday": "Thứ sáu",
+    "saturday": "Thứ bảy",
+    "sunday": "Chủ nhật"
+  },
+  "messages": {
+    "updateShipperSuccess": "Cập nhật shipper thành công!",
+    "updateShipperFailed": "Cập nhật shipper thất bại!",
+    "loadShippingFailed": "Không thể tải danh sách giao hàng!",
+    "loadShipperFailed": "Không thể tải danh sách shipper!",
+    "loadShippingListFailed": "Không thể tải danh sách giao hàng",
+    "loginSuccess": "Đăng nhập thành công",
+    "loginFailed": "Sai Tài khoản hoặc Mật khẩu"
+  },
+  "login": {
+    "title": "Đăng nhập",
+    "account": "Tài khoản",
+    "password": "Mật khẩu",
+    "enterAccount": "Nhập tài khoản",
+    "enterPassword": "Nhập mật khẩu",
+    "accountRequired": "Vui lòng nhập tài khoản",
+    "passwordRequired": "Vui lòng nhập mật khẩu",
+    "passwordMinLength": "Mật khẩu tối thiểu 6 ký tự",
+    "noAccount": "Chưa có tài khoản?",
+    "signupNow": "Đăng ký ngay"
+  }
+}
+

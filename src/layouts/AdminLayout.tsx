@@ -14,9 +14,11 @@ import {
   CarryOutOutlined,
   TagOutlined,
   TruckOutlined,
+  BellOutlined,
 } from '@ant-design/icons';
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
+import LanguageSwitcher from '../components/LanguageSwitcher/LanguageSwitcher';
 
 const { Header, Sider, Content } = Layout;
 
@@ -140,15 +142,19 @@ const AdminLayout: React.FC = () => {
             <h1 className="mb-0 text-base font-semibold text-gray-700 lg:text-lg">Admin</h1>
           </div>
 
-          {/* Avatar + Dropdown */}
-          <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Avatar
-                size="large"
-                src="https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1"
-              />
-            </div>
-          </Dropdown>
+          {/* Language Switcher + Bell + Avatar + Dropdown */}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <BellOutlined className="text-xl cursor-pointer" />
+            <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <Avatar
+                  size="large"
+                  src="https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1"
+                />
+              </div>
+            </Dropdown>
+          </div>
         </Header>
 
         {/* Content */}

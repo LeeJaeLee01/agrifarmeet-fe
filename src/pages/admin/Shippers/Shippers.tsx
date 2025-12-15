@@ -2,11 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Table, Spin, Tag, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
 import { TShipping } from '../../../types/TShipping';
 
 const AdminShippers: React.FC = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState<TShipping[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
@@ -26,7 +28,7 @@ const AdminShippers: React.FC = () => {
       });
     } catch (error) {
       console.error(error);
-      toast.error('Không thể tải danh sách giao hàng');
+      toast.error(t('messages.loadShippingListFailed'));
     } finally {
       setLoading(false);
     }
@@ -43,23 +45,23 @@ const AdminShippers: React.FC = () => {
     switch (status) {
       case 'pending':
         color = 'default';
-        label = 'Đang chờ';
+        label = t('status.pending');
         break;
       case 'preparing':
         color = 'orange';
-        label = 'Đang chuẩn bị';
+        label = t('status.preparing');
         break;
       case 'delivering':
         color = 'blue';
-        label = 'Đang giao hàng';
+        label = t('status.delivering');
         break;
       case 'delivered':
         color = 'green';
-        label = 'Đã giao';
+        label = t('status.delivered');
         break;
       case 'cancelled':
         color = 'red';
-        label = 'Đã hủy';
+        label = t('status.cancelled');
         break;
       default:
         label = status;
@@ -77,43 +79,43 @@ const AdminShippers: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: 'Ngày giao dự kiến',
+      title: t('admin.scheduledDate'),
       dataIndex: 'scheduledAt',
       key: 'scheduledAt',
       width: 180,
       render: (date: string) => formatDate(date),
     },
     {
-      title: 'Trạng thái',
+      title: t('admin.status'),
       dataIndex: 'status',
       key: 'status',
       width: 140,
       render: (status: TShipping['status']) => renderStatus(status),
     },
     {
-      title: 'Địa chỉ giao hàng',
+      title: t('admin.deliveryAddress'),
       dataIndex: 'deliveryAddress',
       key: 'deliveryAddress',
       width: 260,
       ellipsis: true,
     },
     {
-      title: 'Shipper phụ trách',
+      title: t('admin.assignedShipper'),
       dataIndex: ['shipper', 'username'],
       key: 'shipper',
       width: 180,
       render: (_: unknown, record: TShipping) =>
-        record.shipper ? record.shipper.username : <span className="text-text3">Chưa phân công</span>,
+        record.shipper ? record.shipper.username : <span className="text-text3">{t('admin.notAssigned')}</span>,
     },
   ];
 
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Danh sách giao hàng theo Shipper</h1>
+      <h1 className="mb-5 text-lg font-bold lg:text-2xl">{t('admin.shippingList')}</h1>
 
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
         <Input.Search
-          placeholder="Tìm kiếm theo tên shipper"
+          placeholder={t('admin.searchByShipper')}
           allowClear
           enterButton
           style={{ maxWidth: 350 }}

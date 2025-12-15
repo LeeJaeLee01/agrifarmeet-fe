@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Table, Spin, Tag, Select, DatePicker, Button, Modal, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
 import dayjs from 'dayjs';
@@ -40,6 +41,7 @@ interface ShipperOption {
 }
 
 const AdminShipping: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [data, setData] = useState<Shipping[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [assigning, setAssigning] = useState<boolean>(false);
@@ -88,7 +90,7 @@ const AdminShipping: React.FC = () => {
       setData(res.data);
     } catch (error) {
       console.error(error);
-      toast.error('Không thể tải danh sách giao hàng!');
+      toast.error(t('messages.loadShippingFailed'));
     } finally {
       setLoading(false);
     }
@@ -104,7 +106,7 @@ const AdminShipping: React.FC = () => {
       setShippers(res.data.data || []);
     } catch (error) {
       console.error(error);
-      toast.error('Không thể tải danh sách shipper!');
+      toast.error(t('messages.loadShipperFailed'));
     } finally {
       setLoadingShippers(false);
     }
@@ -115,7 +117,7 @@ const AdminShipping: React.FC = () => {
     fetchShippers();
   }, []);
 
-  // Chuyển status sang tiếng Việt
+  // Chuyển status sang ngôn ngữ hiện tại
   const renderStatus = (status: string) => {
     let color = 'default';
     let label = '';
@@ -123,22 +125,22 @@ const AdminShipping: React.FC = () => {
     switch (status) {
       case 'preparing':
         color = 'orange';
-        label = 'Đang chuẩn bị';
+        label = t(`status.preparing`);
         break;
       case 'delivering':
         color = 'blue';
-        label = 'Đang giao hàng';
+        label = t(`status.delivering`);
         break;
       case 'completed':
         color = 'green';
-        label = 'Hoàn thành';
+        label = t(`status.completed`);
         break;
       case 'canceled':
         color = 'red';
-        label = 'Đã hủy';
+        label = t(`status.canceled`);
         break;
       default:
-        label = 'Không xác định';
+        label = status;
     }
 
     return <Tag color={color}>{label}</Tag>;
@@ -153,14 +155,14 @@ const AdminShipping: React.FC = () => {
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: 'Ngày giao dự kiến',
+      title: t('admin.scheduledDate'),
       dataIndex: 'scheduledAt',
       key: 'scheduledAt',
       width: 180,
       render: (date) => formatDate(date),
     },
     {
-      title: 'Trạng thái',
+      title: t('admin.status'),
       dataIndex: 'status',
       key: 'status',
       width: 150,
@@ -179,7 +181,7 @@ const AdminShipping: React.FC = () => {
       width: 150,
     },
     {
-      title: 'Địa chỉ giao hàng',
+      title: t('admin.deliveryAddress'),
       dataIndex: 'deliveryAddress',
       key: 'deliveryAddress',
       width: 250,
@@ -201,16 +203,16 @@ const AdminShipping: React.FC = () => {
         name ? (
           <span>{name}</span>
         ) : (
-          <span className="text-text3">Chưa phân công</span>
+          <span className="text-text3">{t('admin.notAssigned')}</span>
         ),
     },
     {
-      title: 'Update',
+      title: t('common.update'),
       key: 'update',
       width: 120,
       align: 'center',
       render: (_, record) => (
-        <Tooltip title="Cập nhật shipper">
+        <Tooltip title={t('admin.updateShipper')}>
           <Button
             type="text"
             icon={<EditOutlined />}
@@ -239,9 +241,19 @@ const AdminShipping: React.FC = () => {
     return targetDate;
   };
 
+  const dayOptions = [
+    { label: t('days.monday'), value: 'monday' },
+    { label: t('days.tuesday'), value: 'tuesday' },
+    { label: t('days.wednesday'), value: 'wednesday' },
+    { label: t('days.thursday'), value: 'thursday' },
+    { label: t('days.friday'), value: 'friday' },
+    { label: t('days.saturday'), value: 'saturday' },
+    { label: t('days.sunday'), value: 'sunday' },
+  ];
+
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý giao hàng</h1>
+      <h1 className="mb-5 text-lg font-bold lg:text-2xl">{t('admin.shippingManagement')}</h1>
 
       {/* Bộ lọc theo ngày và tuần */}
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
@@ -249,15 +261,7 @@ const AdminShipping: React.FC = () => {
           value={selectedDay}
           onChange={(val) => setSelectedDay(val)}
           style={{ width: 160 }}
-          options={[
-            { label: 'Thứ hai', value: 'monday' },
-            { label: 'Thứ ba', value: 'tuesday' },
-            { label: 'Thứ tư', value: 'wednesday' },
-            { label: 'Thứ năm', value: 'thursday' },
-            { label: 'Thứ sáu', value: 'friday' },
-            { label: 'Thứ bảy', value: 'saturday' },
-            { label: 'Chủ nhật', value: 'sunday' },
-          ]}
+          options={dayOptions}
         />
         <DatePicker
           picker="week"
@@ -276,7 +280,7 @@ const AdminShipping: React.FC = () => {
           loading={loading}
           icon={<SyncOutlined />}
         >
-          Cập nhật
+          {t('admin.refresh')}
         </Button>
       </div>
 
@@ -292,7 +296,7 @@ const AdminShipping: React.FC = () => {
       </Spin>
 
       <Modal
-        title="Cập nhật shipper"
+        title={t('admin.updateShipper')}
         open={!!selectedShipping}
         onCancel={() => {
           setSelectedShipping(null);
@@ -313,30 +317,30 @@ const AdminShipping: React.FC = () => {
               { withAuth: true }
             );
             
-            toast.success('Cập nhật shipper thành công!');
+            toast.success(t('messages.updateShipperSuccess'));
             setSelectedShipping(null);
             setSelectedShipper(undefined);
             // Refresh lại danh sách shipping để lấy dữ liệu mới nhất
             await fetchShipping(selectedDay, selectedWeek);
           } catch (error) {
             console.error(error);
-            toast.error('Cập nhật shipper thất bại!');
+            toast.error(t('messages.updateShipperFailed'));
           } finally {
             setAssigning(false);
           }
         }}
         confirmLoading={assigning}
-        okText="Lưu"
-        cancelText="Hủy"
+        okText={t('common.save')}
+        cancelText={t('common.cancel')}
         centered
       >
         <p className="mb-2 text-sm text-text2">
-          Chọn shipper cho đơn hàng <strong>{selectedShipping?.id}</strong>
+          {t('admin.selectShipperForOrder')} <strong>{selectedShipping?.id}</strong>
         </p>
         <Select
           value={selectedShipper}
           onChange={(value) => setSelectedShipper(value)}
-          placeholder="Chọn shipper"
+          placeholder={t('admin.selectShipper')}
           style={{ width: '100%' }}
           loading={loadingShippers}
           options={shippers.map((s) => ({ label: s.username, value: s.id }))}

@@ -1,0 +1,93 @@
+{
+  "common": {
+    "home": "Home",
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "search": "Search",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "update": "Update",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "noData": "No data",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning"
+  },
+  "home": {
+    "title": "Fresh from the farm",
+    "subtitle": "We deliver the freshest seasonal produce and healthy farm products right to your door. We help you simplify enjoying a life with good food.",
+    "explore": "Explore now"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "categories": "Category Management",
+    "products": "Product Management",
+    "boxes": "Box Management",
+    "shippings": "Shipping Management",
+    "shippers": "Shippers",
+    "shippingManagement": "Shipping Management",
+    "shipperList": "Shipper List",
+    "shippingList": "Shipping List by Shipper",
+    "updateShipper": "Update Shipper",
+    "selectShipper": "Select Shipper",
+    "selectShipperForOrder": "Select shipper for order",
+    "refresh": "Refresh",
+    "scheduledDate": "Scheduled Date",
+    "status": "Status",
+    "deliveryAddress": "Delivery Address",
+    "assignedShipper": "Assigned Shipper",
+    "notAssigned": "Not Assigned",
+    "searchByShipper": "Search by shipper name",
+    "searchByUsername": "Search by username"
+  },
+  "status": {
+    "pending": "Pending",
+    "preparing": "Preparing",
+    "delivering": "Delivering",
+    "delivered": "Delivered",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "canceled": "Cancelled"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "messages": {
+    "updateShipperSuccess": "Update shipper successfully!",
+    "updateShipperFailed": "Failed to update shipper!",
+    "loadShippingFailed": "Unable to load shipping list!",
+    "loadShipperFailed": "Unable to load shipper list!",
+    "loadShippingListFailed": "Unable to load shipping list",
+    "loginSuccess": "Login successful",
+    "loginFailed": "Incorrect Account or Password"
+  },
+  "login": {
+    "title": "Login",
+    "account": "Account",
+    "password": "Password",
+    "enterAccount": "Enter account",
+    "enterPassword": "Enter password",
+    "accountRequired": "Please enter account",
+    "passwordRequired": "Please enter password",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "noAccount": "Don't have an account?",
+    "signupNow": "Sign up now"
+  }
+}
+

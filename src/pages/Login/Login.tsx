@@ -3,6 +3,7 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, message } from 'antd';
 import './Login.scss';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
 import { useDispatch } from 'react-redux';
 import { setToken, setUsername } from '../../store/slices/authSlice'; // đường dẫn slice bạn đã tạo
@@ -14,7 +15,8 @@ import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 
 const LoginPage: React.FC = () => {
-  useTitle('Đăng nhập');
+  const { t } = useTranslation();
+  useTitle(t('login.title'));
 
   const {
     control,
@@ -39,7 +41,7 @@ const LoginPage: React.FC = () => {
       });
 
       if (response.status === 200) {
-        toast.success('Đăng nhập thành công');
+        toast.success(t('messages.loginSuccess'));
 
         if (response.data.token) {
           // ✅ lưu vào Redux
@@ -55,7 +57,7 @@ const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Sai Email hoặc Mật khẩu');
+      toast.error(t('messages.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -77,17 +79,17 @@ const LoginPage: React.FC = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10 shadow-md"
           >
-            <h1 className="mb-3 text-xl font-semibold text-center">Đăng nhập</h1>
+            <h1 className="mb-3 text-xl font-semibold text-center">{t('login.title')}</h1>
 
-            {/* Email */}
+            {/* Account */}
             <div className="mb-4">
-              <label className="inline-block mb-1 text-sm font-medium text-text2">Email</label>
+              <label className="inline-block mb-1 text-sm font-medium text-text2">{t('login.account')}</label>
               <Controller
                 name="username"
                 control={control}
-                rules={{ required: 'Vui lòng nhập email' }}
+                rules={{ required: t('login.accountRequired') }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập email" className="h-[52px]" />
+                  <Input {...field} placeholder={t('login.enterAccount')} className="h-[52px]" />
                 )}
               />
               {errors.username && (
@@ -97,19 +99,19 @@ const LoginPage: React.FC = () => {
 
             {/* Password */}
             <div className="mb-4">
-              <label className="inline-block mb-1 text-sm font-medium text-text2">Mật khẩu</label>
+              <label className="inline-block mb-1 text-sm font-medium text-text2">{t('login.password')}</label>
               <Controller
                 name="password"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập mật khẩu',
+                  required: t('login.passwordRequired'),
                   minLength: {
                     value: 6,
-                    message: 'Mật khẩu tối thiểu 6 ký tự',
+                    message: t('login.passwordMinLength'),
                   },
                 }}
                 render={({ field }) => (
-                  <Input.Password {...field} placeholder="Nhập mật khẩu" className="h-[52px]" />
+                  <Input.Password {...field} placeholder={t('login.enterPassword')} className="h-[52px]" />
                 )}
               />
               {errors.password && (
@@ -125,13 +127,13 @@ const LoginPage: React.FC = () => {
               loading={loading}
               disabled={loading}
             >
-              Đăng nhập
+              {t('common.login')}
             </Button>
 
             <div className="mt-4 text-sm text-center">
-              <span>Chưa có tài khoản? </span>
+              <span>{t('login.noAccount')} </span>
               <NavLink to="/sign-up" className="text-green hover:underline">
-                Đăng ký ngay
+                {t('login.signupNow')}
               </NavLink>
             </div>
           </form>
