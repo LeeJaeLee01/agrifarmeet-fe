@@ -2,8 +2,10 @@ import React from 'react';
 import './MainFooter.scss';
 import { Link } from 'react-router-dom';
 import { FacebookOutlined, MailOutlined, PhoneOutlined, TikTokOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const MainFooter: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <footer className="w-full bg-green">
       <div className="bg-secondary-green">
@@ -35,22 +37,22 @@ const MainFooter: React.FC = () => {
             <img src="/logo-footer.png" alt="" className="w-80" />
           </div>
           <div className="text-white">
-            <p>Menu</p>
+            <p>{t('common.menu')}</p>
             <ul>
               <li className="mb-2">
-                <Link to="/">Trang chủ</Link>
+                <Link to="/">{t('common.home')}</Link>
+              </li>
+              {/* <li className="mb-2">
+                <Link to="/farm-stand">{t('common.farmStand')}</Link>
+              </li> */}
+              <li className="mb-2">
+                <Link to="/boxes">{t('common.allBoxes')}</Link>
               </li>
               <li className="mb-2">
-                <Link to="/farm-stand">Farm stand</Link>
+                <Link to="/event">{t('common.events')}</Link>
               </li>
               <li className="mb-2">
-                <Link to="/boxes">Tất cả gói</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/event">Sự kiện</Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/about">Về chúng tôi</Link>
+                <Link to="/about">{t('common.aboutUs')}</Link>
               </li>
             </ul>
           </div>

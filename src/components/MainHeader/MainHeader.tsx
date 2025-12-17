@@ -7,12 +7,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearToken } from '../../store/slices/authSlice';
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 type MainHeaderProps = {
   sticky?: boolean;
 };
 
 const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
+  const { t } = useTranslation();
   const token = useSelector((state: RootState) => state.auth.token);
   const username = useSelector((state: RootState) => state.auth.username);
   const dispatch = useDispatch();
@@ -44,17 +46,17 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
     items: [
       {
         key: 'user-info',
-        label: <Link to="/customer-info">Thông tin của tôi</Link>,
+        label: <Link to="/customer-info">{t('common.myInfo')}</Link>,
       },
       {
         key: 'order',
-        label: <Link to="/shipping">Đơn mua</Link>,
+        label: <Link to="/shipping">{t('common.myOrders')}</Link>,
       },
       {
         key: 'logout',
         label: (
           <span onClick={handleLogout} className="text-red">
-            Đăng xuất
+            {t('common.logout')}
           </span>
         ),
       },
@@ -86,13 +88,13 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
           {/* Menu desktop */}
           <div className="items-center hidden gap-5 md:flex">
             <NavLink to="/" className={navLinkClass}>
-              Trang chủ
+              {t('common.home')}
             </NavLink>
-            <NavLink to="/farm-stand" className={navLinkClass}>
-              Farm stand
-            </NavLink>
+            {/* <NavLink to="/farm-stand" className={navLinkClass}>
+              {t('common.farmStand')}
+            </NavLink> */}
             <NavLink to="/boxes" className={navLinkClass}>
-              Tất cả gói
+              {t('common.allBoxes')}
             </NavLink>
             {/* <NavLink to="/event" className={navLinkClass}>
               Sự kiện
@@ -113,10 +115,10 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
               </div>
             ) : (
               <div className="flex items-center gap-5">
-                <LanguageSwitcher />
                 <NavLink to="/login" className={navLinkClass}>
-                  Đăng nhập
+                  {t('common.login')}
                 </NavLink>
+                <LanguageSwitcher />
               </div>
             )}
           </div>
@@ -139,13 +141,13 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
         >
           <nav className="flex flex-col gap-1 px-5 py-10 space-y-5 text-text1">
             <NavLink to="/" className={navLinkClass} onClick={() => setOpen(false)}>
-              Trang chủ
+              {t('common.home')}
             </NavLink>
             <NavLink to="/farm-stand" className={navLinkClass} onClick={() => setOpen(false)}>
-              Farm stand
+              {t('common.farmStand')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
-              Tất cả gói
+              {t('common.allBoxes')}
             </NavLink>
             {/* <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
               Sự kiện
@@ -160,15 +162,15 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
                   className={navLinkClass}
                   onClick={() => setOpen(false)}
                 >
-                  Thông tin của tôi
+                  {t('common.myInfo')}
                 </NavLink>
                 <NavLink to="/shipping" className={navLinkClass} onClick={() => setOpen(false)}>
-                  Đơn mua
+                  {t('common.myOrders')}
                 </NavLink>
               </>
             ) : (
               <NavLink to="/login" className={navLinkClass} onClick={() => setOpen(false)}>
-                Đăng nhập
+                {t('common.login')}
               </NavLink>
             )}
             <span
@@ -177,7 +179,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
               } items-center text-base cursor-pointer text-red`}
               onClick={handleLogout}
             >
-              Đăng xuất
+              {t('common.logout')}
             </span>
           </nav>
         </div>

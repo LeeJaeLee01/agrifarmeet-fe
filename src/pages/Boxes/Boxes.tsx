@@ -18,9 +18,11 @@ import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { Spin } from 'antd';
 import { useTitle } from '../../hooks/useTitle';
+import { useTranslation } from 'react-i18next';
 
 const Boxes: React.FC = () => {
-  useTitle('Tất cả gói');
+  const { t } = useTranslation();
+  useTitle(t('common.allBoxes'));
 
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,7 +35,7 @@ const Boxes: React.FC = () => {
       .get<TBox[]>('/boxes')
       .then((res) => setBoxes(res.data))
       .catch((err) => {
-        toast.error('Đã có lỗi xảy ra khi lấy thông tin gói');
+        toast.error(t('common.errorLoadingBoxes'));
         console.error('Error fetching boxes:', err);
       })
       .finally(() => setLoading(false));
@@ -45,15 +47,15 @@ const Boxes: React.FC = () => {
 
       <Section>
         <h2 className="max-w-4xl mx-auto mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
-          Lựa chọn gói dành riêng cho bạn
+          {t('common.chooseBoxForYou')}
         </h2>
         <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
-          Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
+          {t('common.chooseBoxForYouDesc')}
         </p>
         <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
           {loading ? (
             <div className="flex items-center justify-center col-span-3 py-20">
-              <Spin size="large" tip="Đang tải gói..." />
+              <Spin size="large" tip={t('common.loadingBoxes')} />
             </div>
           ) : (
             boxes.map((box) => (
@@ -68,7 +70,7 @@ const Boxes: React.FC = () => {
                     </p>
                     {box.isTrial && (
                       <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
-                        Dùng thử
+                        {t('common.trial')}
                       </p>
                     )}
                   </div>
@@ -77,7 +79,7 @@ const Boxes: React.FC = () => {
                     <span className="text-4xl font-semibold tracking-tight">
                       {formatVND(box.price)}
                     </span>
-                    <span className="text-sm">/{box.expiredAt} tuần</span>
+                    <span className="text-sm">/{box.expiredAt} {t('common.weeks')}</span>
                   </p>
 
                   <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
@@ -86,14 +88,14 @@ const Boxes: React.FC = () => {
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      Khối lượng {formatWeight(box.totalWeight, 'kg')}
+                      {t('common.weight')} {formatWeight(box.totalWeight, 'kg')}
                     </li>
                     <li className="flex gap-x-3">
                       <CheckCircleOutlined
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      Bao gồm {box.products.length} sản phẩm
+                      {t('common.includes')} {box.products.length} {t('common.products')}
                     </li>
                     {!box.isTrial && (
                       <li className="flex gap-x-3">
@@ -101,7 +103,7 @@ const Boxes: React.FC = () => {
                           aria-hidden="true"
                           className="flex-none w-5 h-6 text-orange"
                         />
-                        Tùy chỉnh sản phẩm trong gói
+                        {t('common.customize')}
                       </li>
                     )}
                   </ul>
@@ -113,14 +115,14 @@ const Boxes: React.FC = () => {
                       className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
                       onClick={() => dispatch(setSelectedBoxId(box.id))}
                     >
-                      Mua ngay
+                      {t('common.buyNow')}
                     </button>
                   ) : (
                     <button
                       className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
                       onClick={() => dispatch(setSelectedBoxId(box.id))}
                     >
-                      Mua ngay
+                      {t('common.buyNow')}
                     </button>
                   )}
                 </Link>
@@ -132,11 +134,10 @@ const Boxes: React.FC = () => {
 
       <Section spaceBottom>
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
-          Vì sao CSA khác biệt?
+          {t('common.whyCSADifferent')}
         </h2>
         <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
-          Mỗi gói CSA không chỉ mang đến nông sản tươi sạch theo mùa mà còn giúp bạn gắn kết trực
-          tiếp với người nông dân và hành trình canh tác bền vững.
+          {t('common.whyCSADifferentDesc')}
         </p>
         <div className="grid items-center max-w-4xl grid-cols-1 mx-auto mt-16 gap-y-10 gap-x-8 sm:mt-20 lg:grid-cols-2">
           <div className="flex gap-5">
@@ -144,10 +145,9 @@ const Boxes: React.FC = () => {
               <CalendarOutlined className="text-xl text-center text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-base/7">Đặt gói mùa vụ</p>
+              <p className="font-semibold text-base/7">{t('common.seasonalBox')}</p>
               <p className="mt-2 mb-0 text-text2 text-base/7">
-                Chọn gói CSA theo mùa để luôn nhận được rau củ quả tươi ngon, đúng thời điểm thu
-                hoạch.
+                {t('common.seasonalBoxDesc')}
               </p>
             </div>
           </div>
@@ -157,9 +157,9 @@ const Boxes: React.FC = () => {
               <QrcodeOutlined className="text-xl text-center text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-base/7">QR truy xuất</p>
+              <p className="font-semibold text-base/7">{t('common.qrTraceability')}</p>
               <p className="mt-2 mb-0 text-text2 text-base/7">
-                Mỗi sản phẩm đều có mã QR để bạn dễ dàng kiểm tra nguồn gốc và minh bạch.
+                {t('common.qrTraceabilityDesc')}
               </p>
             </div>
           </div>
@@ -169,10 +169,9 @@ const Boxes: React.FC = () => {
               <VideoCameraOutlined className="text-xl text-center text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-base/7">Livestream/ Farm tour</p>
+              <p className="font-semibold text-base/7">{t('common.livestreamFarmTour')}</p>
               <p className="mt-2 mb-0 text-text2 text-base/7">
-                Theo dõi trực tiếp quá trình thu hoạch hoặc tham gia farm tour để gắn kết cùng nông
-                trại.
+                {t('common.livestreamFarmTourDesc')}
               </p>
             </div>
           </div>
@@ -182,9 +181,9 @@ const Boxes: React.FC = () => {
               <TruckOutlined className="text-xl text-center text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-base/7">Giao định kỳ</p>
+              <p className="font-semibold text-base/7">{t('common.periodicDelivery')}</p>
               <p className="mt-2 mb-0 text-text2 text-base/7">
-                Nhận nông sản tại nhà hàng tuần với lịch giao cố định, đảm bảo tươi mới và tiện lợi.
+                {t('common.periodicDeliveryDesc')}
               </p>
             </div>
           </div>

@@ -19,10 +19,12 @@ import {
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
 import LanguageSwitcher from '../components/LanguageSwitcher/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout: React.FC = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   const location = useLocation();
@@ -37,37 +39,37 @@ const AdminLayout: React.FC = () => {
     {
       key: 'dashboard',
       icon: <HomeOutlined />,
-      label: <Link to="/admin">Dashboard</Link>,
+      label: <Link to="/admin">{t('admin.dashboard')}</Link>,
     },
     {
       key: 'users',
       icon: <UserOutlined />,
-      label: <Link to="/admin/users">Quản lý Users</Link>,
+      label: <Link to="/admin/users">{t('admin.users')}</Link>,
     },
     {
       key: 'categories',
       icon: <TagOutlined />,
-      label: <Link to="/admin/categories">Quản lý Danh mục</Link>,
+      label: <Link to="/admin/categories">{t('admin.categories')}</Link>,
     },
     {
       key: 'products',
       icon: <ProductOutlined />,
-      label: <Link to="/admin/products">Quản lý sản phẩm</Link>,
+      label: <Link to="/admin/products">{t('admin.products')}</Link>,
     },
     {
       key: 'boxes',
       icon: <CodeSandboxOutlined />,
-      label: <Link to="/admin/boxes">Quản lý gói</Link>,
+      label: <Link to="/admin/boxes">{t('admin.boxes')}</Link>,
     },
     {
       key: 'shippings',
       icon: <TruckOutlined />,
-      label: <Link to="/admin/shippings">Quản lý giao hàng</Link>,
+      label: <Link to="/admin/shippings">{t('admin.shippings')}</Link>,
     },
     {
       key: 'shippers',
       icon: <TruckOutlined />,
-      label: <Link to="/admin/shippers">Shipper</Link>,
+      label: <Link to="/admin/shippers">{t('admin.shippers')}</Link>,
     },
   ];
 
@@ -78,12 +80,12 @@ const AdminLayout: React.FC = () => {
         {
           key: 'profile',
           icon: <ProfileOutlined />,
-          label: <Link to="/admin/profile">Thông tin tài khoản</Link>,
+          label: <Link to="/admin/profile">{t('common.myInfo')}</Link>,
         },
         {
           key: 'settings',
           icon: <SettingOutlined />,
-          label: <Link to="/admin/settings">Cài đặt</Link>,
+          label: <Link to="/admin/settings">{t('common.settings')}</Link>,
         },
         {
           type: 'divider',
@@ -92,7 +94,7 @@ const AdminLayout: React.FC = () => {
           key: 'logout',
           danger: true,
           icon: <LogoutOutlined />,
-          label: 'Đăng xuất',
+          label: t('common.logout'),
           onClick: () => {
             // TODO: handle logout logic
             localStorage.removeItem('adminToken');

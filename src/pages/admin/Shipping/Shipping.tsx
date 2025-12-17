@@ -148,7 +148,7 @@ const AdminShipping: React.FC = () => {
 
   const columns: ColumnsType<Shipping> = [
     {
-      title: 'STT',
+      title: t('common.index'),
       key: 'index',
       width: 70,
       align: 'center',
@@ -169,13 +169,13 @@ const AdminShipping: React.FC = () => {
       render: (status) => renderStatus(status),
     },
     {
-      title: 'Ngày giao (day)',
+      title: t('common.deliveryDay'),
       dataIndex: 'deliveryDay',
       key: 'deliveryDay',
       width: 120,
     },
     {
-      title: 'Tuần giao (week)',
+      title: t('common.deliveryWeek'),
       dataIndex: 'deliveryWeek',
       key: 'deliveryWeek',
       width: 150,
@@ -188,14 +188,14 @@ const AdminShipping: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: 'Ghi chú',
+      title: t('common.note'),
       dataIndex: 'deliveryNote',
       key: 'deliveryNote',
       width: 250,
       ellipsis: true,
     },
     {
-      title: 'Shipper',
+      title: t('common.shipper'),
       dataIndex: 'shipperName',
       key: 'shipperName',
       width: 180,

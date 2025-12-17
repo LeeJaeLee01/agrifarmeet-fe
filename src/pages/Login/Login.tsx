@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
                 rules={{
                   required: t('login.passwordRequired'),
                   minLength: {
-                    value: 6,
+                    value: 8,
                     message: t('login.passwordMinLength'),
                   },
                 }}

@@ -13,9 +13,11 @@ import { formatVND, formatWeight } from '../../utils/helper';
 import { TBox } from '../../types/TBox';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { useTranslation } from 'react-i18next';
 
 const Home: React.FC = () => {
-  useTitle('Trang chủ - Agrifarmeet');
+  const { t } = useTranslation();
+  useTitle(`${t('common.home')} - Agrifarmeet`);
 
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -63,18 +65,16 @@ const Home: React.FC = () => {
           <div className="flex items-center w-full h-full">
             <div className="w-full">
               <h1 className="text-5xl font-semibold tracking-tight text-white text-pretty sm:text-7xl">
-                Tươi ngon từ nông trại
+                {t('home.title')}
               </h1>
               <p className="mt-2 text-base text-white mb-9 md:text-lg/8">
-                Chúng tôi giao những nông sản tươi ngon nhất của mùa và các sản phẩm nông trại lành
-                mạnh đến tận cửa nhà bạn. Chúng tôi giúp bạn đơn giản hóa việc tận hưởng một cuộc
-                sống với thực phẩm tốt.
+                {t('home.subtitle')}
               </p>
               <button
                 onClick={scrollToPopular}
                 className="px-8 py-3 text-base font-semibold text-white rounded-full lg:text-xl btn bg-orange2"
               >
-                Khám phá ngay
+                {t('home.explore')}
               </button>
             </div>
           </div>
@@ -85,43 +85,37 @@ const Home: React.FC = () => {
       <Section>
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
           <span className="text-green">Agri</span>
-          <span className="text-brown">farmeet</span> hoạt động như thế nào?
+          <span className="text-brown">farmeet</span> {t('common.howItWorks')}
         </h2>
         <div className="grid items-center max-w-4xl grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-2">
           <div className="flex flex-col items-center">
             <img src="/illustration-fc-box.png" alt="" className="w-40 mb-3 text-center" />
-            <p className="w-full mb-5 text-2xl font-semibold text-text1">Lựa chọn gói</p>
+            <p className="w-full mb-5 text-2xl font-semibold text-text1">{t('common.chooseBox')}</p>
             <span className="text-sm text-text2">
-              Dù bạn là tín đồ trái cây, fan cứng của rau củ hay yêu thích tất cả, bạn đều có thể
-              chọn (và thay đổi) kích cỡ hộp nông sản phù hợp với mình.
+              {t('common.chooseBoxDesc')}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <img src="/illustration-fc-swap.png" alt="" className="w-40 mb-3 text-center" />
-            <p className="w-full mb-5 text-2xl font-semibold text-text1">Tùy chỉnh sản phẩm</p>
+            <p className="w-full mb-5 text-2xl font-semibold text-text1">{t('common.customizeProducts')}</p>
             <span className="text-sm text-text2">
-              Muốn thay đổi các loại nông sản trong đơn giao của bạn? Không vấn đề gì! Bạn có thể dễ
-              dàng thêm hoặc thay thế sản phẩm trong Farm Stand trực tuyến của chúng tôi.
+              {t('common.customizeProductsDesc')}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <img src="/illustration-fc-jam-eggs.png" alt="" className="w-40 mb-3 text-center" />
             <p className="w-full mb-5 text-2xl font-semibold text-text1">
-              Thêm sản phẩm từ nông trại
+              {t('common.addFarmProducts')}
             </p>
             <span className="text-sm text-text2">
-              Thêm vào đơn giao của bạn những sản phẩm thủ công từ nông trại như mứt đặc biệt làm
-              thủ công, trứng gà thả vườn, dầu ô liu, mật ong địa phương, các sản phẩm sữa và nhiều
-              hơn nữa...
+              {t('common.addFarmProductsDesc')}
             </span>
           </div>
           <div className="flex flex-col items-center">
             <img src="/illustration-fc-door.png" alt="" className="w-40 mb-3 text-center" />
-            <p className="w-full mb-5 text-2xl font-semibold text-text1">Giao hàng và tận hưởng</p>
+            <p className="w-full mb-5 text-2xl font-semibold text-text1">{t('common.deliveryAndEnjoy')}</p>
             <span className="text-sm text-text2">
-              Khám phá sự tiện lợi và thú vị khi mở cửa đón nhận những hộp nông sản tươi ngon! Bạn
-              có thể bỏ qua một lần giao hoặc thay đổi tần suất giao hàng để phù hợp với lịch trình
-              hay kỳ nghỉ của mình.
+              {t('common.deliveryAndEnjoyDesc')}
             </span>
           </div>
         </div>
@@ -129,10 +123,10 @@ const Home: React.FC = () => {
 
       <Section ref={popularRef}>
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
-          Lựa chọn gói dành riêng cho bạn
+          {t('common.chooseBoxForYou')}
         </h2>
         <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
-          Lựa chọn gói dịch vụ hợp lý, được trang bị những sản phẩm tươi ngon nhất từ nông trại.
+          {t('common.chooseBoxForYouDesc')}
         </p>
         <div className="grid items-center grid-cols-1 gap-5 mx-auto mt-16 gap-y-6 sm:mt-20 lg:grid-cols-3">
           {boxes.slice(0, 3).map((box) => (
@@ -145,14 +139,14 @@ const Home: React.FC = () => {
                   <p className="m-0 font-semibold text-base/7 text-orange line-clamp-2">
                     {box.name}
                   </p>
-                  {box.isTrial && <p className="label-trial">Dùng thử</p>}
+                  {box.isTrial && <p className="label-trial">{t('common.trial')}</p>}
                 </div>
                 <p className="m-0 mt-4 text-sm/6 text-text2">{box.description}</p>
                 <p className="flex items-baseline m-0 mt-6 gap-x-2">
                   <span className="text-4xl font-semibold tracking-tight">
                     {formatVND(box.price)}
                   </span>
-                  <span className="text-sm">/{box.expiredAt} tuần</span>
+                  <span className="text-sm">/{box.expiredAt} {t('common.weeks')}</span>
                 </p>
 
                 <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
@@ -161,14 +155,14 @@ const Home: React.FC = () => {
                       aria-hidden="true"
                       className="flex-none w-5 h-6 text-orange"
                     />
-                    Khối lượng {formatWeight(box.totalWeight, 'kg')}
+                    {t('common.weight')} {formatWeight(box.totalWeight, 'kg')}
                   </li>
                   <li className="flex gap-x-3">
                     <CheckCircleOutlined
                       aria-hidden="true"
                       className="flex-none w-5 h-6 text-orange"
                     />
-                    Bao gồm {box.products.length} sản phẩm
+yy                    {t('common.includes')} {box.products.length} {t('common.products')}
                   </li>
                   {!box.isTrial && (
                     <li className="flex gap-x-3">
@@ -176,7 +170,7 @@ const Home: React.FC = () => {
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      Tùy chỉnh sản phẩm trong gói
+                      {t('common.customize')}
                     </li>
                   )}
                 </ul>
@@ -188,14 +182,14 @@ const Home: React.FC = () => {
                     className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
                     onClick={() => dispatch(setSelectedBoxId(box.id))}
                   >
-                    Mua ngay
+                    {t('common.buyNow')}
                   </button>
                 ) : (
                   <button
                     className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
                     onClick={() => dispatch(setSelectedBoxId(box.id))}
                   >
-                    Mua ngay
+                    {t('common.buyNow')}
                   </button>
                 )}
               </Link>
@@ -213,18 +207,16 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-center w-full h-full px-5 py-10 bg-beige lg:p-20">
             <div className="text-center">
               <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl text-brown">
-                Hành trình nông sản sạch
+                {t('common.cleanProduceJourney')}
               </h2>
               <p className="mt-6 text-base mb-9 md:text-lg/8 text-text2">
-                Chúng tôi khởi đầu từ niềm đam mê với nông sản sạch và hữu cơ, luôn tận tâm trồng
-                trọt và tuyển chọn những thực phẩm tươi ngon, đồng thời thúc đẩy các thực hành nông
-                nghiệp bền vững để mang đến giá trị tốt nhất cho cộng đồng.
+                {t('common.cleanProduceJourneyDesc')}
               </p>
               <Link
                 to="/about"
                 className="px-8 py-3 text-base font-semibold text-white rounded-full lg:text-xl btn bg-orange2 hover:text-white"
               >
-                Xem thêm
+                {t('common.seeMore')}
               </Link>
             </div>
           </div>
@@ -234,10 +226,10 @@ const Home: React.FC = () => {
       {/* Blog */}
       <Section spaceBottom>
         <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl">
-          Thông tin mới và blog
+          {t('common.newsAndBlog')}
         </h2>
         <p className="max-w-4xl mx-auto mt-6 mb-0 text-base font-medium text-center text-text3 text-pretty sm:text-lg/8">
-          Learn how to grow your business with our expert advice.
+          {t('common.newsAndBlogDesc')}
         </p>
         <div className="grid items-stretch grid-cols-1 gap-5 mx-auto mt-16 gap-y-8 sm:mt-20 lg:grid-cols-3">
           {[

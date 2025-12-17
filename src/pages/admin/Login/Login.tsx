@@ -10,9 +10,11 @@ import { jwtDecode } from 'jwt-decode';
 import api from '../../../utils/api';
 import { JwtPayload, TLogin } from '../../../types/TUser';
 import { useTitle } from '../../../hooks/useTitle';
+import { useTranslation } from 'react-i18next';
 
 const Login: React.FC = () => {
-  useTitle('Đăng nhập - Admin');
+  const { t } = useTranslation();
+  useTitle(`${t('common.adminLoginTitle')} - Admin`);
 
   const {
     control,
@@ -73,21 +75,21 @@ const Login: React.FC = () => {
           dispatch(setToken(res.data.token));
 
           navigate('/admin');
-          toast.success('Đăng nhập admin thành công!');
+          toast.success(t('common.adminLoginSuccess'));
         } else if (decoded.role === 'shipper') {
           localStorage.setItem('shipperToken', res.data.token);
           dispatch(setToken(res.data.token));
           navigate('/shipper');
-          toast.success('Đăng nhập shipper thành công!');
+          toast.success(t('common.shipperLoginSuccess'));
         } else {
-          toast.error('Tài khoản không có quyền hợp lệ');
+          toast.error(t('common.invalidRole'));
         }
       } else {
-        toast.error('Đã có lỗi xảy ra, vui lòng thử lại');
+        toast.error(t('common.loginError'));
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Đăng nhập thất bại');
+      toast.error(t('common.loginFailed2'));
     }
   };
 
@@ -99,27 +101,27 @@ const Login: React.FC = () => {
           <img src="/banner.jpg" alt="" className="inset-0 object-cover w-full h-full" />
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="absolute text-lg font-semibold text-white -translate-x-1/2 -translate-y-1/2 lg:text-2xl top-1/2 left-1/2">
-            Welcome back admin
+            {t('common.welcomeBackAdmin')}
           </div>
         </div>
 
         {/* Cột phải */}
         <div className="flex flex-col w-full p-5 mx-auto my-5 lg:justify-center">
-          <h1 className="text-4xl font-bold text-text1">Đăng nhập</h1>
-          <p className="mb-8 text-sm text-text2">Sử dụng tài khoản có quyền admin để đăng nhập</p>
+          <h1 className="text-4xl font-bold text-text1">{t('common.adminLoginTitle')}</h1>
+          <p className="mb-8 text-sm text-text2">{t('common.adminLoginDesc')}</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             {/* Email */}
             <div>
-              <label className="block mb-1 text-sm font-medium">Tên đăng nhập</label>
+              <label className="block mb-1 text-sm font-medium">{t('common.username2')}</label>
               <Controller
                 name="username"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập tên đăng nhập',
+                  required: t('common.usernameRequired2'),
                 }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input {...field} placeholder={t('common.enterAccount')} size="large" />
                 )}
               />
               {errors.username && (
@@ -129,13 +131,19 @@ const Login: React.FC = () => {
 
             {/* Password */}
             <div>
-              <label className="block mb-1 text-sm font-medium">Mật khẩu</label>
+              <label className="block mb-1 text-sm font-medium">{t('login.password')}</label>
               <Controller
                 name="password"
                 control={control}
-                rules={{ required: 'Vui lòng nhập mật khẩu' }}
+                rules={{
+                  required: t('common.passwordRequired2'),
+                  minLength: {
+                    value: 8,
+                    message: t('common.passwordMin8'),
+                  },
+                }}
                 render={({ field }) => (
-                  <Input.Password {...field} placeholder="Nhập mật khẩu" size="large" />
+                  <Input.Password {...field} placeholder={t('login.enterPassword')} size="large" />
                 )}
               />
               {errors.password && (
@@ -151,10 +159,10 @@ const Login: React.FC = () => {
               loading={isSubmitting}
               className="w-full"
             >
-              Đăng nhập
+              {t('common.login')}
             </Button>
 
-            <Link to="/">Trở về trang chính</Link>
+            <Link to="/">{t('common.backToHome')}</Link>
           </form>
         </div>
       </div>

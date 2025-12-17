@@ -19,8 +19,10 @@ import {
   Cell,
   Legend,
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [stats] = useState({
     users: 1200,
     orders: 340,
@@ -62,21 +64,21 @@ const Dashboard: React.FC = () => {
   const COLORS = ['#ffbb28', '#36a2eb', '#ff6384', '#3da35d'];
 
   const columns = [
-    { title: 'Mã đơn', dataIndex: 'id', key: 'id' },
-    { title: 'Khách hàng', dataIndex: 'customer', key: 'customer' },
+    { title: t('common.orderCode'), dataIndex: 'id', key: 'id' },
+    { title: t('common.customer'), dataIndex: 'customer', key: 'customer' },
     {
-      title: 'Tổng tiền',
+      title: t('common.totalAmount2'),
       dataIndex: 'total',
       key: 'total',
-      render: (val: number) => val.toLocaleString() + ' đ',
+      render: (val: number) => val.toLocaleString() + ' ' + t('common.vnd'),
     },
-    { title: 'Trạng thái', dataIndex: 'status', key: 'status' },
-    { title: 'Ngày tạo', dataIndex: 'createdAt', key: 'createdAt' },
+    { title: t('admin.status'), dataIndex: 'status', key: 'status' },
+    { title: t('common.createdAt'), dataIndex: 'createdAt', key: 'createdAt' },
   ];
 
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Dashboard</h1>
+      <h1 className="mb-5 text-lg font-bold lg:text-2xl">{t('admin.dashboard')}</h1>
       {/* Thống kê nhanh */}
       <div className="grid grid-cols-1 gap-4 mb-5 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -85,7 +87,7 @@ const Dashboard: React.FC = () => {
               <UserOutlined className="text-base text-white" />
             </div>
             <div>
-              <p className="m-0 text-sm text-text3">Người dùng</p>
+              <p className="m-0 text-sm text-text3">{t('common.users')}</p>
               <p className="m-0 text-xl font-semibold">{stats.users}</p>
             </div>
           </div>
@@ -96,7 +98,7 @@ const Dashboard: React.FC = () => {
               <ShoppingCartOutlined className="text-base text-white" />
             </div>
             <div>
-              <p className="m-0 text-sm text-text3">Đơn hàng</p>
+              <p className="m-0 text-sm text-text3">{t('common.orders')}</p>
               <p className="m-0 text-xl font-semibold">{stats.orders}</p>
             </div>
           </div>
@@ -107,8 +109,8 @@ const Dashboard: React.FC = () => {
               <DollarOutlined className="text-base text-white" />
             </div>
             <div>
-              <p className="m-0 text-sm text-text3">Doanh thu</p>
-              <p className="m-0 text-xl font-semibold">{stats.revenue.toLocaleString()} đ</p>
+              <p className="m-0 text-sm text-text3">{t('common.revenue')}</p>
+              <p className="m-0 text-xl font-semibold">{stats.revenue.toLocaleString()} {t('common.vnd')}</p>
             </div>
           </div>
         </Card>
@@ -118,7 +120,7 @@ const Dashboard: React.FC = () => {
               <TruckOutlined className="text-base text-white" />
             </div>
             <div>
-              <p className="m-0 text-sm text-text3">Giao hàng</p>
+              <p className="m-0 text-sm text-text3">{t('common.shipping')}</p>
               <p className="m-0 text-xl font-semibold">{stats.shipping}</p>
             </div>
           </div>
@@ -127,7 +129,7 @@ const Dashboard: React.FC = () => {
 
       {/* Biểu đồ */}
       <div className="grid grid-cols-1 gap-4 mb-5 lg:grid-cols-2">
-        <Card title="Doanh thu theo tháng">
+        <Card title={t('common.revenueByMonth')}>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -138,7 +140,7 @@ const Dashboard: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         </Card>
-        <Card title="Trạng thái đơn hàng">
+        <Card title={t('common.orderStatus')}>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -161,7 +163,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Đơn hàng gần đây */}
-      <Card title="Đơn hàng gần đây">
+      <Card title={t('common.recentOrders')}>
         <Table dataSource={recentOrders} columns={columns} rowKey="id" pagination={false} />
       </Card>
     </Fragment>

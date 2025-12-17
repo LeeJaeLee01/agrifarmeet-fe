@@ -9,9 +9,11 @@ import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { useTranslation } from 'react-i18next';
 
 const SignUpPage: React.FC = () => {
-  useTitle('Đăng ký');
+  const { t } = useTranslation();
+  useTitle(t('common.signup'));
 
   const {
     control,
@@ -33,12 +35,12 @@ const SignUpPage: React.FC = () => {
       });
 
       if (response.status === 201) {
-        toast.success('Đăng ký thành công, vui lòng đăng nhập tài khoản');
+        toast.success(t('common.signupSuccess'));
         navigate('/login');
       }
     } catch (error: any) {
       console.error('Signup error:', error);
-      toast.error(error.response?.data?.message || 'Đăng ký thất bại');
+      toast.error(error.response?.data?.message || t('common.signupFailed'));
     } finally {
       setLoading(false);
     }
@@ -60,19 +62,19 @@ const SignUpPage: React.FC = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="w-full max-w-[500px] bg-white rounded-lg px-12 py-10 m-5 shadow-md"
           >
-            <h1 className="mb-3 text-xl font-semibold text-center">Đăng ký</h1>
+            <h1 className="mb-3 text-xl font-semibold text-center">{t('common.signup')}</h1>
 
             {/* Username */}
             <div className="mb-4">
-              <label className="inline-block mb-1 text-sm font-medium">Username</label>
+              <label className="inline-block mb-1 text-sm font-medium">{t('common.account')}</label>
               <Controller
                 name="username"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập username',
+                  required: t('common.accountRequired'),
                 }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Nhập username" className="h-[52px]" />
+                  <Input {...field} placeholder={t('common.enterAccount')} className="h-[52px]" />
                 )}
               />
               {errors.username && <p className="text-xs text-red">{errors.username.message}</p>}
@@ -80,16 +82,16 @@ const SignUpPage: React.FC = () => {
 
             {/* Password */}
             <div className="mb-4">
-              <label className="inline-block mb-1 text-sm font-medium">Mật khẩu</label>
+              <label className="inline-block mb-1 text-sm font-medium">{t('login.password')}</label>
               <Controller
                 name="password"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập mật khẩu',
-                  minLength: { value: 6, message: 'Tối thiểu 6 ký tự' },
+                  required: t('login.passwordRequired'),
+                  minLength: { value: 8, message: t('common.passwordMinLength8') },
                 }}
                 render={({ field }) => (
-                  <Input.Password {...field} placeholder="Nhập mật khẩu" className="h-[52px]" />
+                  <Input.Password {...field} placeholder={t('login.enterPassword')} className="h-[52px]" />
                 )}
               />
               {errors.password && <p className="text-xs text-red">{errors.password.message}</p>}
@@ -97,16 +99,16 @@ const SignUpPage: React.FC = () => {
 
             {/* Confirm Password */}
             <div className="mb-4">
-              <label className="inline-block mb-1 text-sm font-medium">Nhập lại mật khẩu</label>
+              <label className="inline-block mb-1 text-sm font-medium">{t('common.confirmPassword')}</label>
               <Controller
                 name="confirmPassword"
                 control={control}
                 rules={{
-                  required: 'Vui lòng nhập lại mật khẩu',
-                  validate: (value) => value === password || 'Mật khẩu nhập lại không khớp',
+                  required: t('common.confirmPasswordRequired'),
+                  validate: (value) => value === password || t('common.passwordMismatch'),
                 }}
                 render={({ field }) => (
-                  <Input.Password {...field} placeholder="Nhập lại mật khẩu" className="h-[52px]" />
+                  <Input.Password {...field} placeholder={t('common.enterConfirmPassword')} className="h-[52px]" />
                 )}
               />
               {errors.confirmPassword && (
@@ -122,13 +124,13 @@ const SignUpPage: React.FC = () => {
               loading={loading}
               disabled={loading}
             >
-              Đăng ký
+              {t('common.signup')}
             </Button>
 
             <div className="mt-4 text-sm text-center">
-              <span>Đã có tài khoản? </span>
+              <span>{t('common.hasAccount')} </span>
               <NavLink to="/login" className="text-green hover:underline">
-                Đăng nhập ngay
+                {t('common.loginNow')}
               </NavLink>
             </div>
           </form>

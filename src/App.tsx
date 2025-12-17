@@ -55,14 +55,14 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/product/:id" element={<Product />} />
-              <Route
+              {/* <Route
                 path="/farm-stand"
                 element={
                   <PrivateRoute>
                     <FarmStand />
                   </PrivateRoute>
                 }
-              />
+              /> */}
               <Route path="/purchase/:id" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
               <Route path="/boxes" element={<Boxes />} />

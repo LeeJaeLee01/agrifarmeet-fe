@@ -77,6 +77,7 @@ const AdminShippers: React.FC = () => {
       key: 'id',
       width: 220,
       ellipsis: true,
+      // ID không cần dịch vì là mã định danh
     },
     {
       title: t('admin.scheduledDate'),
