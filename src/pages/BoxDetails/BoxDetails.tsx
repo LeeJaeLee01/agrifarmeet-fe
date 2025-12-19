@@ -7,7 +7,6 @@ import { ShareAltOutlined, DownloadOutlined } from '@ant-design/icons';
 import { TBox } from '../../types/TBox';
 import { TProduct } from '../../types/TProduct';
 import { QRCodeCanvas } from 'qrcode.react';
-import * as htmlToImage from 'html-to-image';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { useTitle } from '../../hooks/useTitle';
@@ -41,16 +40,97 @@ const BoxDetails: React.FC = () => {
 
   // Hàm lưu modal thành ảnh
   const handleSaveImage = async () => {
-    if (modalRef.current) {
-      try {
-        const dataUrl = await htmlToImage.toPng(modalRef.current);
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `${box?.name || 'box'}.png`;
-        link.click();
-      } catch (err) {
-        console.error('Lỗi khi lưu ảnh:', err);
+    if (!modalRef.current || !box) return;
+
+    try {
+      // Tìm canvas QR code
+      const qrCanvas = modalRef.current.querySelector('canvas') as HTMLCanvasElement;
+
+      if (!qrCanvas) {
+        console.error('Không tìm thấy QR code canvas');
+        return;
       }
+
+      // Đợi canvas render xong (đặc biệt quan trọng trên mobile)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Tạo canvas mới để combine text và QR code
+      const outputCanvas = document.createElement('canvas');
+      const ctx = outputCanvas.getContext('2d');
+
+      if (!ctx) {
+        console.error('Không thể tạo canvas context');
+        return;
+      }
+
+      // Kích thước canvas output
+      const padding = 40;
+      const qrSize = qrCanvas.width;
+      const textHeight = 60;
+      const canvasWidth = qrSize + padding * 2;
+      const canvasHeight = qrSize + textHeight + padding * 3;
+
+      outputCanvas.width = canvasWidth;
+      outputCanvas.height = canvasHeight;
+
+      // Vẽ nền trắng
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Vẽ text (tên box)
+      ctx.fillStyle = '#171725';
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      // Wrap text nếu quá dài
+      const maxWidth = canvasWidth - padding * 2;
+      const words = box.name.split(' ');
+      let line = '';
+      let y = padding;
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(line, canvasWidth / 2, y);
+          line = words[i] + ' ';
+          y += 30;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, canvasWidth / 2, y);
+
+      // Vẽ QR code vào giữa canvas
+      const qrX = padding;
+      const qrY = textHeight + padding * 2;
+      ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+
+      // Convert canvas thành blob và download
+      outputCanvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            console.error('Không thể tạo blob từ canvas');
+            return;
+          }
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${box.name || 'box'}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Cleanup
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+        },
+        'image/png',
+        1.0
+      );
+    } catch (err) {
+      console.error('Lỗi khi lưu ảnh:', err);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import Section from '../../components/Section/Section';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
@@ -22,7 +22,7 @@ const Shipping: React.FC = () => {
   const [nearestOrder, setNearestOrder] = useState<TShipping | null>(null);
   const token = useSelector((state: RootState) => state.auth.token);
 
-  const fetchShipping = async () => {
+  const fetchShipping = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get('/shipping/me', {
@@ -48,11 +48,11 @@ const Shipping: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchShipping();
-  }, []);
+  }, [fetchShipping]);
 
   const renderStatusTag = (status: string) => {
     switch (status) {
