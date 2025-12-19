@@ -162,7 +162,7 @@ const Home: React.FC = () => {
                       aria-hidden="true"
                       className="flex-none w-5 h-6 text-orange"
                     />
-yy                    {t('common.includes')} {box.products.length} {t('common.products')}
+                    {t('common.includes')} {box.products.length} {t('common.products')}
                   </li>
                   {!box.isTrial && (
                     <li className="flex gap-x-3">
