@@ -129,14 +129,44 @@ const PurchasePage: React.FC = () => {
 
       console.log(requestBody);
 
-      const res = await api.post('/payment/create', requestBody, {
+      // VNPay payment (tạm thời comment)
+      // const res = await api.post('/payment/create', requestBody, {
+      //   withAuth: true,
+      // });
+      // if (res.data && res.data.url) {
+      //   // redirect tới cổng thanh toán
+      //   window.location.href = res.data.url;
+      // } else {
+      //   toast.error('Không tạo được link thanh toán');
+      // }
+
+      // Fake payment
+      const paymentRes = await api.post('/payment/fake', requestBody, {
         withAuth: true,
       });
-      if (res.data && res.data.url) {
-        // redirect tới cổng thanh toán
-        window.location.href = res.data.url;
+      
+      // Chỉ gọi purchase khi payment thành công
+      if (paymentRes.data && paymentRes.data.success) {
+        toast.success(paymentRes.data.message || 'Thanh toán thành công!');
+        
+        try {
+          // Tạo purchase order sau khi thanh toán thành công (chỉ cần boxId, thông tin khác lấy từ JWT)
+          const purchasePayload = {
+            boxId: boxInfo.id,
+          };
+          
+          await api.post('/boxes/purchase', purchasePayload, {
+            withAuth: true,
+          });
+          
+          // Redirect về trang shipping sau khi tạo purchase thành công
+          navigate('/shipping');
+        } catch (purchaseErr) {
+          console.error('Lỗi khi tạo purchase:', purchaseErr);
+          toast.error('Thanh toán thành công nhưng tạo đơn hàng thất bại!');
+        }
       } else {
-        toast.error('Không tạo được link thanh toán');
+        toast.error('Thanh toán thất bại');
       }
     } catch (err) {
       console.error(err);

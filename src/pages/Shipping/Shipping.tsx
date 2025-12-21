@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import Section from '../../components/Section/Section';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
@@ -94,8 +95,10 @@ const Shipping: React.FC = () => {
               />
               <div className="flex-1">
                 {boxInfo.isTrial && <p className="!mb-3 label-trial">Gói dùng thử</p>}
-                <p className="text-xl font-semibold lg:text-2xl">{boxInfo.name}</p>
-                <span className="text-text2">{boxInfo.description}</span>
+                <Link to={`/boxes/${boxInfo.id}`} className="block text-xl font-semibold lg:text-2xl hover:text-green transition-colors">
+                  {boxInfo.name}
+                </Link>
+                <span className="block text-text2">{boxInfo.description}</span>
 
                 <div className="mt-5">
                   <p className="text-base font-medium lg:text-lg">
