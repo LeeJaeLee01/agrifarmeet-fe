@@ -35,6 +35,14 @@
   @apply text-text1 shadow-sm;
 }
 
+.header-simple {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  @apply text-text1 shadow-sm;
+}
+
 .logo {
   display: flex;
   align-items: center;

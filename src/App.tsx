@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router';
 import Loading from './components/Loading/Loading';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
-import PrivateRoute from './routes/PrivateRoute';
 import AdminRoute from './routes/AdminRoute';
 import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
@@ -12,12 +11,13 @@ import ShipperRoute from './routes/ShipperRoute';
 import ShipperLayout from './layouts/ShipperLayout';
 
 // User pages
+const Landing = lazy(() => import('./pages/Landing/Landing'));
 const Home = lazy(() => import('./pages/Home/Home'));
 const Login = lazy(() => import('./pages/Login/Login'));
 const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
-const Cart = lazy(() => import('./pages/Cart/Cart'));
+// const Cart = lazy(() => import('./pages/Cart/Cart'));
 const Product = lazy(() => import('./pages/Product/Product'));
-const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
+// const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
 const Purchase = lazy(() => import('./pages/Purchase/Purchase'));
 const Order = lazy(() => import('./pages/Order/Order'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
@@ -43,6 +43,16 @@ function App() {
       <ConfigProvider>
         <AntdApp>
           <Routes>
+            {/* Landing page - no layout */}
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<Loading />}>
+                  <Landing />
+                </Suspense>
+              }
+            />
+
             {/* Nhóm route User */}
             <Route
               element={
@@ -51,7 +61,7 @@ function App() {
                 </Suspense>
               }
             >
-              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/product/:id" element={<Product />} />

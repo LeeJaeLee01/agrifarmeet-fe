@@ -1,0 +1,539 @@
+.landing-page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+// Hero Section
+.hero-section {
+  position: relative;
+  width: 100%;
+  margin-top: calc(96px + 24px); // Header height (96px) + 24px gap
+  margin-bottom: 12px; // Gap before solutions section
+
+  > .container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .hero-background {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    z-index: 1;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    }
+  }
+
+  .hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+
+    .hero-text-content {
+      text-align: left;
+      color: white;
+      padding: 20px 30px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero-title-line1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-top: 0;
+      white-space: nowrap;
+
+      @media (min-width: 768px) {
+        font-size: 2rem;
+      }
+
+      @media (min-width: 1024px) {
+        font-size: 2.5rem;
+        max-width: 700px;
+      }
+    }
+
+    .hero-title-line2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      margin-top: 0;
+
+      @media (min-width: 768px) {
+        font-size: 1.5rem;
+      }
+
+      @media (min-width: 1024px) {
+        font-size: 1.75rem;
+        max-width: 700px;
+      }
+    }
+
+    .hero-description {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+
+      @media (min-width: 768px) {
+        font-size: 1rem;
+        max-width: 600px;
+      }
+
+      @media (min-width: 1024px) {
+        font-size: 1.05rem;
+      }
+    }
+
+    .hero-cta-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #3da35d;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border: none;
+      cursor: pointer;
+
+      @media (min-width: 768px) {
+        font-size: 1.05rem;
+      }
+
+      &:hover {
+        background: #2d8a4a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+}
+
+// Solutions Section
+.solutions-section {
+  padding: 12px 0;
+
+  > .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+    color: #2c3e50;
+
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .packages-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: stretch;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .package-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .package-header {
+      padding: 15px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+
+      &.green {
+        background: #3da35d;
+      }
+
+      &.orange {
+        background: #ff6b35;
+      }
+
+      .package-icon {
+        font-size: 1.3rem;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+    }
+
+    .package-content {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      .package-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 12px 0;
+        flex: 1;
+
+        li {
+          padding: 6px 0;
+          padding-left: 25px;
+          position: relative;
+          font-size: 0.9rem;
+          color: #333;
+
+          &::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #3da35d;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .package-image {
+        position: relative;
+        width: 100%;
+        height: 150px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .package-badge {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: #3da35d;
+          color: white;
+          padding: 5px 12px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+      }
+
+      .package-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background: #3da35d;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: background 0.3s ease;
+        flex-shrink: 0;
+        margin-top: auto;
+
+        &:hover {
+          background: #2d8a4a;
+        }
+      }
+    }
+  }
+}
+
+// Packages List Section
+.packages-list-section {
+  padding: 24px 0;
+  background: white;
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #2c3e50;
+  }
+
+  .packages-list {
+    max-width: 800px;
+    margin: 0 auto;
+
+    .list-item {
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      background: #f8f9fa;
+      border-left: 4px solid #3da35d;
+      border-radius: 4px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #333;
+
+      strong {
+        color: #2c3e50;
+      }
+    }
+  }
+}
+
+// Weekly Products Section
+.weekly-products-section {
+  padding: 12px 0;
+
+  > .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 12px;
+    color: #2c3e50;
+
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .products-swiper {
+    margin-bottom: 20px;
+    padding-bottom: 50px;
+  }
+
+  .product-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .product-name {
+      padding: 12px 15px 6px;
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .product-description {
+      padding: 0 15px 12px;
+      margin: 0;
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.5;
+      flex: 1;
+    }
+  }
+
+  .cta-wrapper {
+    text-align: center;
+    margin-top: 40px;
+
+    .cta-button {
+      display: inline-block;
+      padding: 16px 32px;
+      background: #3da35d;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #2d8a4a;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+// Comparison Section
+.comparison-section {
+  padding: 24px 0;
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .comparison-table {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .comparison-column {
+    padding: 20px;
+    border-radius: 12px;
+
+    &.agrifarmeet {
+      border: 2px solid #3da35d;
+    }
+
+    &.market {
+      border: 2px solid #ff6b6b;
+    }
+
+    .column-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .comparison-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 0.95rem;
+      color: #333;
+
+      .icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+
+        &.check {
+          color: #3da35d;
+        }
+
+        &.cross {
+          color: #ff6b6b;
+        }
+      }
+    }
+
+    .comparison-image {
+      margin-top: 30px;
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+}
+

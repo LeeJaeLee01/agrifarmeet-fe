@@ -1,4 +1,4 @@
-import { MenuProps, Dropdown, Layout } from 'antd';
+import { MenuProps, Dropdown } from 'antd';
 import { MenuOutlined, CloseOutlined, BellOutlined } from '@ant-design/icons';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './MainHeader.scss';
@@ -11,9 +11,10 @@ import { useTranslation } from 'react-i18next';
 
 type MainHeaderProps = {
   sticky?: boolean;
+  simple?: boolean; // Simple header for landing page
 };
 
-const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
+const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false }) => {
   const { t } = useTranslation();
   const token = useSelector((state: RootState) => state.auth.token);
   const username = useSelector((state: RootState) => state.auth.username);
@@ -29,7 +30,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
   };
 
   useEffect(() => {
-    if (sticky) return;
+    if (sticky || simple) return;
     const handleScroll = () => {
       const height = headerRef.current?.offsetHeight || 96;
       if (window.scrollY > height) {
@@ -40,7 +41,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [sticky]);
+  }, [sticky, simple]);
 
   const userMenu: MenuProps = {
     items: [
@@ -68,11 +69,11 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
       isActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
-  const headerClass = `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${
-    open ? 'header-drop' : ''
-  }`;
+  const headerClass = simple
+    ? 'header header-simple'
+    : `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${open ? 'header-drop' : ''}`;
 
-  const logoSrc = sticky || isFixed || open ? '/logo.png' : '/logo-white.png';
+  const logoSrc = simple || sticky || isFixed || open ? '/logo.png' : '/logo-white.png';
 
   return (
     <Fragment>
@@ -87,39 +88,36 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
 
           {/* Menu desktop */}
           <div className="items-center hidden gap-5 md:flex">
-            <NavLink to="/" className={navLinkClass}>
+            <NavLink to="/home" className={navLinkClass}>
               {t('common.home')}
             </NavLink>
-            {/* <NavLink to="/farm-stand" className={navLinkClass}>
-              {t('common.farmStand')}
-            </NavLink> */}
             <NavLink to="/boxes" className={navLinkClass}>
               {t('common.allBoxes')}
             </NavLink>
-            {/* <NavLink to="/event" className={navLinkClass}>
-              Sự kiện
-            </NavLink>
-            <NavLink to="/about" className={navLinkClass}>
-              Về chúng tôi
-            </NavLink> */}
 
-            {token ? (
-              <div className="flex items-center gap-5">
-                <Dropdown menu={userMenu} placement="bottomRight" trigger={['click']}>
-                  <span className="cursor-pointer text-[16px] text-gray-700 hover:text-green-700">
-                    {username}
-                  </span>
-                </Dropdown>
-                <BellOutlined className="text-xl cursor-pointer" />
-                <LanguageSwitcher />
-              </div>
+            {simple ? (
+              <LanguageSwitcher />
             ) : (
-              <div className="flex items-center gap-5">
-                <NavLink to="/login" className={navLinkClass}>
-                  {t('common.login')}
-                </NavLink>
-                <LanguageSwitcher />
-              </div>
+              <>
+                {token ? (
+                  <div className="flex items-center gap-5">
+                    <Dropdown menu={userMenu} placement="bottomRight" trigger={['click']}>
+                      <span className="cursor-pointer text-[16px] text-gray-700 hover:text-green-700">
+                        {username}
+                      </span>
+                    </Dropdown>
+                    <BellOutlined className="text-xl cursor-pointer" />
+                    <LanguageSwitcher />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-5">
+                    <NavLink to="/login" className={navLinkClass}>
+                      {t('common.login')}
+                    </NavLink>
+                    <LanguageSwitcher />
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -140,47 +138,46 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false }) => {
           }`}
         >
           <nav className="flex flex-col gap-1 px-5 py-10 space-y-5 text-text1">
-            <NavLink to="/" className={navLinkClass} onClick={() => setOpen(false)}>
+            <NavLink to="/home" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.home')}
-            </NavLink>
-            <NavLink to="/farm-stand" className={navLinkClass} onClick={() => setOpen(false)}>
-              {t('common.farmStand')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.allBoxes')}
             </NavLink>
-            {/* <NavLink to="/event" className={navLinkClass} onClick={() => setOpen(false)}>
-              Sự kiện
-            </NavLink>
-            <NavLink to="/about" className={navLinkClass} onClick={() => setOpen(false)}>
-              Về chúng tôi
-            </NavLink> */}
-            {token ? (
-              <>
-                <NavLink
-                  to="/customer-info"
-                  className={navLinkClass}
-                  onClick={() => setOpen(false)}
-                >
-                  {t('common.myInfo')}
-                </NavLink>
-                <NavLink to="/shipping" className={navLinkClass} onClick={() => setOpen(false)}>
-                  {t('common.myOrders')}
-                </NavLink>
-              </>
+            {simple ? (
+              <div className="mt-5">
+                <LanguageSwitcher />
+              </div>
             ) : (
-              <NavLink to="/login" className={navLinkClass} onClick={() => setOpen(false)}>
-                {t('common.login')}
-              </NavLink>
+              <>
+                {token ? (
+                  <>
+                    <NavLink
+                      to="/customer-info"
+                      className={navLinkClass}
+                      onClick={() => setOpen(false)}
+                    >
+                      {t('common.myInfo')}
+                    </NavLink>
+                    <NavLink to="/shipping" className={navLinkClass} onClick={() => setOpen(false)}>
+                      {t('common.myOrders')}
+                    </NavLink>
+                  </>
+                ) : (
+                  <NavLink to="/login" className={navLinkClass} onClick={() => setOpen(false)}>
+                    {t('common.login')}
+                  </NavLink>
+                )}
+                <span
+                  className={`${
+                    token ? 'flex' : 'hidden'
+                  } items-center text-base cursor-pointer text-red`}
+                  onClick={handleLogout}
+                >
+                  {t('common.logout')}
+                </span>
+              </>
             )}
-            <span
-              className={`${
-                token ? 'flex' : 'hidden'
-              } items-center text-base cursor-pointer text-red`}
-              onClick={handleLogout}
-            >
-              {t('common.logout')}
-            </span>
           </nav>
         </div>
       </header>

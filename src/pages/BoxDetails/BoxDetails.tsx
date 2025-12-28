@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, Fragment } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Section from '../../components/Section/Section';
 import api from '../../utils/api';
 import { Spin, Table, Modal, Button } from 'antd';
@@ -170,6 +170,16 @@ const BoxDetails: React.FC = () => {
                       Gói dùng thử
                     </span>
                   )}
+                  <Link to={`/purchase/${box.id}`}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      className="w-full mt-4 bg-green2 hover:bg-green-700"
+                      style={{ backgroundColor: '#3da35d' }}
+                    >
+                      Mua ngay
+                    </Button>
+                  </Link>
                 </div>
               </div>
 
