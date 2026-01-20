@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { Input, Button, Select } from 'antd';
+import { Input, Button, Select, Modal } from 'antd';
 import Section from '../../components/Section/Section';
 import './Purchase.scss';
 import { toast } from 'react-toastify';
@@ -8,9 +8,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
 import { formatWeight } from '../../utils/helper';
-import { v4 as uuidv4 } from 'uuid';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { QRCodeCanvas } from 'qrcode.react';
 
 type PurchaseForm = {
   boxId: string;
@@ -45,6 +45,10 @@ const PurchasePage: React.FC = () => {
   const [selectedProvince, setSelectedProvince] = useState<any>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
   const [boxInfo, setBoxInfo] = useState<any>(null);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrExpireTime, setQrExpireTime] = useState<number>(0); // Thời gian còn lại (giây)
+  const [currentBoxId, setCurrentBoxId] = useState<string | null>(null); // Box ID để check status
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -100,8 +104,92 @@ const PurchasePage: React.FC = () => {
     }
   }, [selectedDistrict]);
 
+  // 🔹 Đếm ngược thời gian QR code (3 phút = 180 giây)
+  useEffect(() => {
+    if (!showQrModal || !qrCodeData) {
+      setQrExpireTime(0);
+      return;
+    }
+
+    // Bắt đầu đếm ngược từ 180 giây (3 phút)
+    setQrExpireTime(180);
+
+    const interval = setInterval(() => {
+      setQrExpireTime((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          // Hết hạn: đóng modal và hiển thị thông báo
+          setShowQrModal(false);
+          setQrCodeData(null);
+          toast.error('Mã QR thanh toán đã hết hạn. Vui lòng tạo lại!');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showQrModal, qrCodeData]);
+
+  // 🔹 Polling check payment status mỗi 5 giây
+  useEffect(() => {
+    if (!showQrModal || !currentBoxId) {
+      return;
+    }
+
+    const checkPaymentStatus = async () => {
+      try {
+        const res = await api.get(`/boxes/user/status/${currentBoxId}`, {
+          withAuth: true,
+        });
+        
+        if (res.data && res.data.status === 'active') {
+          // Thanh toán thành công
+          setShowQrModal(false);
+          setQrCodeData(null);
+          setCurrentBoxId(null);
+          toast.success('Thanh toán thành công!');
+          navigate('/');
+        }
+      } catch (err) {
+        console.error('Error checking payment status:', err);
+      }
+    };
+
+    // Gọi ngay lần đầu
+    checkPaymentStatus();
+
+    // Sau đó polling mỗi 5 giây
+    const pollInterval = setInterval(checkPaymentStatus, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, [showQrModal, currentBoxId, navigate]);
+
+  // 🔹 Format thời gian đếm ngược thành MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // 🔹 Đóng modal QR và reset state
+  const handleCloseQrModal = () => {
+    setShowQrModal(false);
+    setQrCodeData(null);
+    setQrExpireTime(0);
+    setCurrentBoxId(null);
+  };
+
   const onSubmit: SubmitHandler<PurchaseForm> = async (data) => {
     if (!boxInfo) return;
+
+    // Kiểm tra đăng nhập trước khi đặt hàng
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.warning('Vui lòng đăng nhập để đặt hàng!');
+      navigate('/login');
+      return;
+    }
 
     const fullAddress = [data.addressDetail, data.ward, data.district, data.province]
       .filter(Boolean)
@@ -110,16 +198,14 @@ const PurchasePage: React.FC = () => {
     // lưu boxId vào localStorage để dùng sau khi quay lại
     localStorage.setItem('lastBoxId', boxInfo.id);
 
-    // tạo orderId ngẫu nhiên
-    const orderId = uuidv4();
     const amount = Number(boxInfo.price);
 
     try {
       setLoading(true);
 
-      // Tạo body request
+      // Tạo body request cho API /payment/create
       const requestBody = {
-        orderId,
+        boxId: boxInfo.id,
         amount,
         name: data.fullname,
         email: data.email,
@@ -127,46 +213,19 @@ const PurchasePage: React.FC = () => {
         fullAddress,
       };
 
-      console.log(requestBody);
-
-      // VNPay payment (tạm thời comment)
-      // const res = await api.post('/payment/create', requestBody, {
-      //   withAuth: true,
-      // });
-      // if (res.data && res.data.url) {
-      //   // redirect tới cổng thanh toán
-      //   window.location.href = res.data.url;
-      // } else {
-      //   toast.error('Không tạo được link thanh toán');
-      // }
-
-      // Fake payment
-      const paymentRes = await api.post('/payment/fake', requestBody, {
+      // Gọi API /payment/create để tạo QR code
+      const res = await api.post('/payment/create', requestBody, {
         withAuth: true,
       });
-      
-      // Chỉ gọi purchase khi payment thành công
-      if (paymentRes.data && paymentRes.data.success) {
-        toast.success(paymentRes.data.message || 'Thanh toán thành công!');
-        
-        try {
-          // Tạo purchase order sau khi thanh toán thành công (chỉ cần boxId, thông tin khác lấy từ JWT)
-          const purchasePayload = {
-            boxId: boxInfo.id,
-          };
-          
-          await api.post('/boxes/purchase', purchasePayload, {
-            withAuth: true,
-          });
-          
-          // Redirect về trang shipping sau khi tạo purchase thành công
-          navigate('/shipping');
-        } catch (purchaseErr) {
-          console.error('Lỗi khi tạo purchase:', purchaseErr);
-          toast.error('Thanh toán thành công nhưng tạo đơn hàng thất bại!');
-        }
+
+      if (res.data && res.data.success && res.data.data && res.data.data.data) {
+        // Lấy QR code từ response
+        setQrCodeData(res.data.data.data);
+        setCurrentBoxId(boxInfo.id); // Lưu boxId để polling check status
+        setShowQrModal(true);
+        toast.success(res.data.message || 'Tạo mã QR thành công!');
       } else {
-        toast.error('Thanh toán thất bại');
+        toast.error('Không tạo được mã QR');
       }
     } catch (err) {
       console.error(err);
@@ -425,6 +484,47 @@ const PurchasePage: React.FC = () => {
           </div>
         </div>
       </Section>
+
+      {/* QR Code Modal */}
+      <Modal
+        title="Mã QR thanh toán"
+        open={showQrModal}
+        onCancel={handleCloseQrModal}
+        footer={[
+          <Button key="close" onClick={handleCloseQrModal}>
+            Đóng
+          </Button>,
+        ]}
+        centered
+      >
+        <div className="flex flex-col items-center justify-center py-5">
+          {qrCodeData ? (
+            <>
+              <QRCodeCanvas value={qrCodeData} size={256} level="H" />
+              <div className="mt-4 text-center">
+                <p className="text-sm text-text3 mb-2">
+                  Quét mã QR để thanh toán
+                </p>
+                <div className={`text-lg font-semibold ${
+                  qrExpireTime <= 30 ? 'text-red-600' : 
+                  qrExpireTime <= 60 ? 'text-orange-500' : 
+                  'text-green-600'
+                }`}>
+                  Thời gian còn lại: {formatTime(qrExpireTime)}
+                </div>
+                {qrExpireTime <= 30 && (
+                  <p className="mt-2 text-xs text-red-600">
+                    ⚠️ Mã QR sắp hết hạn!
+                  </p>
+                )}
+              </div>
+            </>
+          ) : (
+            <p>Không có dữ liệu QR code</p>
+          )}
+        </div>
+      </Modal>
+
       <MainFooter />
     </Fragment>
   );
