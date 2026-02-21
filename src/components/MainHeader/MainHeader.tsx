@@ -65,8 +65,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
-      isActive ? 'text-green2 font-semibold' : 'text-gray-700'
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${isActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
   const headerClass = simple
@@ -74,6 +73,22 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
     : `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${open ? 'header-drop' : ''}`;
 
   const logoSrc = simple || sticky || isFixed || open ? '/logo.png' : '/logo-white.png';
+
+  /* Animation logic */
+  const [animKey, setAnimKey] = useState(0);
+  const sloganText = t('common.slogan');
+
+  useEffect(() => {
+    const runAnimation = () => {
+      setAnimKey(prev => prev + 1);
+    };
+
+    // Initial run
+    runAnimation();
+
+    const interval = setInterval(runAnimation, 3600); // Match slide autoplay delay
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Fragment>
@@ -86,16 +101,29 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
           </div>
 
+          <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 text-xl uppercase tracking-wider text-center wavy-text">
+            {sloganText
+              .split('')
+              .map((char, index) => (
+                <span
+                  key={`${index}-${animKey}`} // Update key to re-trigger animation
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  {char === ' ' ? '\u00A0' : char}
+                </span>
+              ))}
+          </div>
+
           {/* Menu desktop */}
           <div className="items-center hidden gap-5 md:flex">
-            <NavLink to="/home" className={navLinkClass}>
+            {/* <NavLink to="/home" className={navLinkClass}>
               {t('common.home')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass}>
               {t('common.allBoxes')}
-            </NavLink>
+            </NavLink> */}
 
-            {simple ? (
+            {/* {simple ? (
               <LanguageSwitcher />
             ) : (
               <>
@@ -118,7 +146,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
                   </div>
                 )}
               </>
-            )}
+            )} */}
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile toggle button */}
@@ -132,7 +161,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
         </div>
 
         {/* Mobile menu dropdown */}
-        <div
+        {/* <div
           className={`absolute max-h-fit -z-10 left-0 w-full shadow-sm transition-all overflow-hidden bg-white top-20 md:hidden bg-gray-50 ${
             open ? 'h-screen' : 'h-0'
           }`}
@@ -179,7 +208,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               </>
             )}
           </nav>
-        </div>
+        </div> */}
       </header>
     </Fragment>
   );

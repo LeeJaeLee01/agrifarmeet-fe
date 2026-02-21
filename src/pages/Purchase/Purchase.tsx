@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select, Modal } from 'antd';
 import Section from '../../components/Section/Section';
@@ -7,7 +8,7 @@ import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
-import { formatWeight } from '../../utils/helper';
+import { formatWeight, generateRandomString, formatVND } from '../../utils/helper';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -28,7 +29,8 @@ type PurchaseForm = {
 const { Option } = Select;
 
 const PurchasePage: React.FC = () => {
-  useTitle('Đặt hàng');
+  const { t } = useTranslation();
+  useTitle(t('purchase.title'));
 
   const {
     control,
@@ -50,7 +52,7 @@ const PurchasePage: React.FC = () => {
   const [qrExpireTime, setQrExpireTime] = useState<number>(0); // Thời gian còn lại (giây)
   const [currentBoxId, setCurrentBoxId] = useState<string | null>(null); // Box ID để check status
 
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,20 +61,20 @@ const PurchasePage: React.FC = () => {
 
   // 🔹 Lấy thông tin box từ API
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
     const fetchBox = async () => {
       try {
-        const res = await api.get(`/boxes/${id}`);
-        setBoxInfo(res.data);
+        const res = await api.get<{ data: any }>(`/boxes/${slug}`);
+        setBoxInfo(res.data.data);
         // Set boxId vào form luôn
-        setValue('boxId', id);
+        setValue('boxId', res.data.data.id);
       } catch (err) {
         console.error(err);
-        toast.error('Không tải được thông tin gói hàng');
+        toast.error(t('purchase.cannotLoadBox'));
       }
     };
     fetchBox();
-  }, [id, setValue]);
+  }, [slug, setValue]);
 
   // 🔹 Lấy danh sách tỉnh
   useEffect(() => {
@@ -121,7 +123,7 @@ const PurchasePage: React.FC = () => {
           // Hết hạn: đóng modal và hiển thị thông báo
           setShowQrModal(false);
           setQrCodeData(null);
-          toast.error('Mã QR thanh toán đã hết hạn. Vui lòng tạo lại!');
+          toast.error(t('purchase.qrExpired'));
           return 0;
         }
         return prev - 1;
@@ -142,13 +144,13 @@ const PurchasePage: React.FC = () => {
         const res = await api.get(`/boxes/user/status/${currentBoxId}`, {
           withAuth: true,
         });
-        
+
         if (res.data && res.data.status === 'active') {
           // Thanh toán thành công
           setShowQrModal(false);
           setQrCodeData(null);
           setCurrentBoxId(null);
-          toast.success('Thanh toán thành công!');
+          toast.success(t('purchase.paymentSuccess'));
           navigate('/');
         }
       } catch (err) {
@@ -183,21 +185,8 @@ const PurchasePage: React.FC = () => {
   const onSubmit: SubmitHandler<PurchaseForm> = async (data) => {
     if (!boxInfo) return;
 
-    // Kiểm tra đăng nhập trước khi đặt hàng
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.warning('Vui lòng đăng nhập để đặt hàng!');
-      navigate('/login');
-      return;
-    }
-
-    const fullAddress = [data.addressDetail, data.ward, data.district, data.province]
-      .filter(Boolean)
-      .join(', ');
-
-    // lưu boxId vào localStorage để dùng sau khi quay lại
-    localStorage.setItem('lastBoxId', boxInfo.id);
-
+    // Tạo orderId ngẫu nhiên
+    const orderId = generateRandomString(13);
     const amount = Number(boxInfo.price);
 
     try {
@@ -205,31 +194,33 @@ const PurchasePage: React.FC = () => {
 
       // Tạo body request cho API /payment/create
       const requestBody = {
-        boxId: boxInfo.id,
+        orderId,
         amount,
-        name: data.fullname,
+        orderInfo: `Thanh toán ${boxInfo.name}`,
+        fullname: data.fullname,
         email: data.email,
         phone: data.phone,
-        fullAddress,
+        address: `${data.province}, ${data.district}, ${data.ward}`,
+        address_detail: data.addressDetail,
+        box_id: boxInfo.id,
       };
 
-      // Gọi API /payment/create để tạo QR code
-      const res = await api.post('/payment/create', requestBody, {
-        withAuth: true,
-      });
+      // Gọi API /boxes/payment/qr để tạo QR code
+      const res = await api.post('/boxes/payment/qr', requestBody);
 
-      if (res.data && res.data.success && res.data.data && res.data.data.data) {
+      if (res.data && res.data.data && res.data.data.data) {
         // Lấy QR code từ response
         setQrCodeData(res.data.data.data);
-        setCurrentBoxId(boxInfo.id); // Lưu boxId để polling check status
+        setCurrentBoxId(boxInfo.id); // Lưu boxId để polling check status (giữ logic cũ nếu cần hoặc update sau)
+        // Hiện tại chỉ hiển thị QR code từ string trả về
         setShowQrModal(true);
-        toast.success(res.data.message || 'Tạo mã QR thành công!');
+        toast.success(t('purchase.createQrSuccess'));
       } else {
-        toast.error('Không tạo được mã QR');
+        toast.error(t('purchase.createQrFailed'));
       }
     } catch (err) {
       console.error(err);
-      toast.error('Có lỗi xảy ra khi đặt hàng!');
+      toast.error(t('purchase.orderError'));
     } finally {
       setLoading(false);
     }
@@ -240,7 +231,7 @@ const PurchasePage: React.FC = () => {
       <MainHeader sticky />
       <Section spaceBottom>
         <div className="container mx-auto">
-          <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">Đặt hàng</h1>
+          <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">{t('purchase.title')}</h1>
           <div className="flex flex-col justify-between w-full gap-10 lg:flex-row item-center">
             {/* FORM */}
             <form
@@ -249,63 +240,63 @@ const PurchasePage: React.FC = () => {
               id="purchase-form"
             >
               <h2 className="mb-5 text-lg font-medium lg:text-xl text-text1">
-                Thông tin người nhận
+                {t('purchase.receiverInfo')}
               </h2>
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Họ và tên</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.fullname')}</label>
                 <Controller
                   name="fullname"
                   control={control}
-                  rules={{ required: 'Vui lòng nhập họ tên' }}
+                  rules={{ required: 'purchase.fullnameRequired' }}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Nhập họ và tên" className="h-[52px]" />
+                    <Input {...field} placeholder={t('purchase.enterFullname')} className="h-[52px]" />
                   )}
                 />
-                {errors.fullname && <p className="text-xs text-red">{errors.fullname.message}</p>}
+                {errors.fullname && <p className="text-xs text-red">{t(errors.fullname.message || '')}</p>}
               </div>
 
               {/* Email */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Email</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.email')}</label>
                 <Controller
                   name="email"
                   control={control}
                   rules={{
-                    required: 'Vui lòng nhập email',
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email không hợp lệ' },
+                    required: 'purchase.emailRequired',
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'purchase.emailInvalid' },
                   }}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Nhập email" className="h-[52px]" />
+                    <Input {...field} placeholder={t('purchase.enterEmail')} className="h-[52px]" />
                   )}
                 />
-                {errors.email && <p className="text-xs text-red">{errors.email.message}</p>}
+                {errors.email && <p className="text-xs text-red">{t(errors.email.message || '')}</p>}
               </div>
 
               {/* Phone */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Số điện thoại</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.phone')}</label>
                 <Controller
                   name="phone"
                   control={control}
                   rules={{
-                    required: 'Vui lòng nhập số điện thoại',
-                    maxLength: { value: 10, message: 'Số điện thoại tối đa 10 chữ số' },
-                    pattern: { value: /^[0-9]{10}$/, message: 'Số điện thoại phải gồm 10 chữ số' },
+                    required: 'purchase.phoneRequired',
+                    maxLength: { value: 10, message: 'purchase.phoneMaxLength' },
+                    pattern: { value: /^[0-9]{10}$/, message: 'purchase.phonePattern' },
                   }}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Nhập số điện thoại" className="h-[52px]" />
+                    <Input {...field} placeholder={t('purchase.enterPhone')} className="h-[52px]" />
                   )}
                 />
-                {errors.phone && <p className="text-xs text-red">{errors.phone.message}</p>}
+                {errors.phone && <p className="text-xs text-red">{t(errors.phone.message || '')}</p>}
               </div>
 
               {/* Province */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Tỉnh/Thành phố</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.province')}</label>
                 <Controller
                   name="province"
                   control={control}
-                  rules={{ required: 'Chọn tỉnh/thành phố' }}
+                  rules={{ required: 'purchase.provinceRequired' }}
                   render={({ field }) => (
                     <Select
                       {...field}
@@ -320,7 +311,7 @@ const PurchasePage: React.FC = () => {
                         setDistricts([]);
                         setWards([]);
                       }}
-                      placeholder="Chọn tỉnh"
+                      placeholder={t('purchase.selectProvince')}
                       className="w-full h-[52px]"
                     >
                       {provinces.map((p) => (
@@ -331,16 +322,16 @@ const PurchasePage: React.FC = () => {
                     </Select>
                   )}
                 />
-                {errors.province && <p className="text-xs text-red">{errors.province.message}</p>}
+                {errors.province && <p className="text-xs text-red">{t(errors.province.message || '')}</p>}
               </div>
 
               {/* District */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Quận/Huyện</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.district')}</label>
                 <Controller
                   name="district"
                   control={control}
-                  rules={{ required: 'Chọn quận/huyện' }}
+                  rules={{ required: 'purchase.districtRequired' }}
                   render={({ field }) => (
                     <Select
                       {...field}
@@ -352,7 +343,7 @@ const PurchasePage: React.FC = () => {
 
                         setValue('ward', null);
                       }}
-                      placeholder="Chọn quận/huyện"
+                      placeholder={t('purchase.selectDistrict')}
                       className="w-full h-[52px]"
                       disabled={!districts.length}
                     >
@@ -364,16 +355,16 @@ const PurchasePage: React.FC = () => {
                     </Select>
                   )}
                 />
-                {errors.district && <p className="text-xs text-red">{errors.district.message}</p>}
+                {errors.district && <p className="text-xs text-red">{t(errors.district.message || '')}</p>}
               </div>
 
               {/* Ward */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">Xã/Phường</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.ward')}</label>
                 <Controller
                   name="ward"
                   control={control}
-                  rules={{ required: 'Chọn xã/phường' }}
+                  rules={{ required: 'purchase.wardRequired' }}
                   render={({ field }) => (
                     <Select
                       {...field}
@@ -382,7 +373,7 @@ const PurchasePage: React.FC = () => {
                         const wardObj = wards.find((w) => w.code === val);
                         field.onChange(wardObj?.name || null);
                       }}
-                      placeholder="Chọn xã/phường"
+                      placeholder={t('purchase.selectWard')}
                       className="w-full h-[52px]"
                       disabled={!wards.length}
                     >
@@ -394,30 +385,49 @@ const PurchasePage: React.FC = () => {
                     </Select>
                   )}
                 />
-                {errors.ward && <p className="text-xs text-red">{errors.ward.message}</p>}
+                {errors.ward && <p className="text-xs text-red">{t(errors.ward.message || '')}</p>}
               </div>
 
               {/* Address detail */}
               <div className="mb-6">
-                <label className="inline-block mb-1 text-sm font-medium">Địa chỉ chi tiết</label>
+                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.addressDetail')}</label>
                 <Controller
                   name="addressDetail"
                   control={control}
-                  rules={{ required: 'Vui lòng nhập địa chỉ chi tiết' }}
+                  rules={{ required: 'purchase.addressDetailRequired' }}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Số nhà, đường, thôn..." className="h-[52px]" />
+                    <Input {...field} placeholder={t('purchase.enterAddressDetail')} className="h-[52px]" />
                   )}
                 />
                 {errors.addressDetail && (
-                  <p className="text-xs text-red">{errors.addressDetail.message}</p>
+                  <p className="text-xs text-red">{t(errors.addressDetail.message || '')}</p>
                 )}
               </div>
+
+              {/* Total & Button */}
+              {boxInfo && (
+                <div className="mt-8">
+                  <p className="text-lg text-left mb-8 font-semibold">
+                    {t('purchase.totalAmount')}: <span className="text-green-600 text-xl">{formatVND(boxInfo.price)}</span>
+                  </p>
+                  <div className="flex justify-center w-full">
+                    <Button
+                      type="primary"
+                      className="bg-green h-[52px] text-lg font-semibold w-1/3"
+                      loading={loading}
+                      htmlType="submit"
+                    >
+                      {t('purchase.confirmOrder')}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </form>
 
             {/* ORDER SUMMARY */}
             <div className="w-full lg:w-1/3 xl:w-1/4">
               <h2 className="mb-5 text-lg font-semibold lg:text-xl text-text1">
-                Thông tin đơn hàng
+                {t('purchase.orderInfo')}
               </h2>
 
               {boxInfo ? (
@@ -425,7 +435,7 @@ const PurchasePage: React.FC = () => {
                   <div className="flex w-full gap-5 pb-5 mb-5 border-b border-border">
                     <img
                       src={
-                        boxInfo.image || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'
+                        boxInfo.images?.[0] || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'
                       }
                       alt=""
                       className="block object-cover rounded-lg w-28 h-28"
@@ -438,90 +448,100 @@ const PurchasePage: React.FC = () => {
                         {boxInfo.description}
                       </p>
                       <p className="text-xs lg:text-sm text-text3">
-                        Khối lượng: <span>{formatWeight(boxInfo.totalWeight, 'kg')}</span>
+                        {t('purchase.weight')}: <span>{boxInfo.includes?.serving_size}</span>
                       </p>
                     </div>
                   </div>
 
-                  <h3 className="mb-5 text-sm lg:text-base">Các sản phẩm có trong gói hàng</h3>
-                  {boxInfo.products?.map((p: any) => (
-                    <div className="flex gap-5 mb-5" key={p.id}>
+                  <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
+                  {boxInfo.boxProducts?.map((bp: any) => (
+                    <div className="flex gap-5 mb-5" key={bp.id}>
                       <img
-                        src={p.image}
-                        alt={p.name}
+                        src={bp.product.images?.[0] || 'https://via.placeholder.com/80'}
+                        alt={bp.product.name}
                         className="block object-cover w-20 h-20 rounded-lg"
                       />
                       <div>
-                        <p className="mb-1 text-sm lg:mb-2 text-text2">{p.name}</p>
+                        <p className="mb-1 text-sm lg:mb-2 text-text2">{bp.product.name}</p>
                         <p className="text-xs text-text3">
-                          Khối lượng tịnh: <span>{formatWeight(p.weight)}</span>
+                          {t('purchase.netWeight')}: <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
+                        </p>
+                        <p className="text-xs text-text3">
+                          {t('purchase.quantity')}: <span>{bp.quantity} {bp.unit}</span>
                         </p>
                       </div>
                     </div>
                   ))}
 
-                  <div>
-                    <p className="text-lg text-end">
-                      Tổng số tiền: <span>{Number(boxInfo.price).toLocaleString()}đ</span>
-                    </p>
-                    <div className="flex justify-end w-full">
-                      <Button
-                        type="primary"
-                        block
-                        className="bg-green h-[52px]"
-                        loading={loading}
-                        onClick={() => handleSubmit(onSubmit)()}
-                      >
-                        Xác nhận đặt hàng
-                      </Button>
-                    </div>
-                  </div>
+                  {/* Total and Button moved to form */}
                 </>
               ) : (
-                <p>Đang tải thông tin gói hàng...</p>
+                <p>{t('purchase.loadingBoxInfo')}</p>
               )}
             </div>
           </div>
         </div>
       </Section>
 
-      {/* QR Code Modal */}
+      {/* QR Code Modal Custom Design */}
       <Modal
-        title="Mã QR thanh toán"
+        title={null}
+        footer={null}
         open={showQrModal}
         onCancel={handleCloseQrModal}
-        footer={[
-          <Button key="close" onClick={handleCloseQrModal}>
-            Đóng
-          </Button>,
-        ]}
         centered
+        width={400}
+        className="qr-modal-custom"
+        styles={{
+          content: {
+            borderRadius: '20px',
+            padding: '0',
+            overflow: 'hidden',
+          }
+        }}
+        closeIcon={null}
       >
-        <div className="flex flex-col items-center justify-center py-5">
-          {qrCodeData ? (
-            <>
-              <QRCodeCanvas value={qrCodeData} size={256} level="H" />
-              <div className="mt-4 text-center">
-                <p className="text-sm text-text3 mb-2">
-                  Quét mã QR để thanh toán
-                </p>
-                <div className={`text-lg font-semibold ${
-                  qrExpireTime <= 30 ? 'text-red-600' : 
-                  qrExpireTime <= 60 ? 'text-orange-500' : 
-                  'text-green-600'
-                }`}>
-                  Thời gian còn lại: {formatTime(qrExpireTime)}
-                </div>
-                {qrExpireTime <= 30 && (
-                  <p className="mt-2 text-xs text-red-600">
-                    ⚠️ Mã QR sắp hết hạn!
-                  </p>
-                )}
+        <div className="relative flex flex-col items-center justify-center p-8 bg-white">
+          <button
+            onClick={handleCloseQrModal}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <h3 className="text-2xl font-bold text-center text-text1 mb-2">{t('purchase.qrTitle')}</h3>
+          <p className="text-sm text-center text-text3 mb-6">{t('purchase.scanQr')}</p>
+
+          <div className="p-4 bg-white rounded-xl shadow-lg border border-gray-100 mb-6">
+            {qrCodeData ? (
+              <QRCodeCanvas value={qrCodeData} size={200} level="H" />
+            ) : (
+              <div className="w-[200px] h-[200px] bg-gray-100 flex items-center justify-center text-gray-400">
+                Waiting...
               </div>
-            </>
-          ) : (
-            <p>Không có dữ liệu QR code</p>
-          )}
+            )}
+          </div>
+
+          <div className="w-full text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-sm text-text3">{t('purchase.timeLeft')}:</span>
+              <span className={`text-xl font-bold font-mono ${qrExpireTime <= 30 ? 'text-red-500' : 'text-green-600'
+                }`}>
+                {formatTime(qrExpireTime)}
+              </span>
+            </div>
+            {qrExpireTime <= 30 && (
+              <p className="text-xs text-red-500 font-medium animate-pulse">
+                {t('purchase.qrExpiring')}
+              </p>
+            )}
+          </div>
+
+          <p className="mt-6 text-xs text-center text-gray-400">
+            Vui lòng không tắt trình duyệt khi đang thanh toán
+          </p>
         </div>
       </Modal>
 

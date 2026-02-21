@@ -8,29 +8,6 @@ const MainFooter: React.FC = () => {
   const { t } = useTranslation();
   return (
     <footer className="w-full bg-green">
-      <div className="bg-secondary-green">
-        <div className="flex items-center justify-center gap-5 p-5 content">
-          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
-            <FacebookOutlined className="text-2xl" />
-          </div>
-          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
-            <TikTokOutlined className="text-2xl" />
-          </div>
-          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
-            <MailOutlined className="text-2xl" />
-          </div>
-          {/* <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
-            <img
-              src="https://page.widget.zalo.me/static/images/2.0/Logo.svg"
-              alt="zalo"
-              className="flex items-center justify-center w-6 h-6"
-            />
-          </div> */}
-          <div className="flex items-center justify-center w-10 h-10 text-white rounded-lg bg-green2">
-            <PhoneOutlined className="text-2xl" />
-          </div>
-        </div>
-      </div>
       <div className="p-10 content">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <div className="w-full">

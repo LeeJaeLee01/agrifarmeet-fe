@@ -88,13 +88,13 @@ const Shipping: React.FC = () => {
             <Empty description="Chưa có dữ liệu gói hàng" className="mt-10" />
           ) : (
             <div className="flex flex-wrap gap-10 lg:gap-20 lg:pt-10">
-              <img
-                src={boxInfo.image}
-                alt={boxInfo.name}
-                className="object-cover w-full lg:max-w-60 rounded-xl aspect-square"
-              />
+              <div className="flex w-40 lg:block lg:w-60">
+                {/* Placeholder for Box Image */}
+                {/* <img src={boxInfo.image} alt={boxInfo.name} className="object-cover w-full lg:max-w-60 rounded-xl aspect-square" /> */}
+                <div className="w-full h-full bg-gray-200 rounded-xl aspect-square"></div>
+              </div>
               <div className="flex-1">
-                {boxInfo.isTrial && <p className="!mb-3 label-trial">Gói dùng thử</p>}
+                {/* {boxInfo.isTrial && <p className="!mb-3 label-trial">Gói dùng thử</p>} */}
                 <Link to={`/boxes/${boxInfo.id}`} className="block text-xl font-semibold lg:text-2xl hover:text-green transition-colors">
                   {boxInfo.name}
                 </Link>

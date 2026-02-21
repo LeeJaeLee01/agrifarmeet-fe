@@ -33,7 +33,15 @@ const Boxes: React.FC = () => {
     setLoading(true);
     api
       .get<TBox[]>('/boxes')
-      .then((res) => setBoxes(res.data))
+      .then((res) => {
+        const rawData = res.data as any;
+        const boxesData = Array.isArray(rawData)
+          ? rawData
+          : (Array.isArray(rawData.data)
+            ? rawData.data
+            : (rawData.data ? [rawData.data] : []));
+        setBoxes(boxesData);
+      })
       .catch((err) => {
         toast.error(t('common.errorLoadingBoxes'));
         console.error('Error fetching boxes:', err);
@@ -68,18 +76,13 @@ const Boxes: React.FC = () => {
                     <p className="m-0 font-semibold text-base/7 text-orange line-clamp-2">
                       {box.name}
                     </p>
-                    {box.isTrial && (
-                      <p className="px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green">
-                        {t('common.trial')}
-                      </p>
-                    )}
                   </div>
                   <p className="m-0 mt-4 text-sm/6 text-text2">{box.description}</p>
                   <p className="flex items-baseline m-0 mt-6 gap-x-2">
                     <span className="text-4xl font-semibold tracking-tight">
                       {formatVND(box.price)}
                     </span>
-                    <span className="text-sm">/{box.expiredAt} {t('common.weeks')}</span>
+                    <span className="text-sm">/ {box.includes.duration_text}</span>
                   </p>
 
                   <ul role="list" className="m-0 mt-8 space-y-3 text-sm/6">
@@ -88,43 +91,32 @@ const Boxes: React.FC = () => {
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      {t('common.weight')} {formatWeight(box.totalWeight, 'kg')}
+                      {t('common.weight')}: {box.includes.serving_size}
                     </li>
                     <li className="flex gap-x-3">
                       <CheckCircleOutlined
                         aria-hidden="true"
                         className="flex-none w-5 h-6 text-orange"
                       />
-                      {t('common.includes')} {box.products.length} {t('common.products')}
+                      {t('common.includes')} {box.includes.product_count} {t('common.products')}
                     </li>
-                    {!box.isTrial && (
-                      <li className="flex gap-x-3">
-                        <CheckCircleOutlined
-                          aria-hidden="true"
-                          className="flex-none w-5 h-6 text-orange"
-                        />
-                        {t('common.customize')}
-                      </li>
-                    )}
+                    <li className="flex gap-x-3">
+                      <CheckCircleOutlined
+                        aria-hidden="true"
+                        className="flex-none w-5 h-6 text-orange"
+                      />
+                      {t('common.customize')}
+                    </li>
                   </ul>
                 </Link>
 
-                <Link to={`/purchase/${box.id}`}>
-                  {box.isTrial ? (
-                    <button
-                      className="w-full bg-white text-green2 border border-green3 mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
-                      onClick={() => dispatch(setSelectedBoxId(box.id))}
-                    >
-                      {t('common.buyNow')}
-                    </button>
-                  ) : (
-                    <button
-                      className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
-                      onClick={() => dispatch(setSelectedBoxId(box.id))}
-                    >
-                      {t('common.buyNow')}
-                    </button>
-                  )}
+                <Link to={`/purchase/${box.slug}`}>
+                  <button
+                    className="w-full bg-green2 text-white mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                    onClick={() => dispatch(setSelectedBoxId(box.id))}
+                  >
+                    {t('common.buyNow')}
+                  </button>
                 </Link>
               </div>
             ))

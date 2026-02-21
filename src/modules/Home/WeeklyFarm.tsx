@@ -46,17 +46,7 @@ const WeeklyFarm: React.FC = () => {
           <SwiperList className="pb-5">
             {products.map((item) => (
               <SwiperSlide key={item.id}>
-                <ProductCard
-                  id={item.id}
-                  image={item.image}
-                  name={item.name}
-                  weight={item.weight}
-                  description={item.description}
-                  categoryId={item.categoryId}
-                  createdBy={item.createdBy}
-                  createdAt={item.createdAt}
-                  updatedAt={item.updatedAt}
-                />
+                <ProductCard {...item} />
               </SwiperSlide>
             ))}
           </SwiperList>

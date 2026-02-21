@@ -4,6 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import Section from '../../components/Section/Section';
 import { Link } from 'react-router-dom';
 import './Cart.scss';
+import { formatVND } from '../../utils/helper';
 
 interface CartItem {
   productId: string; // product id
@@ -96,7 +97,7 @@ const Cart: React.FC = () => {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',
-      render: (price: number) => <span>{price.toLocaleString()}₫</span>,
+      render: (price: number) => <span>{formatVND(price)}</span>,
     },
     {
       title: 'Số lượng',
@@ -119,7 +120,7 @@ const Cart: React.FC = () => {
     {
       title: 'Thành tiền',
       key: 'total',
-      render: (_, record) => <span>{(record.price * record.quantity).toLocaleString()}₫</span>,
+      render: (_, record) => <span>{formatVND(record.price * record.quantity)}</span>,
     },
     {
       title: 'Hành động',
@@ -191,7 +192,7 @@ const Cart: React.FC = () => {
         <div className="container flex items-center justify-end w-full h-20 gap-5 px-5 mx-auto">
           <span className="text-lg font-medium">
             Tổng tiền ({selectedRowKeys.length} sản phẩm):{' '}
-            <span className="text-red-600">{totalAmount.toLocaleString()}₫</span>
+            <span className="text-red-600">{formatVND(totalAmount)}</span>
           </span>
           <Button
             type="primary"

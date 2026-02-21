@@ -1,10 +1,10 @@
 export function formatVND(num: number | string): string {
   const n = typeof num === 'string' ? parseFloat(num) : num;
   if (isNaN(n)) return '';
-  return n.toLocaleString('vi-VN') + ' ₫';
+  return n.toLocaleString('vi-VN') + ' VND';
 }
 
-export function formatWeight(weight: string | number, unit: 'g' | 'kg' = 'g'): string {
+export function formatWeight(weight: string | number, unit: string = 'g'): string {
   const num = Number(weight);
 
   if (isNaN(num)) return '0';
@@ -15,8 +15,8 @@ export function formatWeight(weight: string | number, unit: 'g' | 'kg' = 'g'): s
     return Number.isInteger(kgValue) ? `${kgValue} kg` : `${kgValue.toFixed(2)} kg`;
   }
 
-  // Mặc định g
-  return Number.isInteger(num) ? `${num} g` : `${num} g`;
+  // Mặc định dùng unit truyền vào
+  return Number.isInteger(num) ? `${num} ${unit}` : `${num} ${unit}`;
 }
 
 export const formatDate = (dateString: string) => {
@@ -33,4 +33,14 @@ export const formatDate = (dateString: string) => {
   const seconds = String(d.getSeconds()).padStart(2, '0');
 
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+};
+
+export const generateRandomString = (length: number = 13): string => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = 'ORDER_';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length - 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 };

@@ -73,7 +73,7 @@ function App() {
                   </PrivateRoute>
                 }
               /> */}
-              <Route path="/purchase/:id" element={<Purchase />} />
+              <Route path="/purchase/:slug" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
