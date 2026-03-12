@@ -24,7 +24,9 @@ const Landing: React.FC = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [isWeeklyVisible, setIsWeeklyVisible] = useState(false);
   const [isTitleVisible, setIsTitleVisible] = useState(false);
+  const [isPartnersVisible, setIsPartnersVisible] = useState(false);
   const weeklyRef = useRef<HTMLDivElement>(null);
+  const partnersRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchWeeklyProducts = async () => {
@@ -82,6 +84,24 @@ const Landing: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsPartnersVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (partnersRef.current) {
+      observer.observe(partnersRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const fetchBoxes = async () => {
       try {
         const res = await api.get<TBox[]>('/boxes');
@@ -124,7 +144,7 @@ const Landing: React.FC = () => {
           <Swiper
             modules={[Autoplay, Navigation]}
             navigation
-            autoplay={{ delay: 3600, disableOnInteraction: false }}
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
             loop={true}
             className="hero-swiper"
           >
@@ -286,6 +306,53 @@ const Landing: React.FC = () => {
                 </SwiperSlide>
               ))}
             </SwiperList>
+          </div>
+        </section>
+
+        {/* Partners Section */}
+        <section ref={partnersRef} className="partners-section">
+          <div className="container">
+            <h2 className={`section-title ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+              {t('landing.partnersTitle')}
+            </h2>
+            <p
+              className={`section-subtitle ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: '0.2s' }}
+            >
+              {t('landing.partnersSubtitle')}
+            </p>
+
+            <div className="partners-grid">
+              {[
+                {
+                  id: 1,
+                  name: 'Đối tác 1',
+                  logo: 'https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/299986024_381479284166341_5813463295981167999_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=gsbTwFfqAT0Q7kNvwF5Exas&_nc_oc=AdmjHxH6d4ajRO1Sao2gN2Xg42iDXveT3iPzykvX0682Rfdgka9JquFvcIgfeZbmEFI&_nc_zt=23&_nc_ht=scontent.fhan17-1.fna&_nc_gid=T0MpHKiRXjW2o1zxT7FvOQ&_nc_ss=8&oh=00_AfyNu1TeadGuZo1R7dB0qFsDEhfFjL_Ygi5M7hhS40rpQA&oe=69B85021',
+                  htxName: 'HTX Văn Đức',
+                },
+                {
+                  id: 2,
+                  name: 'Đối tác 2',
+                  logo: '/van-noi.png',
+                  htxName: 'HTX Vân Nội',
+                },
+                {
+                  id: 3,
+                  name: 'Đối tác 3',
+                  logo: 'https://via.placeholder.com/150x100?text=Partner+3',
+                  htxName: 'HTX Đối tác 3',
+                },
+              ].map((partner, index) => (
+                <div
+                  key={partner.id}
+                  className={`partner-item ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  style={{ animationDelay: `${0.1 * index}s` }}
+                >
+                  <img src={partner.logo} alt={partner.name} />
+                  <p className="partner-htx-name">{partner.htxName}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

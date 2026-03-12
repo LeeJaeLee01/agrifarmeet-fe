@@ -371,7 +371,9 @@
     "products": "sản phẩm",
     "fixedSeasonalProducts": "Các sản phẩm cố định trong mùa vụ",
     "weeklyDelivery": "Sản phẩm được cung cấp hàng tuần",
-    "forFamilySize": "Dành cho gia đình 4 người"
+    "forFamilySize": "Dành cho gia đình 4 người",
+    "partnersTitle": "Đối tác của chúng tôi",
+    "partnersSubtitle": "Hợp tác cùng các đối tác uy tín để mang đến sản phẩm chất lượng cao"
   },
   "login": {
     "title": "Đăng nhập",
