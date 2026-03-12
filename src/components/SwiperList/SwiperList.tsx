@@ -1,5 +1,5 @@
 import { Swiper } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Autoplay, Navigation } from 'swiper/modules';
 import { TSwiperList } from '../../types/TSwiperList';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -13,8 +13,9 @@ const SwiperList: React.FC<TSwiperList> = ({
 }) => {
   return (
     <Swiper
-      modules={[Navigation]}
+      modules={[Navigation, Autoplay]}
       navigation
+      autoplay={{ delay: 3000, disableOnInteraction: false }}
       spaceBetween={spaceBetween}
       className={className}
       breakpoints={

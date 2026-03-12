@@ -239,6 +239,49 @@
   }
 }
 
+/* Mobile responsive tweaks for hero slider */
+@media (max-width: 767px) {
+  .hero-section {
+    .hero-swiper {
+      height: 420px; // không full màn hình nữa, chiều cao vừa phải
+
+      .swiper-button-prev,
+      .swiper-button-next {
+        display: none; // hide arrows on mobile
+      }
+    }
+
+    .hero-content {
+      align-items: center; // giữa theo chiều dọc
+      justify-content: center; // giữa theo chiều ngang
+
+      .hero-text-content {
+        padding: 16px;
+        text-align: center;
+        margin: 0 auto;
+      }
+
+      .hero-title-line1 {
+        font-size: 1.4rem;
+        white-space: normal; // allow wrapping on small screens
+      }
+
+      .hero-title-line2 {
+        font-size: 1.1rem;
+      }
+
+      .hero-description {
+        font-size: 0.9rem;
+      }
+
+      .hero-cta-button {
+        width: 100%;
+        max-width: 320px;
+      }
+    }
+  }
+}
+
 // Solutions Section
 .solutions-section {
   padding: 12px 0;
@@ -467,8 +510,13 @@
   padding: 12px 0;
 
   > .container {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 16px;
+    padding-right: 16px;
+
+    @media (min-width: 768px) {
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 
   .section-title {
@@ -564,7 +612,8 @@
 
 // Partners Section
 .partners-section {
-  padding: 60px 0;
+  // padding: 60px 0;
+  padding-bottom: 60px;
 
   > .container {
     padding-left: 20px;
@@ -594,15 +643,31 @@
   }
 
   .partners-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 30px;
-    align-items: center;
-    justify-items: center;
+    // Mobile: trượt ngang
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 4px 16px 4px 16px;
+    scroll-snap-type: x mandatory;
+
+    // Ẩn scrollbar trên một số trình duyệt
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari */
+    }
 
     @media (min-width: 768px) {
+      // Desktop: quay lại layout dạng lưới
+      display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 40px;
+      overflow: visible;
+      padding: 0;
+      justify-items: center;
     }
 
     .partner-item {
@@ -610,8 +675,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      width: 100%;
+      min-width: 180px;
       max-width: 200px;
+      scroll-snap-align: start;
       transition: transform 0.3s ease;
 
       &:hover {

@@ -101,7 +101,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
           </div>
 
-          <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 text-xl uppercase tracking-wider text-center wavy-text">
+          {/* Slogan desktop: nằm giữa trên header (control breakpoint bằng SCSS) */}
+          <div className="header-slogan-desktop absolute left-1/2 transform -translate-x-1/2 text-xl uppercase tracking-wider text-center wavy-text">
             {sloganText
               .split('')
               .map((char, index) => (
@@ -158,6 +159,20 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <MenuOutlined className="text-xl cursor-pointer" onClick={() => setOpen(true)} />
             )}
           </div>
+        </div>
+
+        {/* Slogan mobile/tablet: nằm dưới header và vào giữa (control breakpoint bằng SCSS) */}
+        <div className="header-slogan-mobile py-2 text-center text-sm font-medium uppercase tracking-wider wavy-text">
+          {sloganText
+            .split('')
+            .map((char, index) => (
+              <span
+                key={`mobile-${index}-${animKey}`}
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </span>
+            ))}
         </div>
 
         {/* Mobile menu dropdown */}

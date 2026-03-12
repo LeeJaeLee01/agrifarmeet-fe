@@ -75,3 +75,22 @@ a {
     color: #15803d; // green-700
   }
 }
+
+/* Responsive hiển thị slogan */
+.header-slogan-desktop {
+  display: none;
+}
+
+.header-slogan-mobile {
+  display: block;
+}
+
+@media (min-width: 1280px) {
+  .header-slogan-desktop {
+    display: block;
+  }
+
+  .header-slogan-mobile {
+    display: none;
+  }
+}
