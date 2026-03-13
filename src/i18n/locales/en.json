@@ -448,5 +448,13 @@
     "createQrSuccess": "QR code created successfully!",
     "createQrFailed": "Failed to create QR code",
     "orderError": "Error occurred while placing order!"
+  },
+  "boxDetails": {
+    "productDetailTitle": "Product details",
+    "cooperativeName": "Cooperative name",
+    "supplyCapacity": "Supply capacity",
+    "status": "Status",
+    "available": "Available",
+    "unavailable": "Unavailable"
   }
 }

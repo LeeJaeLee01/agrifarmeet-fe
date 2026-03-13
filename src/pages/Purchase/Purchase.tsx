@@ -413,7 +413,7 @@ const PurchasePage: React.FC = () => {
                   <div className="flex justify-center w-full">
                     <Button
                       type="primary"
-                      className="bg-green h-[52px] text-lg font-semibold w-1/3"
+                      className="bg-green h-[52px] text-lg font-semibold "
                       loading={loading}
                       htmlType="submit"
                     >

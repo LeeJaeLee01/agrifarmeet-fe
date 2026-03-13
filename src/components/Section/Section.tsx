@@ -11,7 +11,7 @@ const Section = forwardRef<HTMLElement, SectionProps>(
   ({ children, spaceBottom, fullScreen }, ref) => {
     return (
       <section ref={ref} className="bg-white">
-        <div className={`pt-24 content sm:pt-16 ${spaceBottom && 'py-24 sm:py-32'}`}>
+        <div className={`pt-12 content sm:pt-16 ${spaceBottom && 'py-24 sm:py-32'}`}>
           {children}
         </div>
       </section>

@@ -181,92 +181,116 @@ const BoxDetails: React.FC = () => {
           ) : box ? (
             <>
               {/* Thông tin box */}
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between -mt-4 lg:mt-0">
                 <h1 className="section-title">{box.name}</h1>
-                <Button type="primary" icon={<ShareAltOutlined />} onClick={() => setOpen(true)}>
-                  {t('common.share')}
-                </Button>
+                <div className="flex items-center gap-2">
+                  {/* Mobile: chỉ icon, đặt bên phải tên box */}
+                  <Button
+                    type="default"
+                    icon={<ShareAltOutlined />}
+                    onClick={() => setOpen(true)}
+                    className="sm:hidden"
+                  />
+                  {/* Desktop: nút có text Share */}
+                  <Button
+                    type="primary"
+                    icon={<ShareAltOutlined />}
+                    onClick={() => setOpen(true)}
+                    className="hidden sm:inline-flex"
+                  >
+                    {t('common.share')}
+                  </Button>
+                </div>
               </div>
 
               <div className="flex flex-col items-center w-full gap-10 pb-10 mb-10 lg:flex-row lg:items-stretch">
-                <div className="flex w-40 lg:w-60">
+                <div className="w-full lg:w-60">
                   {/* Placeholder for Box Image based on product image or default */}
                   <img
                     src={box.images?.[0] || 'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg'}
                     alt={box.name}
-                    className="object-cover w-full h-full rounded-xl"
+                    className="object-cover w-full h-auto max-h-80 rounded-xl"
                   />
                 </div>
                 <div className="flex flex-col w-full gap-5 lg:w-1/2">
                   <p className="text-base text-text2">{box.description}</p>
-                  <p className="text-lg font-semibold text-green-600">
-                    Giá: {formatVND(box.price)}
-                  </p>
-                  {/* isTrial removed */}
-                  <Link to={`/purchase/${box.slug}`}>
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="w-full mt-4 bg-green2 hover:bg-green-700"
-                      style={{ backgroundColor: '#3da35d' }}
-                    >
-                      Mua ngay
-                    </Button>
-                  </Link>
+                  <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-3">
+                      <p className="text-lg font-semibold text-green-600">
+                        {t('common.price')}: {formatVND(box.price)}
+                      </p>
+                    </div>
+                    {/* isTrial removed */}
+                    <Link to={`/purchase/${box.slug}`} className="sm:ml-4">
+                      <Button
+                        type="primary"
+                        size="large"
+                        className="w-full sm:w-auto bg-green2 hover:bg-green-700"
+                        style={{ backgroundColor: '#3da35d' }}
+                      >
+                        {t('common.buyNow')}
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
               {/* Danh sách sản phẩm */}
-              <h2 className="mb-5 text-xl font-semibold text-text1">Sản phẩm trong gói</h2>
-              <Table<TBoxProduct>
-                rowKey="id"
-                dataSource={box.boxProducts || []}
-                pagination={false}
-                columns={[
-                  {
-                    // title: 'Hình ảnh',
-                    dataIndex: ['product', 'images'],
-                    width: 120,
-                    key: 'images',
-                    render: (images: string[]) => {
-                      const src = Array.isArray(images) && images.length > 0 ? images[0] : 'https://via.placeholder.com/64';
-                      return <img src={src} alt="product" className="object-cover w-24 h-20 rounded-md" />;
+              <h2 className="mb-5 text-xl font-semibold text-text1">
+                {t('common.productsInPackage')}
+              </h2>
+              <div className="w-full overflow-x-auto">
+                <Table<TBoxProduct>
+                  rowKey="id"
+                  dataSource={box.boxProducts || []}
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                  columns={[
+                    {
+                      // title: 'Hình ảnh',
+                      dataIndex: ['product', 'images'],
+                      width: 120,
+                      key: 'images',
+                      render: (images: string[]) => {
+                        const src = Array.isArray(images) && images.length > 0 ? images[0] : 'https://via.placeholder.com/64';
+                        return <img src={src} alt="product" className="object-cover w-24 h-20 rounded-md" />;
+                      },
                     },
-                  },
-                  {
-                    title: '',
-                    width: 120,
-                    key: 'action',
-                    align: 'center',
-                    render: (_, record) => (
-                      <span
-                        className="text-green-600 cursor-pointer hover:underline"
-                        onClick={() => handleShowProductDetail(record)}
-                      >
-                        {t('components.product_item.detail')}
-                      </span>
-                    ),
-                  },
-                  {
-                    title: 'Tên sản phẩm',
-                    dataIndex: ['product', 'name'],
-                    key: 'name',
-                  },
-                  {
-                    title: 'Khối lượng',
-                    dataIndex: ['product', 'weight'],
-                    key: 'weight',
-                    render: (w: number, record: TBoxProduct) => `${w} ${record.unit}`,
-                  },
-                  {
-                    title: 'Tổng',
-                    key: 'total',
-                    align: 'right',
-                    render: (_, record) => `${record.quantity} ${record.unit}`,
-                  },
+                    {
+                      title: '',
+                      width: 120,
+                      key: 'action',
+                      align: 'center',
+                      render: (_, record) => (
+                        <span
+                          className="text-green-600 cursor-pointer hover:underline"
+                          onClick={() => handleShowProductDetail(record)}
+                        >
+                          {t('components.product_item.detail')}
+                        </span>
+                      ),
+                    },
+                    {
+                      title: t('common.productName'),
+                      dataIndex: ['product', 'name'],
+                      key: 'name',
+                    },
+                    {
+                      title: t('common.weight'),
+                      dataIndex: ['product', 'weight'],
+                      key: 'weight',
+                      render: (w: number, record: TBoxProduct) => `${w} ${record.unit}`,
+                    },
+                    {
+                      title: t('common.total'),
+                      key: 'total',
+                      align: 'right',
+                      render: (_, record) => `${record.quantity} ${record.unit}`,
+                    },
 
-                ]}
-              />
+                  ]}
+                />
+              </div>
 
               {/* Modal share */}
               <Modal
@@ -274,7 +298,7 @@ const BoxDetails: React.FC = () => {
                 onCancel={() => setOpen(false)}
                 footer={[
                   <Button key="save" icon={<DownloadOutlined />} onClick={handleSaveImage}>
-                    Lưu ảnh
+                    {t('common.saveImage')}
                   </Button>,
                 ]}
                 centered
@@ -292,92 +316,125 @@ const BoxDetails: React.FC = () => {
                 open={productModalOpen}
                 onCancel={() => setProductModalOpen(false)}
                 footer={null}
-                width={800}
-                title="Thông tin chi tiết sản phẩm"
+                width="100%"
+                style={{ maxWidth: 800 }}
+                title={t('boxDetails.productDetailTitle')}
                 centered
               >
                 {selectedProduct && (
-                  <div className="flex flex-col gap-6">
-                    <div className="flex gap-4">
+                  <div
+                    className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto no-scrollbar"
+                    style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row">
                       <img
-                        src={Array.isArray(selectedProduct.product.images) && selectedProduct.product.images.length > 0 ? selectedProduct.product.images[0] : 'https://via.placeholder.com/150'}
+                        src={
+                          Array.isArray(selectedProduct.product.images) &&
+                          selectedProduct.product.images.length > 0
+                            ? selectedProduct.product.images[0]
+                            : 'https://via.placeholder.com/150'
+                        }
                         alt={selectedProduct.product.name}
-                        className="object-cover w-32 h-32 rounded-lg"
+                        className="object-cover w-full h-auto rounded-lg sm:w-40 sm:h-40"
                       />
                       <div>
                         <h3 className="text-xl font-semibold">{selectedProduct.product.name}</h3>
-                        <p className="text-gray-500">{selectedProduct.product.description}</p>
+                        <p className="mt-1 text-gray-500">{selectedProduct.product.description}</p>
                         <p className="mt-2 font-semibold text-green-600">
-                          Khối lượng: {selectedProduct.product.weight} {selectedProduct.unit}
+                          {t('common.weight')}: {selectedProduct.product.weight} {selectedProduct.unit}
                         </p>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="mb-3 text-lg font-semibold">{t('components.product_item.cooperative')}</h4>
+                      <h4 className="mb-3 text-lg font-semibold">
+                        {t('components.product_item.cooperative')}
+                      </h4>
                       {loadingCooperatives[selectedProduct.id] ? (
-                        <div className="flex justify-center py-4"><Spin /></div>
+                        <div className="flex justify-center py-4">
+                          <Spin />
+                        </div>
                       ) : (
-                        <Table<TProductCooperative>
-                          rowKey={(item) => `${item.cooperativeId}-${item.productId}`}
-                          dataSource={cooperativesData[selectedProduct.id] || []}
-                          pagination={false}
-                          columns={[
-                            {
-                              title: t('common.image'),
-                              dataIndex: ['cooperative', 'images'],
-                              key: 'cooperativeImage',
-                              render: (images: string) => {
-                                try {
-                                  const parsedImages = JSON.parse(images);
-                                  const src = Array.isArray(parsedImages) && parsedImages.length > 0 ? parsedImages[0] : 'https://via.placeholder.com/80';
-                                  return <img src={src} alt="cooperative" className="object-cover w-20 h-20 rounded-md" />;
-                                } catch (e) {
-                                  return <img src="https://via.placeholder.com/80" alt="cooperative" className="object-cover w-20 h-20 rounded-md" />;
-                                }
+                        <div className="w-full overflow-x-auto">
+                          <Table<TProductCooperative>
+                            rowKey={(item) => `${item.cooperativeId}-${item.productId}`}
+                            dataSource={cooperativesData[selectedProduct.id] || []}
+                            pagination={false}
+                            scroll={{ x: 'max-content' }}
+                            columns={[
+                              {
+                                title: t('common.image'),
+                                dataIndex: ['cooperative', 'images'],
+                                key: 'cooperativeImage',
+                                render: (images: string) => {
+                                  try {
+                                    const parsedImages = JSON.parse(images);
+                                    const src =
+                                      Array.isArray(parsedImages) && parsedImages.length > 0
+                                        ? parsedImages[0]
+                                        : 'https://via.placeholder.com/80';
+                                    return (
+                                      <img
+                                        src={src}
+                                        alt="cooperative"
+                                        className="object-cover w-20 h-20 rounded-md"
+                                      />
+                                    );
+                                  } catch (e) {
+                                    return (
+                                      <img
+                                        src="https://via.placeholder.com/80"
+                                        alt="cooperative"
+                                        className="object-cover w-20 h-20 rounded-md"
+                                      />
+                                    );
+                                  }
+                                },
                               },
-                            },
-                            {
-                              title: 'Tên Hợp tác xã',
-                              dataIndex: ['cooperative', 'name'],
-                              key: 'cooperativeName',
-                            },
-                            {
-                              title: 'Địa chỉ',
-                              dataIndex: ['cooperative', 'address'],
-                              key: 'cooperativeAddress',
-                            },
-                            {
-                              title: t('common.website'),
-                              dataIndex: ['cooperative', 'website'],
-                              key: 'cooperativeWebsite',
-                              render: (website: string | null) => {
-                                if (!website) return null;
-                                return (
-                                  <a href={website} target="_blank" rel="noopener noreferrer">
-                                    <QRCodeCanvas value={website} size={80} />
-                                  </a>
-                                );
+                              {
+                                title: t('boxDetails.cooperativeName'),
+                                dataIndex: ['cooperative', 'name'],
+                                key: 'cooperativeName',
                               },
-                            },
-                            {
-                              title: 'Khả năng cung ứng',
-                              dataIndex: 'supplyCapacity',
-                              key: 'supplyCapacity',
-                              render: (val, item) => `${val} ${item.unit}`,
-                            },
-                            {
-                              title: 'Trạng thái',
-                              dataIndex: 'isAvailable',
-                              key: 'isAvailable',
-                              render: (avail) => (
-                                <span className={avail ? 'text-green-600' : 'text-red-600'}>
-                                  {avail ? 'Sẵn sàng' : 'Không sẵn sàng'}
-                                </span>
-                              ),
-                            },
-                          ]}
-                        />
+                              {
+                                title: t('common.address'),
+                                dataIndex: ['cooperative', 'address'],
+                                key: 'cooperativeAddress',
+                              },
+                              {
+                                title: t('common.website'),
+                                dataIndex: ['cooperative', 'website'],
+                                key: 'cooperativeWebsite',
+                                render: (website: string | null) => {
+                                  if (!website) return null;
+                                  return (
+                                    <a href={website} target="_blank" rel="noopener noreferrer">
+                                      <QRCodeCanvas value={website} size={80} />
+                                    </a>
+                                  );
+                                },
+                              },
+                              {
+                                title: t('boxDetails.supplyCapacity'),
+                                dataIndex: 'supplyCapacity',
+                                key: 'supplyCapacity',
+                                render: (val, item) => `${val} ${item.unit}`,
+                              },
+                              {
+                                title: t('boxDetails.status'),
+                                dataIndex: 'isAvailable',
+                                key: 'isAvailable',
+                                render: (avail) => (
+                                  <span
+                                    className={avail ? 'text-green-600' : 'text-red-600'}
+                                  >
+                                    {avail ? t('boxDetails.available') : t('boxDetails.unavailable')}
+                                  </span>
+                                ),
+                              },
+                            ]}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -385,7 +442,7 @@ const BoxDetails: React.FC = () => {
               </Modal>
             </>
           ) : (
-            <p className="text-center text-gray-500">Không tìm thấy box.</p>
+            <p className="text-center text-gray-500">{t('common.boxNotFound')}</p>
           )}
         </div>
       </Section>

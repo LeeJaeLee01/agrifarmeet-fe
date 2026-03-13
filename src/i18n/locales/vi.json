@@ -450,5 +450,13 @@
     "createQrSuccess": "Tạo mã QR thành công!",
     "createQrFailed": "Không tạo được mã QR",
     "orderError": "Có lỗi xảy ra khi đặt hàng!"
+  },
+  "boxDetails": {
+    "productDetailTitle": "Thông tin chi tiết sản phẩm",
+    "cooperativeName": "Tên Hợp tác xã",
+    "supplyCapacity": "Khả năng cung ứng",
+    "status": "Trạng thái",
+    "available": "Sẵn sàng",
+    "unavailable": "Không sẵn sàng"
   }
 }
