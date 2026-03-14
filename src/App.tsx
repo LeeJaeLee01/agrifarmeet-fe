@@ -61,7 +61,7 @@ function App() {
                 </Suspense>
               }
             >
-              <Route path="/home" element={<Home />} />
+              {/* <Route path="/home" element={<Home />} /> */}
               <Route path="/login" element={<Login />} />
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/product/:id" element={<Product />} />

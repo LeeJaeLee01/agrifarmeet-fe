@@ -44,9 +44,6 @@ const MainFooter: React.FC = () => {
                   >
                     Facebook
                   </a>
-                  <a href="https://zalo.me" target="_blank" rel="noreferrer">
-                    Zalo
-                  </a>
                 </div>
               </div>
             </div>
