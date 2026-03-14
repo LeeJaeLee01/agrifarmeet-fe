@@ -452,13 +452,6 @@ const PurchasePage: React.FC = () => {
                     >
                       {t('purchase.confirmOrder')}
                     </Button>
-                    <Button
-                      type="default"
-                      className="h-[52px] text-lg font-semibold"
-                      onClick={() => navigate('/order-lookup')}
-                    >
-                      Xác nhận thanh toán test
-                    </Button>
                   </div>
                 </div>
               )}
