@@ -35,12 +35,14 @@ export const formatDate = (dateString: string) => {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
+/** Sinh mã giao dịch dạng txn_461770666 (prefix txn_ + số) */
 export const generateRandomString = (length: number = 13): string => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = 'ORDER_';
-  const charactersLength = characters.length;
-  for (let i = 0; i < length - 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  const prefix = 'txn_';
+  const digits = '0123456789';
+  let result = prefix;
+  const numLength = length - prefix.length;
+  for (let i = 0; i < numLength; i++) {
+    result += digits.charAt(Math.floor(Math.random() * digits.length));
   }
   return result;
 };

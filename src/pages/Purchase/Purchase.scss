@@ -1,0 +1,64 @@
+// Modal thành công: icon V màu xanh trong vòng tròn + hiệu ứng chạy
+.payment-success-modal {
+  width: 100%;
+  text-align: center;
+  padding: 8px 0 4px;
+
+  .payment-success-icon-wrap {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    border: 3px solid #52c41a;
+    background: rgba(82, 196, 26, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: payment-success-circle-in 0.4s ease-out forwards;
+  }
+
+  .payment-success-v {
+    display: inline-block;
+    font-size: 32px;
+    font-weight: 800;
+    color: #52c41a;
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1;
+    animation: payment-success-v-run 0.5s ease-out 0.2s both;
+  }
+
+  .payment-success-title {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .payment-success-date {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+@keyframes payment-success-circle-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes payment-success-v-run {
+  from {
+    transform: scale(0.2) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}

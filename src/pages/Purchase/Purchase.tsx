@@ -50,7 +50,10 @@ const PurchasePage: React.FC = () => {
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrExpireTime, setQrExpireTime] = useState<number>(0); // Thời gian còn lại (giây)
-  const [currentBoxId, setCurrentBoxId] = useState<string | null>(null); // Box ID để check status
+  const [currentBoxId, setCurrentBoxId] = useState<string | null>(null);
+  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null); // orderId để polling GET /boxes/payment/status/:orderId
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successPayDate, setSuccessPayDate] = useState<string | null>(null);
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -133,39 +136,37 @@ const PurchasePage: React.FC = () => {
     return () => clearInterval(interval);
   }, [showQrModal, qrCodeData]);
 
-  // 🔹 Polling check payment status mỗi 5 giây
+  // 🔹 Polling GET /boxes/payment/status/:orderId mỗi 5 giây; nếu status === 'completed' thì đóng QR và hiện modal thành công
   useEffect(() => {
-    if (!showQrModal || !currentBoxId) {
+    if (!showQrModal || !currentOrderId) {
       return;
     }
 
     const checkPaymentStatus = async () => {
       try {
-        const res = await api.get(`/boxes/user/status/${currentBoxId}`, {
+        const res = await api.get(`/boxes/payment/status/${currentOrderId}`, {
           withAuth: true,
         });
-
-        if (res.data && res.data.status === 'active') {
-          // Thanh toán thành công
+        // Backend có thể trả { data: { status, payDate, ... } } hoặc { status, payDate, ... }
+        const payload = res.data?.data ?? res.data;
+        if (payload && String(payload.status).toLowerCase() === 'completed') {
           setShowQrModal(false);
           setQrCodeData(null);
+          setQrExpireTime(0);
           setCurrentBoxId(null);
-          toast.success(t('purchase.paymentSuccess'));
-          navigate('/');
+          setCurrentOrderId(null);
+          setSuccessPayDate(payload.payDate ?? null);
+          setShowSuccessModal(true);
         }
       } catch (err) {
         console.error('Error checking payment status:', err);
       }
     };
 
-    // Gọi ngay lần đầu
     checkPaymentStatus();
-
-    // Sau đó polling mỗi 5 giây
     const pollInterval = setInterval(checkPaymentStatus, 5000);
-
     return () => clearInterval(pollInterval);
-  }, [showQrModal, currentBoxId, navigate]);
+  }, [showQrModal, currentOrderId, navigate, t]);
 
   // 🔹 Format thời gian đếm ngược thành MM:SS
   const formatTime = (seconds: number): string => {
@@ -180,6 +181,7 @@ const PurchasePage: React.FC = () => {
     setQrCodeData(null);
     setQrExpireTime(0);
     setCurrentBoxId(null);
+    setCurrentOrderId(null);
   };
 
   const onSubmit: SubmitHandler<PurchaseForm> = async (data) => {
@@ -209,10 +211,9 @@ const PurchasePage: React.FC = () => {
       const res = await api.post('/boxes/payment/qr', requestBody);
 
       if (res.data && res.data.data && res.data.data.data) {
-        // Lấy QR code từ response
         setQrCodeData(res.data.data.data);
-        setCurrentBoxId(boxInfo.id); // Lưu boxId để polling check status (giữ logic cũ nếu cần hoặc update sau)
-        // Hiện tại chỉ hiển thị QR code từ string trả về
+        setCurrentBoxId(boxInfo.id);
+        setCurrentOrderId(orderId); // Lưu orderId để polling GET /boxes/payment/status/:orderId
         setShowQrModal(true);
         toast.success(t('purchase.createQrSuccess'));
       } else {
@@ -229,6 +230,38 @@ const PurchasePage: React.FC = () => {
   return (
     <Fragment>
       <MainHeader sticky />
+
+      {/* Modal thành công thanh toán (icon V xanh + hiệu ứng) */}
+      <Modal
+        title={null}
+        open={showSuccessModal}
+        onOk={() => {
+          setShowSuccessModal(false);
+          setSuccessPayDate(null);
+          navigate('/');
+        }}
+        footer={
+          <Button type="primary" onClick={() => {
+            setShowSuccessModal(false);
+            setSuccessPayDate(null);
+            navigate('/');
+          }}>
+            OK
+          </Button>
+        }
+        closable={false}
+        centered
+        width={400}
+      >
+        <div className="payment-success-modal">
+          <div className="payment-success-icon-wrap">
+            <span className="payment-success-v">V</span>
+          </div>
+          <p className="payment-success-title">{t('purchase.paymentSuccess')}</p>
+          {successPayDate && <p className="payment-success-date">{successPayDate}</p>}
+        </div>
+      </Modal>
+
       <Section spaceBottom>
         <div className="container mx-auto">
           <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">{t('purchase.title')}</h1>
@@ -413,7 +446,7 @@ const PurchasePage: React.FC = () => {
                   <div className="flex justify-center w-full">
                     <Button
                       type="primary"
-                      className="bg-green h-[52px] text-lg font-semibold "
+                      className="bg-green h-[52px] text-lg font-semibold"
                       loading={loading}
                       htmlType="submit"
                     >

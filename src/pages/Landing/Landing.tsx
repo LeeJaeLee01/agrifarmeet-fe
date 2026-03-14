@@ -20,14 +20,24 @@ const Landing: React.FC = () => {
   const farmerImageUrl = 'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg';
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [products, setProducts] = useState<TProduct[]>([]);
+  const [isUserProblemVisible] = useState(true);
   const solutionsRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const [isWeeklyVisible, setIsWeeklyVisible] = useState(false);
-  const [isTitleVisible, setIsTitleVisible] = useState(false);
-  const [isPartnersVisible, setIsPartnersVisible] = useState(false);
+  const [isWeeklyVisible] = useState(true);
+  const [isTitleVisible] = useState(true);
+  const [isPartnersVisible] = useState(true);
+  const [isCustomerReviewVisible] = useState(true);
+  const [isCommitmentsVisible] = useState(true);
+  const [isFaqVisible] = useState(true);
+  const [isFinalCtaVisible] = useState(true);
+  const userProblemRef = useRef<HTMLElement | null>(null);
   const weeklyRef = useRef<HTMLDivElement>(null);
   const partnersRef = useRef<HTMLDivElement>(null);
   const partnersGridRef = useRef<HTMLDivElement | null>(null);
+  const customerReviewRef = useRef<HTMLElement | null>(null);
+  const commitmentsRef = useRef<HTMLElement | null>(null);
+  const faqRef = useRef<HTMLElement | null>(null);
+  const finalCtaRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const fetchWeeklyProducts = async () => {
@@ -71,60 +81,6 @@ const Landing: React.FC = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsWeeklyVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (weeklyRef.current) {
-      observer.observe(weeklyRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsTitleVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (titleRef.current) {
-      observer.observe(titleRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsPartnersVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (partnersRef.current) {
-      observer.observe(partnersRef.current);
-    }
-
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -175,27 +131,27 @@ const Landing: React.FC = () => {
             className="hero-swiper"
           >
             {[
-              {
-                id: 1,
-                image: farmerImageUrl,
-                titleLine1: t('landing.heroTitleLine1'),
-                titleLine2: t('landing.heroTitleLine2'),
-                description: t('landing.heroDescription'),
-              },
+              // {
+              //   id: 1,
+              //   image: farmerImageUrl,
+              //   titleLine1: t('landing.heroTitleLine1'),
+              //   titleLine2: t('landing.heroTitleLine2'),
+              //   description: t('landing.heroDescription'),
+              // },
               {
                 id: 2,
                 image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?q=80&w=2570&auto=format&fit=crop',
                 titleLine1: t('landing.heroTitleLine1'),
-                titleLine2: t('landing.cleanFromGarden'),
-                description: t('landing.vietgapStandard'),
-              },
-              {
-                id: 3,
-                image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2670&auto=format&fit=crop',
-                titleLine1: t('landing.weeklyHomeDelivery'),
                 titleLine2: t('landing.heroTitleLine2'),
-                description: t('landing.freshEveryDay'),
+                description: t('landing.heroDescription'),
               },
+              // {
+              //   id: 3,
+              //   image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2670&auto=format&fit=crop',
+              //   titleLine1: t('landing.weeklyHomeDelivery'),
+              //   titleLine2: t('landing.heroTitleLine2'),
+              //   description: t('landing.freshEveryDay'),
+              // },
             ].map((slide) => (
               <SwiperSlide key={slide.id}>
                 <div className="container" style={{ height: '100%' }}>
@@ -224,6 +180,196 @@ const Landing: React.FC = () => {
               </SwiperSlide>
             ))}
           </Swiper>
+        </section>
+
+        {/* User Problem Section */}
+        <section ref={userProblemRef} className="user-problem-section">
+          <div className="container">
+            <h3
+              className={`section-label ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            >
+              Vấn đề người dùng gặp phải
+            </h3>
+            <h2
+              className={`section-title ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isUserProblemVisible ? '0.15s' : undefined }}
+            >
+              Người thành phố đang khó tin vào rau sạch
+            </h2>
+            <p
+              className={`section-description ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isUserProblemVisible ? '0.3s' : undefined }}
+            >
+              Ngày này người dùng ngày càng lo lắng về thực phẩm:
+            </p>
+            <ul
+              className={`section-problem-list ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isUserProblemVisible ? '0.25s' : undefined }}
+            >
+              <li>👉 Rau không rõ nguồn gốc</li>
+              <li>👉 Quá nhiều trung gian</li>
+            </ul>
+            <p
+              className={`section-description section-description-conclusion ${
+                isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'
+              }`}
+              style={{ animationDelay: isUserProblemVisible ? '0.4s' : undefined }}
+            >
+              Trong khi đó nhiều nông dân vẫn trồng rau rất cẩn thận nhưng sản
+              phẩm lại không đến được trực tiếp người tiêu dùng.
+            </p>
+
+            <div className="user-origin-block">
+              <h3
+                className={`section-label ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '0.5s' : undefined }}
+              >
+                FARME RA ĐỜI
+              </h3>
+
+              <h2
+                className={`section-title ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '0.6s' : undefined }}
+              >
+                Farme Kết Nối Nông Dân Và Gia Đình Thành Phố
+              </h2>
+
+              <p
+                className={`section-description ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '0.7s' : undefined }}
+              >
+                Farme xây dựng mô hình giao rau định kỳ từ nông trại để mang rau tươi
+                minh bạch đến bàn ăn gia đình.
+              </p>
+
+              <p
+                className={`section-description section-description-conclusion ${
+                  isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'
+                }`}
+                style={{ animationDelay: isUserProblemVisible ? '0.8s' : undefined }}
+              >
+                Rau được:
+              </p>
+
+              <ul
+                className={`section-problem-list ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '0.9s' : undefined }}
+              >
+                <li>👉 Thu hoạch trực tiếp tại trang trại</li>
+                <li>👉 Đóng gói trong ngày</li>
+                <li>👉 Giao tận nhà mỗi tuần</li>
+                <li>👉 Không qua nhiều trung gian</li>
+              </ul>
+            </div>
+
+            <div className="user-core-values-block">
+              <h3
+                className={`section-label ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '1.0s' : undefined }}
+              >
+                GIÁ TRỊ CỐT LÕI
+              </h3>
+
+              <h2
+                className={`section-title ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '1.1s' : undefined }}
+              >
+                Giá Trị Của Farme
+              </h2>
+
+              <p
+                className={`section-description ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '1.2s' : undefined }}
+              >
+                3 giá trị cốt lõi Farme mang đến cho khách hàng và nông dân:
+              </p>
+
+              <div className="core-values-grid">
+                {[
+                  {
+                    title: 'Minh Bạch',
+                    description:
+                      'Khách hàng biết rau đến từ trang trại nào và ai là người trồng.',
+                  },
+                  {
+                    title: 'An Toàn',
+                    description:
+                      'Rau được canh tác theo quy trình kiểm soát tại các hợp tác xã uy tín.',
+                  },
+                  {
+                    title: 'Bền Vững',
+                    description:
+                      'Farme giúp nông dân bán sản phẩm ổn định và phát triển nông nghiệp bền vững.',
+                  },
+                ].map((value, index) => (
+                  <div
+                    key={value.title}
+                    className={`core-value-card ${
+                      isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'
+                    }`}
+                    style={{
+                      animationDelay: isUserProblemVisible
+                        ? `${1.3 + index * 0.1}s`
+                        : undefined,
+                    }}
+                  >
+                    <h4>{value.title}</h4>
+                    <p>{value.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="user-how-it-works-block">
+              <h3
+                className={`section-label ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '1.5s' : undefined }}
+              >
+                FARME HOẠT ĐỘNG THẾ NÀO
+              </h3>
+
+              <h2
+                className={`section-title ${isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: isUserProblemVisible ? '1.6s' : undefined }}
+              >
+                Cách Farme Hoạt Động
+              </h2>
+
+              <div className="how-it-works-steps">
+                {[
+                  {
+                    step: 'Bước 1',
+                    description: 'Chọn gói rau phù hợp với nhu cầu gia đình.',
+                  },
+                  {
+                    step: 'Bước 2',
+                    description:
+                      'Rau được thu hoạch tại trang trại và đóng gói trong ngày.',
+                  },
+                  {
+                    step: 'Bước 3',
+                    description:
+                      'Farme giao hộp rau tươi đến tận nhà mỗi tuần.',
+                  },
+                ].map((item, index) => (
+                  <div
+                    key={item.step}
+                    className={`how-step ${
+                      isUserProblemVisible ? 'animate-fade-in-up' : 'opacity-0'
+                    }`}
+                    style={{
+                      animationDelay: isUserProblemVisible
+                        ? `${1.7 + index * 0.1}s`
+                        : undefined,
+                    }}
+                  >
+                    <p className="how-step-label">{item.step}</p>
+                    <p className="how-step-description">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* How AGRIFARMEET Solves It Section */}
@@ -378,6 +524,128 @@ const Landing: React.FC = () => {
                   <p className="partner-htx-name">{partner.htxName}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Customer Review Section */}
+        <section ref={customerReviewRef} className="customer-review-section">
+          <div className="container">
+            <h3
+              className={`section-label ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            >
+              KHÁCH HÀNG NÓI GÌ
+            </h3>
+            <h2
+              className={`section-title ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isCustomerReviewVisible ? '0.15s' : undefined }}
+            >
+              Review
+            </h2>
+            <blockquote
+              className={`customer-testimonial ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isCustomerReviewVisible ? '0.25s' : undefined }}
+            >
+              Gia đình mình rất yên tâm khi dùng rau Farme. Rau luôn tươi và giao rất đúng hẹn.
+            </blockquote>
+            <p
+              className={`customer-attribution ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isCustomerReviewVisible ? '0.35s' : undefined }}
+            >
+              — Chị Lan, Cầu Giấy
+            </p>
+          </div>
+        </section>
+
+        {/* Commitments Section */}
+        <section ref={commitmentsRef} className="commitments-section">
+          <div className="container">
+            <h3
+              className={`section-label ${isCommitmentsVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            >
+              CAM KẾT CỦA FARME
+            </h3>
+            <h2
+              className={`section-title ${isCommitmentsVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isCommitmentsVisible ? '0.15s' : undefined }}
+            >
+              Farme cam kết:
+            </h2>
+            <ul
+              className={`commitments-list ${isCommitmentsVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isCommitmentsVisible ? '0.25s' : undefined }}
+            >
+              <li>👉 Minh bạch nguồn gốc</li>
+              <li>👉 Rau thu hoạch trong ngày</li>
+              <li>👉 Không tồn kho lâu</li>
+              <li>👉 Giao hàng nhanh trong ngày</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section ref={faqRef} className="faq-section">
+          <div className="container">
+            <h3 className={`section-label ${isFaqVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+              FAQ
+            </h3>
+
+            <div className="faq-list">
+              {[
+                {
+                  q: 'Rau có phải VietGAP không?',
+                  a: 'Rau được trồng tại các hợp tác xã tuân theo quy trình canh tác kiểm soát.',
+                },
+                {
+                  q: 'Có thể tạm dừng giao hàng không?',
+                  a: 'Bạn có thể tạm dừng hoặc huỷ gói bất kỳ lúc nào.',
+                },
+                {
+                  q: 'Nếu rau không tươi thì sao?',
+                  a: 'Farme luôn sẵn sàng hỗ trợ đổi sản phẩm.',
+                },
+              ].map((item, index) => (
+                <div
+                  key={item.q}
+                  className={`faq-item ${isFaqVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  style={{ animationDelay: isFaqVisible ? `${0.15 + index * 0.1}s` : undefined }}
+                >
+                  <h4 className="faq-question">{item.q}</h4>
+                  <p className="faq-answer">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section ref={finalCtaRef} className="final-cta-section">
+          <div className="container">
+            {/* <h3 className={`section-label ${isFinalCtaVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
+              FINAL CTA
+            </h3> */}
+            <h2
+              className={`section-title ${isFinalCtaVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isFinalCtaVisible ? '0.15s' : undefined }}
+            >
+              Bắt Đầu Trải Nghiệm Farme Ngay Hôm Nay
+            </h2>
+            <p
+              className={`final-cta-text ${isFinalCtaVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isFinalCtaVisible ? '0.3s' : undefined }}
+            >
+              Chọn gói rau phù hợp cho gia đình bạn và để Farme chăm sóc bữa ăn xanh mỗi tuần.
+            </p>
+            <div
+              className={`final-cta-actions ${isFinalCtaVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+              style={{ animationDelay: isFinalCtaVisible ? '0.45s' : undefined }}
+            >
+              <Link
+                to="/boxes"
+                className="final-cta-button"
+              >
+                Chọn Gói Rau Phù Hợp
+              </Link>
             </div>
           </div>
         </section>

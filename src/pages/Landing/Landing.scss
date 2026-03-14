@@ -283,12 +283,179 @@
 }
 
 // Solutions Section
+.user-problem-section {
+  padding: 24px 0;
+
+  .container {
+    max-width: 900px;
+    text-align: center;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3da35d;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .section-description {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+    margin: 0;
+    text-align: center;
+  }
+
+  .section-problem-list {
+    list-style: none;
+    padding: 8px 0 0;
+    margin: 8px 0 4px;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+
+    li {
+      margin-bottom: 4px;
+    }
+  }
+
+  .section-description-conclusion {
+    margin-top: 8px;
+  }
+
+  .user-origin-block {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .user-core-values-block {
+    margin-top: 40px;
+
+    .core-values-grid {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+    }
+
+    .core-value-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      text-align: left;
+
+      h4 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #555;
+      }
+    }
+  }
+
+  .user-how-it-works-block {
+    margin-top: 40px;
+
+    .how-it-works-steps {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+
+      @media (min-width: 768px) {
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+      }
+    }
+
+    .how-step {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      flex: 1;
+      min-width: 0;
+
+      @media (min-width: 768px) {
+        max-width: 320px;
+      }
+    }
+
+    .how-step-label {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: #2c3e50;
+      margin: 0 0 4px;
+    }
+
+    .how-step-description {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #555;
+    }
+  }
+
+  // Separator under each sub-block
+  .user-origin-block,
+  .user-core-values-block,
+  .user-how-it-works-block {
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  @media (max-width: 767px) {
+    padding: 20px 0 8px;
+
+    .section-title {
+      font-size: 1.4rem;
+    }
+
+    .section-description {
+      font-size: 0.95rem;
+    }
+  }
+}
+
 .solutions-section {
   padding: 12px 0;
 
   > .container {
     padding-left: 0;
     padding-right: 0;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
   }
 
   .section-title {
@@ -512,6 +679,9 @@
   > .container {
     padding-left: 16px;
     padding-right: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
 
     @media (min-width: 768px) {
       padding-left: 0;
@@ -618,6 +788,7 @@
   > .container {
     padding-left: 20px;
     padding-right: 20px;
+    padding-top: 24px;
   }
 
   .section-title {
@@ -703,6 +874,205 @@
           font-size: 1rem;
         }
       }
+    }
+  }
+}
+
+// Customer Review Section (10 KHÁCH HÀNG NÓI GÌ)
+.customer-review-section {
+  padding: 32px 0 24px;
+
+  .container {
+    max-width: 900px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3da35d;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .customer-testimonial {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #555;
+    margin: 0 0 12px;
+    font-style: italic;
+  }
+
+  .customer-attribution {
+    font-size: 0.95rem;
+    color: #666;
+    margin: 0;
+  }
+}
+
+// Commitments Section (11 CAM KẾT CỦA FARME)
+.commitments-section {
+  padding: 24px 0 60px;
+
+  .container {
+    max-width: 900px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3da35d;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    @media (min-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .commitments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+
+    li {
+      margin-bottom: 8px;
+    }
+  }
+}
+
+// FAQ Section (12 FAQ)
+.faq-section {
+  padding: 24px 0 60px;
+
+  .container {
+    max-width: 900px;
+    text-align: left;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3da35d;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+
+  .faq-item {
+    padding: 16px 0;
+
+    &:not(:first-child) {
+      border-top: 1px solid #e0e0e0;
+      margin-top: 8px;
+    }
+
+    .faq-question {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .faq-answer {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #555;
+      max-width: 720px;
+    }
+  }
+}
+
+// Final CTA Section (13 FINAL CTA)
+.final-cta-section {
+  padding: 32px 0 60px;
+
+  .container {
+    max-width: 900px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #3da35d;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+
+    @media (min-width: 768px) {
+      font-size: 2.2rem;
+    }
+  }
+
+  .final-cta-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+    margin: 0 0 20px;
+  }
+
+  .final-cta-actions {
+    display: flex;
+    justify-content: center;
+  }
+
+  .final-cta-button {
+    display: inline-block;
+    padding: 12px 28px;
+    background: #3da35d;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      background: #2d8a4a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     }
   }
 }
