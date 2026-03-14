@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
-  useTitle(`${t('common.home')} - Agrifarmeet`);
+  useTitle(`${t('common.home')} - Farme`);
 
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

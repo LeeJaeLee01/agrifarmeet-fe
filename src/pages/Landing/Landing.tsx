@@ -372,7 +372,7 @@ const Landing: React.FC = () => {
           </div>
         </section>
 
-        {/* How AGRIFARMEET Solves It Section */}
+        {/* How FARME Solves It Section */}
         <section ref={solutionsRef} className="solutions-section">
           <div className="container">
             <h2
@@ -658,9 +658,9 @@ const Landing: React.FC = () => {
             </h2>
 
             <div className="comparison-table">
-              <div className="comparison-column agrifarmeet">
+              <div className="comparison-column farme">
                 <h3 className="column-title">
-                  {t('landing.agrifarmeetColumn')}
+                  {t('landing.farmeColumn')}
                 </h3>
                 <div className="comparison-item">
                   <CheckCircleOutlined className="icon check" />
