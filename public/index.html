@@ -2,6 +2,8 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
+    <!-- Tránh lỗi "Can't find variable: zaloJSV2" từ script bên ngoài (GTM/hosting). Nếu không dùng Zalo OA có thể bỏ. -->
+    <script>window.zaloJSV2 = window.zaloJSV2 || null;</script>
     <!-- Favicon - Đầy đủ các kích thước cho tất cả trình duyệt và thiết bị -->
     <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="shortcut icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
