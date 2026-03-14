@@ -99,21 +99,7 @@ const Landing: React.FC = () => {
       }
     };
 
-    const fetchProducts = async () => {
-      try {
-        const res = await api.get('/products');
-        // Handle both array and paginated response
-        const productsData = Array.isArray(res.data)
-          ? res.data
-          : (res.data.data || res.data.products || []);
-        setProducts(productsData);
-      } catch (err) {
-        console.error('Error fetching products:', err);
-      }
-    };
-
     fetchBoxes();
-    fetchProducts();
   }, []);
 
   return (
