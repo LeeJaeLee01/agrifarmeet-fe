@@ -238,13 +238,13 @@ const PurchasePage: React.FC = () => {
         onOk={() => {
           setShowSuccessModal(false);
           setSuccessPayDate(null);
-          navigate('/');
+          navigate('/order-lookup');
         }}
         footer={
           <Button type="primary" onClick={() => {
             setShowSuccessModal(false);
             setSuccessPayDate(null);
-            navigate('/');
+            navigate('/order-lookup');
           }}>
             OK
           </Button>
@@ -443,7 +443,7 @@ const PurchasePage: React.FC = () => {
                   <p className="text-lg text-left mb-8 font-semibold">
                     {t('purchase.totalAmount')}: <span className="text-green-600 text-xl">{formatVND(boxInfo.price)}</span>
                   </p>
-                  <div className="flex justify-center w-full">
+                  <div className="flex flex-wrap items-center justify-center w-full gap-3">
                     <Button
                       type="primary"
                       className="bg-green h-[52px] text-lg font-semibold"
@@ -451,6 +451,13 @@ const PurchasePage: React.FC = () => {
                       htmlType="submit"
                     >
                       {t('purchase.confirmOrder')}
+                    </Button>
+                    <Button
+                      type="default"
+                      className="h-[52px] text-lg font-semibold"
+                      onClick={() => navigate('/order-lookup')}
+                    >
+                      Xác nhận thanh toán test
                     </Button>
                   </div>
                 </div>

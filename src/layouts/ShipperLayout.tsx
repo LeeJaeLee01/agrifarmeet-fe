@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
 import { useLocation, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
@@ -10,18 +10,10 @@ import {
   LogoutOutlined,
   ProfileOutlined,
 } from '@ant-design/icons';
-import { jwtDecode } from 'jwt-decode';
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
 
 const { Header, Sider, Content } = Layout;
-
-interface JwtPayload {
-  sub: string;
-  username: string;
-  role: string;
-  exp?: number;
-}
 
 const ShipperLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -32,28 +24,6 @@ const ShipperLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // ✅ Kiểm tra token shipper khi vào layout
-  useEffect(() => {
-    const shipperToken = localStorage.getItem('shipperToken');
-
-    if (!shipperToken) {
-      navigate('/shipper/login', { replace: true });
-      return;
-    }
-
-    try {
-      const decoded: JwtPayload = jwtDecode(shipperToken);
-      if (decoded.role !== 'shipper') {
-        navigate('/', { replace: true });
-        return;
-      }
-    } catch (error) {
-      console.error('Invalid shipper token:', error);
-      localStorage.removeItem('shipperToken');
-      navigate('/shipper/login', { replace: true });
-    }
-  }, [navigate]);
 
   // ✅ Menu bên trái
   const menuItems = [
@@ -88,8 +58,9 @@ const ShipperLayout: React.FC = () => {
           label: 'Đăng xuất',
           onClick: () => {
             localStorage.removeItem('shipperToken');
+            localStorage.removeItem('shipperPhone');
             dispatch(setToken(''));
-            navigate('/admin/login');
+            navigate('/shipper');
           },
         },
       ]}

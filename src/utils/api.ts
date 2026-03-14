@@ -35,18 +35,20 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig & { withAuth?: 
 
 type ApiResponse<T> = Promise<AxiosResponse<T>>;
 
-const request = {
-  get: <T = any>(url: string, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
-    api.get(url, config),
+export interface ApiRequest {
+  get: <T = any>(url: string, config?: CustomAxiosRequestConfig) => ApiResponse<T>;
+  post: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig) => ApiResponse<T>;
+  put: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig) => ApiResponse<T>;
+  patch: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig) => ApiResponse<T>;
+  delete: <T = any>(url: string, config?: CustomAxiosRequestConfig) => ApiResponse<T>;
+}
 
-  post: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
-    api.post(url, data, config),
-
-  put: <T = any>(url: string, data?: any, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
-    api.put(url, data, config),
-
-  delete: <T = any>(url: string, config?: CustomAxiosRequestConfig): ApiResponse<T> =>
-    api.delete(url, config),
+const request: ApiRequest = {
+  get: (url, config) => api.get(url, config),
+  post: (url, data, config) => api.post(url, data, config),
+  put: (url, data, config) => api.put(url, data, config),
+  patch: (url, data, config) => api.patch(url, data, config),
+  delete: (url, config) => api.delete(url, config),
 };
 
 export default request;

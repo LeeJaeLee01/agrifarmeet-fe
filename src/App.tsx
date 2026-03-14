@@ -7,7 +7,6 @@ import AdminRoute from './routes/AdminRoute';
 import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import PaymentReturn from './pages/Purchase/PaymentReturn';
-import ShipperRoute from './routes/ShipperRoute';
 import ShipperLayout from './layouts/ShipperLayout';
 
 // User pages
@@ -20,6 +19,7 @@ const Product = lazy(() => import('./pages/Product/Product'));
 // const FarmStand = lazy(() => import('./pages/FarmStand/FarmStand'));
 const Purchase = lazy(() => import('./pages/Purchase/Purchase'));
 const Order = lazy(() => import('./pages/Order/Order'));
+const OrderLookup = lazy(() => import('./pages/OrderLookup/OrderLookup'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
 const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
@@ -75,6 +75,7 @@ function App() {
               /> */}
               <Route path="/purchase/:slug" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
+              <Route path="/order-lookup" element={<OrderLookup />} />
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
               <Route path="/payment/return" element={<PaymentReturn />} />
@@ -111,11 +112,9 @@ function App() {
             <Route
               path="/shipper"
               element={
-                <ShipperRoute>
-                  <Suspense fallback={<Loading />}>
-                    <ShipperLayout />
-                  </Suspense>
-                </ShipperRoute>
+                <Suspense fallback={<Loading />}>
+                  <ShipperLayout />
+                </Suspense>
               }
             >
               <Route path="" element={<Shipper />} />
