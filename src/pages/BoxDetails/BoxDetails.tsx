@@ -12,7 +12,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { useTitle } from '../../hooks/useTitle';
-import { formatVND } from '../../utils/helper';
+import { formatVND, getFirstCooperativeImageUrl } from '../../utils/helper';
 
 const BoxDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -366,29 +366,15 @@ const BoxDetails: React.FC = () => {
                                 title: t('common.image'),
                                 dataIndex: ['cooperative', 'images'],
                                 key: 'cooperativeImage',
-                                render: (images: string) => {
-                                  try {
-                                    const parsedImages = JSON.parse(images);
-                                    const src =
-                                      Array.isArray(parsedImages) && parsedImages.length > 0
-                                        ? parsedImages[0]
-                                        : 'https://via.placeholder.com/80';
-                                    return (
-                                      <img
-                                        src={src}
-                                        alt="cooperative"
-                                        className="object-cover w-20 h-20 rounded-md"
-                                      />
-                                    );
-                                  } catch (e) {
-                                    return (
-                                      <img
-                                        src="https://via.placeholder.com/80"
-                                        alt="cooperative"
-                                        className="object-cover w-20 h-20 rounded-md"
-                                      />
-                                    );
-                                  }
+                                render: (images: string | string[] | null | undefined) => {
+                                  const src = getFirstCooperativeImageUrl(images, 'https://via.placeholder.com/80');
+                                  return (
+                                    <img
+                                      src={src}
+                                      alt="cooperative"
+                                      className="object-cover w-20 h-20 rounded-md"
+                                    />
+                                  );
                                 },
                               },
                               {

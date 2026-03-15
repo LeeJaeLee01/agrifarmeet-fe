@@ -13,13 +13,14 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import './Landing.scss';
 import { useTranslation } from 'react-i18next';
-import { formatVND } from '../../utils/helper';
+import { formatVND, getFirstCooperativeImageUrl } from '../../utils/helper';
 
 const Landing: React.FC = () => {
   const { t } = useTranslation();
   const farmerImageUrl = 'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg';
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [products, setProducts] = useState<TProduct[]>([]);
+  const [partners, setPartners] = useState<any[]>([]);
   const [isUserProblemVisible] = useState(true);
   const solutionsRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -100,6 +101,20 @@ const Landing: React.FC = () => {
     };
 
     fetchBoxes();
+  }, []);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const res = await api.get('/cooperatives');
+        const raw = res.data as any;
+        const list = Array.isArray(raw?.data) ? raw.data : (Array.isArray(raw) ? raw : []);
+        setPartners(list);
+      } catch (err) {
+        console.error('Error fetching cooperatives:', err);
+      }
+    };
+    fetchPartners();
   }, []);
 
   return (
@@ -481,35 +496,19 @@ const Landing: React.FC = () => {
             </p>
 
             <div className="partners-grid" ref={partnersGridRef}>
-              {[
-                {
-                  id: 1,
-                  name: 'Đối tác 1',
-                  logo: 'https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/299986024_381479284166341_5813463295981167999_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=gsbTwFfqAT0Q7kNvwF5Exas&_nc_oc=AdmjHxH6d4ajRO1Sao2gN2Xg42iDXveT3iPzykvX0682Rfdgka9JquFvcIgfeZbmEFI&_nc_zt=23&_nc_ht=scontent.fhan17-1.fna&_nc_gid=T0MpHKiRXjW2o1zxT7FvOQ&_nc_ss=8&oh=00_AfyNu1TeadGuZo1R7dB0qFsDEhfFjL_Ygi5M7hhS40rpQA&oe=69B85021',
-                  htxName: 'HTX Văn Đức',
-                },
-                {
-                  id: 2,
-                  name: 'Đối tác 2',
-                  logo: '/van-noi.png',
-                  htxName: 'HTX Vân Nội',
-                },
-                {
-                  id: 3,
-                  name: 'Đối tác 3',
-                  logo: 'https://via.placeholder.com/150x100?text=Partner+3',
-                  htxName: 'HTX Đối tác 3',
-                },
-              ].map((partner, index) => (
-                <div
-                  key={partner.id}
-                  className={`partner-item ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-                  style={{ animationDelay: `${0.1 * index}s` }}
-                >
-                  <img src={partner.logo} alt={partner.name} />
-                  <p className="partner-htx-name">{partner.htxName}</p>
-                </div>
-              ))}
+              {partners.map((partner, index) => {
+                const logo = getFirstCooperativeImageUrl(partner.images, 'https://via.placeholder.com/150x100?text=Partner');
+                return (
+                  <div
+                    key={partner.id}
+                    className={`partner-item ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                    style={{ animationDelay: `${0.1 * index}s` }}
+                  >
+                    <img src={logo} alt={partner.name} />
+                    <p className="partner-htx-name" title={partner.name}>{partner.name}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

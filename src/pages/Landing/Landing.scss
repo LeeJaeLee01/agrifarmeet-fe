@@ -832,13 +832,12 @@
     }
 
     @media (min-width: 768px) {
-      // Desktop: quay lại layout dạng lưới
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      // Desktop: tất cả đối tác trên một hàng
+      flex-wrap: nowrap;
+      justify-content: center;
       gap: 40px;
       overflow: visible;
       padding: 0;
-      justify-items: center;
     }
 
     .partner-item {
@@ -869,6 +868,10 @@
         color: #2c3e50;
         text-align: center;
         line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
 
         @media (min-width: 768px) {
           font-size: 1rem;

@@ -35,6 +35,40 @@ export const formatDate = (dateString: string) => {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
+/** API base URL để nối với path ảnh (vd: /publish/ba-huan.png) */
+const getApiBase = (): string =>
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3030');
+
+/**
+ * Lấy URL ảnh đầu tiên từ trường images của HTX/cooperative.
+ * Hỗ trợ: chuỗi JSON mảng "[\"/publish/ba-huan.png\"]" hoặc mảng string[].
+ * Path bắt đầu bằng / sẽ được nối với API base.
+ */
+export function getFirstCooperativeImageUrl(
+  images: string | string[] | null | undefined,
+  fallback = ''
+): string {
+  if (images == null) return fallback;
+  let first = '';
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images || '[]');
+      first = Array.isArray(parsed) && parsed[0] ? parsed[0] : '';
+    } catch {
+      return fallback;
+    }
+  } else if (Array.isArray(images) && images[0]) {
+    first = images[0];
+  }
+  if (!first) return fallback;
+  if (first.startsWith('/')) {
+    const base = getApiBase().replace(/\/$/, '');
+    return `${base}${first}`;
+  }
+  return first;
+}
+
 /** Sinh mã giao dịch dạng txn_461770666 (prefix txn_ + số) */
 export const generateRandomString = (length: number = 13): string => {
   const prefix = 'txn_';
