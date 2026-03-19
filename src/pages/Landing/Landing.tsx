@@ -39,6 +39,7 @@ const Landing: React.FC = () => {
   const weeklyRef = useRef<HTMLDivElement>(null);
   const partnersRef = useRef<HTMLDivElement>(null);
   const partnersGridRef = useRef<HTMLDivElement | null>(null);
+  const reviewsGridRef = useRef<HTMLDivElement | null>(null);
   const customerReviewRef = useRef<HTMLElement | null>(null);
   const commitmentsRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
@@ -73,6 +74,31 @@ const Landing: React.FC = () => {
 
     const cardWidth =
       (gridEl.firstElementChild as HTMLElement | null)?.clientWidth || 200;
+    const gap = 16;
+    const step = cardWidth + gap;
+
+    const interval = setInterval(() => {
+      const maxScroll = gridEl.scrollWidth - gridEl.clientWidth;
+      if (gridEl.scrollLeft + step >= maxScroll - 5) {
+        gridEl.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        gridEl.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto scroll review section on mobile every 3s
+  useEffect(() => {
+    const gridEl = reviewsGridRef.current;
+    if (!gridEl) return;
+
+    const isMobile = window.innerWidth < 768;
+    if (!isMobile) return;
+
+    const cardWidth =
+      (gridEl.firstElementChild as HTMLElement | null)?.clientWidth || 280;
     const gap = 16;
     const step = cardWidth + gap;
 
@@ -545,7 +571,7 @@ const Landing: React.FC = () => {
             >
               Review
             </h2>
-            <div className="reviews-grid">
+            <div className="reviews-grid" ref={reviewsGridRef}>
               {feedbacks.slice(0, 6).map((r, index) => {
                 const rating = Math.max(0, Math.min(5, Number(r?.vote ?? 0)));
                 const feedbackImage =
