@@ -13,6 +13,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import './Landing.scss';
 import { useTranslation } from 'react-i18next';
+import { Modal, Button } from 'antd';
 import { formatVND, getFirstCooperativeImageUrl } from '../../utils/helper';
 
 const Landing: React.FC = () => {
@@ -21,6 +22,9 @@ const Landing: React.FC = () => {
   const [boxes, setBoxes] = useState<TBox[]>([]);
   const [products, setProducts] = useState<TProduct[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null);
   const [isUserProblemVisible] = useState(true);
   const solutionsRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -115,6 +119,20 @@ const Landing: React.FC = () => {
       }
     };
     fetchPartners();
+  }, []);
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const res = await api.get('/feedbacks');
+        const raw = res.data as any;
+        const list = Array.isArray(raw?.data) ? raw.data : (Array.isArray(raw) ? raw : []);
+        setFeedbacks(list);
+      } catch (err) {
+        console.error('Error fetching feedbacks:', err);
+      }
+    };
+    fetchFeedbacks();
   }, []);
 
   return (
@@ -527,18 +545,163 @@ const Landing: React.FC = () => {
             >
               Review
             </h2>
-            <blockquote
-              className={`customer-testimonial ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-              style={{ animationDelay: isCustomerReviewVisible ? '0.25s' : undefined }}
+            <div className="reviews-grid">
+              {feedbacks.slice(0, 6).map((r, index) => {
+                const rating = Math.max(0, Math.min(5, Number(r?.vote ?? 0)));
+                const feedbackImage =
+                  Array.isArray(r?.images) && r.images[0] ? r.images[0] : '';
+                const location = r?.addressDetail || r?.address || '';
+                const initials = String(r?.name || '')
+                  .trim()
+                  .split(/\s+/)
+                  .slice(-2)
+                  .map((w) => w.charAt(0).toUpperCase())
+                  .join('');
+                // Avatar user: dùng ảnh fake (không lấy từ API feedback)
+                const fakeAvatars = [
+                  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=70',
+                  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&q=70',
+                  'https://images.unsplash.com/photo-1548142813-c348350df52b?auto=format&fit=crop&w=256&q=70',
+                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=70',
+                  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&q=70',
+                ];
+                const avatarUrl = fakeAvatars[index % fakeAvatars.length];
+                return (
+                <div
+                  key={r.id}
+                  className={`review-card ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                  style={{ animationDelay: isCustomerReviewVisible ? `${0.2 + index * 0.1}s` : undefined }}
+                >
+                  <div className="review-header">
+                    <img className="review-avatar" src={avatarUrl} alt={r.name} />
+                    <div className="review-meta">
+                      <div className="review-name-row">
+                        <p className="review-name">{r.name}</p>
+                        {location ? <p className="review-location">{location}</p> : null}
+                      </div>
+                      <div className="review-rating" aria-label={`rating-${rating}`}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <span key={i} className={i < rating ? 'star star-filled' : 'star'}>
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="review-feedback">“{r.description}”</p>
+                  <div className="review-actions">
+                    <Button
+                      type="link"
+                      className="review-detail-btn"
+                      onClick={() => {
+                        setSelectedFeedback({
+                          ...r,
+                          __rating: rating,
+                          __initials: initials,
+                          __avatarUrl: avatarUrl,
+                          __location: location,
+                          __image: feedbackImage,
+                        });
+                        setIsFeedbackModalOpen(true);
+                      }}
+                    >
+                      Chi tiết
+                    </Button>
+                  </div>
+                </div>
+              );})}
+            </div>
+
+            <Modal
+              open={isFeedbackModalOpen}
+              onCancel={() => {
+                setIsFeedbackModalOpen(false);
+                setSelectedFeedback(null);
+              }}
+              footer={null}
+              centered
+              width={760}
+              title={null}
+              className="feedback-detail-modal"
+              destroyOnClose
             >
-              Gia đình mình rất yên tâm khi dùng rau Farme. Rau luôn tươi và giao rất đúng hẹn.
-            </blockquote>
-            <p
-              className={`customer-attribution ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-              style={{ animationDelay: isCustomerReviewVisible ? '0.35s' : undefined }}
-            >
-              — Chị Lan, Cầu Giấy
-            </p>
+              <div className="feedback-modal">
+                {/* Header row (desktop & mobile) */}
+                <div className="feedback-modal-top">
+                  <div className="feedback-modal-avatar-wrap" aria-hidden="true">
+                    {selectedFeedback?.__avatarUrl ? (
+                      <img
+                        className="feedback-modal-avatar"
+                        src={selectedFeedback.__avatarUrl}
+                        alt={selectedFeedback?.name || 'avatar'}
+                      />
+                    ) : (
+                      <div className="feedback-modal-avatar-fallback">{selectedFeedback?.__initials || 'KH'}</div>
+                    )}
+                  </div>
+                  <div className="feedback-modal-meta">
+                    <div className="feedback-modal-name-row">
+                      <p className="feedback-modal-name">{selectedFeedback?.name || 'Khách hàng'}</p>
+                      {selectedFeedback?.__location ? (
+                        <p className="feedback-modal-location">{selectedFeedback.__location}</p>
+                      ) : null}
+                    </div>
+                    <div className="feedback-modal-rating" aria-label={`rating-${selectedFeedback?.__rating ?? 0}`}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className={i < Number(selectedFeedback?.__rating ?? 0) ? 'star star-filled' : 'star'}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <div className="feedback-modal-sub">
+                      {selectedFeedback?.user?.phone ? (
+                        <span className="feedback-modal-sub-item">
+                          SĐT: <b>{selectedFeedback.user.phone}</b>
+                        </span>
+                      ) : null}
+                      {selectedFeedback?.createdAt ? (
+                        <span className="feedback-modal-sub-item">
+                          Ngày: <b>{new Date(selectedFeedback.createdAt).toLocaleDateString('vi-VN')}</b>
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Body: image below, text on right (desktop), stacked on mobile */}
+                <div className="feedback-modal-body">
+                  <div className="feedback-modal-media">
+                    {selectedFeedback?.__image ? (
+                      <img
+                        className="feedback-modal-photo"
+                        src={selectedFeedback.__image}
+                        alt={`feedback-${selectedFeedback?.name || ''}`}
+                      />
+                    ) : (
+                      <div className="feedback-modal-empty">
+                        Chưa có ảnh feedback.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="feedback-modal-text">
+                    <p className="feedback-modal-description">“{selectedFeedback?.description || ''}”</p>
+
+                    {(selectedFeedback?.address || selectedFeedback?.addressDetail) ? (
+                      <div className="feedback-modal-address">
+                        <div className="feedback-modal-address-title">Địa chỉ</div>
+                        <div className="feedback-modal-address-text">
+                          {[selectedFeedback.addressDetail, selectedFeedback.address].filter(Boolean).join(' - ')}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </Modal>
           </div>
         </section>
 
