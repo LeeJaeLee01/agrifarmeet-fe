@@ -118,11 +118,6 @@ const Cart: React.FC = () => {
       ),
     },
     {
-      title: 'Thành tiền',
-      key: 'total',
-      render: (_, record) => <span>{formatVND(record.price * record.quantity)}</span>,
-    },
-    {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (

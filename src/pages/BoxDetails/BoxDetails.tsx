@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useRef, Fragment } from 'react';
+import React, { useEffect, useState, useRef, Fragment, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import Section from '../../components/Section/Section';
 import api from '../../utils/api';
 import { Spin, Table, Modal, Button } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { ShareAltOutlined, DownloadOutlined, RightOutlined, DownOutlined } from '@ant-design/icons';
-import { TBox, TBoxProduct } from '../../types/TBox';
+import { TBox, TBoxDetailCategory, TBoxProductRow } from '../../types/TBox';
 import { TProduct } from '../../types/TProduct';
 import { TProductCooperative } from '../../types/TCooperative';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -13,6 +14,7 @@ import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { useTitle } from '../../hooks/useTitle';
 import { formatVND, getFirstCooperativeImageUrl } from '../../utils/helper';
+import { getBoxProductRows } from '../../utils/boxProductRows';
 
 const BoxDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -23,7 +25,7 @@ const BoxDetails: React.FC = () => {
   const modalRef = useRef<HTMLDivElement>(null);
   // State cho việc hiển thị modal chi tiết sản phẩm
   const [productModalOpen, setProductModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<TBoxProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<TBoxProductRow | null>(null);
   const [cooperativesData, setCooperativesData] = useState<Record<string, TProductCooperative[]>>({});
   const [loadingCooperatives, setLoadingCooperatives] = useState<Record<string, boolean>>({});
 
@@ -47,14 +49,30 @@ const BoxDetails: React.FC = () => {
     if (id) fetchBox();
   }, [id]);
 
-  const handleShowProductDetail = async (record: TBoxProduct) => {
+  const productRows = useMemo(() => (box ? getBoxProductRows(box) : []), [box]);
+
+  /** Mỗi danh mục một khối: dòng category, bên dưới là bảng sản phẩm */
+  const productSections = useMemo(() => {
+    if (!box || productRows.length === 0) return [];
+    if (box.box_details?.length) {
+      return box.box_details
+        .map((g) => ({
+          key: g.category.id,
+          category: g.category,
+          rows: productRows.filter((r) => r.category?.id === g.category.id),
+        }))
+        .filter((s) => s.rows.length > 0);
+    }
+    return [{ key: 'legacy', category: null as TBoxDetailCategory | null, rows: productRows }];
+  }, [box, productRows]);
+
+  const handleShowProductDetail = useCallback(async (record: TBoxProductRow) => {
     setSelectedProduct(record);
     setProductModalOpen(true);
 
     if (!cooperativesData[record.id]) {
       try {
         setLoadingCooperatives((prev) => ({ ...prev, [record.id]: true }));
-        // API call to get product details including cooperatives
         const res = await api.get<{ status: number; data: TProduct & { productCooperatives: TProductCooperative[] } }>(
           `/products/${record.product.slug}`
         );
@@ -71,7 +89,48 @@ const BoxDetails: React.FC = () => {
         setLoadingCooperatives((prev) => ({ ...prev, [record.id]: false }));
       }
     }
-  };
+  }, [cooperativesData]);
+
+  const productTableColumns: ColumnsType<TBoxProductRow> = useMemo(
+    () => [
+      {
+        dataIndex: ['product', 'images'],
+        width: 120,
+        key: 'images',
+        render: (images: string | string[]) => {
+          const src =
+            Array.isArray(images) && images.length > 0 ? images[0] : 'https://via.placeholder.com/64';
+          return <img src={src} alt="product" className="object-cover w-24 h-20 rounded-md" />;
+        },
+      },
+      {
+        title: '',
+        width: 120,
+        key: 'action',
+        align: 'center',
+        render: (_, record) => (
+          <span
+            className="text-green-600 cursor-pointer hover:underline"
+            onClick={() => handleShowProductDetail(record)}
+          >
+            {t('components.product_item.detail')}
+          </span>
+        ),
+      },
+      {
+        title: t('common.productName'),
+        dataIndex: ['product', 'name'],
+        key: 'name',
+      },
+      {
+        title: t('common.weight'),
+        dataIndex: ['product', 'weight'],
+        key: 'weight',
+        render: (w: number, record: TBoxProductRow) => `${w} ${record.unit}`,
+      },
+    ],
+    [t, handleShowProductDetail]
+  );
 
   // Hàm lưu modal thành ảnh
   const handleSaveImage = async () => {
@@ -239,57 +298,30 @@ const BoxDetails: React.FC = () => {
               <h2 className="mb-5 text-xl font-semibold text-text1">
                 {t('common.productsInPackage')}
               </h2>
-              <div className="w-full overflow-x-auto">
-                <Table<TBoxProduct>
-                  rowKey="id"
-                  dataSource={box.boxProducts || []}
-                  pagination={false}
-                  scroll={{ x: 'max-content' }}
-                  columns={[
-                    {
-                      // title: 'Hình ảnh',
-                      dataIndex: ['product', 'images'],
-                      width: 120,
-                      key: 'images',
-                      render: (images: string[]) => {
-                        const src = Array.isArray(images) && images.length > 0 ? images[0] : 'https://via.placeholder.com/64';
-                        return <img src={src} alt="product" className="object-cover w-24 h-20 rounded-md" />;
-                      },
-                    },
-                    {
-                      title: '',
-                      width: 120,
-                      key: 'action',
-                      align: 'center',
-                      render: (_, record) => (
-                        <span
-                          className="text-green-600 cursor-pointer hover:underline"
-                          onClick={() => handleShowProductDetail(record)}
-                        >
-                          {t('components.product_item.detail')}
-                        </span>
-                      ),
-                    },
-                    {
-                      title: t('common.productName'),
-                      dataIndex: ['product', 'name'],
-                      key: 'name',
-                    },
-                    {
-                      title: t('common.weight'),
-                      dataIndex: ['product', 'weight'],
-                      key: 'weight',
-                      render: (w: number, record: TBoxProduct) => `${w} ${record.unit}`,
-                    },
-                    {
-                      title: t('common.total'),
-                      key: 'total',
-                      align: 'right',
-                      render: (_, record) => `${record.quantity} ${record.unit}`,
-                    },
-
-                  ]}
-                />
+              <div className="flex flex-col w-full gap-8 overflow-x-auto">
+                {productSections.map((section) => (
+                  <div key={section.key} className="w-full">
+                    {section.category ? (
+                      <div className="flex items-center gap-3 pb-3 mb-3 border-b border-gray-200">
+                        {section.category.image ? (
+                          <img
+                            src={section.category.image}
+                            alt=""
+                            className="object-cover w-10 h-10 rounded-md shrink-0"
+                          />
+                        ) : null}
+                        <span className="text-lg font-semibold text-text1">{section.category.name}</span>
+                      </div>
+                    ) : null}
+                    <Table<TBoxProductRow>
+                      rowKey="id"
+                      dataSource={section.rows}
+                      pagination={false}
+                      scroll={{ x: 'max-content' }}
+                      columns={productTableColumns}
+                    />
+                  </div>
+                ))}
               </div>
 
               {/* Modal share */}

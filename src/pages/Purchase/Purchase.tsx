@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select, Modal } from 'antd';
@@ -12,6 +12,8 @@ import { formatWeight, generateRandomString, formatVND } from '../../utils/helpe
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { QRCodeCanvas } from 'qrcode.react';
+import type { TBox } from '../../types/TBox';
+import { getBoxProductRows } from '../../utils/boxProductRows';
 
 type PurchaseForm = {
   boxId: string;
@@ -57,6 +59,11 @@ const PurchasePage: React.FC = () => {
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+
+  const purchaseProductRows = useMemo(
+    () => (boxInfo ? getBoxProductRows(boxInfo as TBox) : []),
+    [boxInfo]
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -487,24 +494,41 @@ const PurchasePage: React.FC = () => {
                   </div>
 
                   <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
-                  {boxInfo.boxProducts?.map((bp: any) => (
-                    <div className="flex gap-5 mb-5" key={bp.id}>
-                      <img
-                        src={bp.product.images?.[0] || 'https://via.placeholder.com/80'}
-                        alt={bp.product.name}
-                        className="block object-cover w-20 h-20 rounded-lg"
-                      />
-                      <div>
-                        <p className="mb-1 text-sm lg:mb-2 text-text2">{bp.product.name}</p>
-                        <p className="text-xs text-text3">
-                          {t('purchase.netWeight')}: <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
-                        </p>
-                        <p className="text-xs text-text3">
-                          {t('purchase.quantity')}: <span>{bp.quantity} {bp.unit}</span>
-                        </p>
+                  {purchaseProductRows.map((bp) => {
+                    const imgSrc = Array.isArray(bp.product.images)
+                      ? bp.product.images[0]
+                      : typeof bp.product.images === 'string'
+                        ? (() => {
+                            try {
+                              const parsed = JSON.parse(bp.product.images || '[]');
+                              return Array.isArray(parsed) && parsed[0] ? parsed[0] : 'https://via.placeholder.com/80';
+                            } catch {
+                              return 'https://via.placeholder.com/80';
+                            }
+                          })()
+                        : 'https://via.placeholder.com/80';
+                    return (
+                      <div className="flex gap-5 mb-5" key={bp.id}>
+                        <img
+                          src={imgSrc || 'https://via.placeholder.com/80'}
+                          alt={bp.product.name}
+                          className="block object-cover w-20 h-20 rounded-lg"
+                        />
+                        <div>
+                          {bp.category?.name ? (
+                            <p className="mb-1 text-xs font-medium text-green-700">{bp.category.name}</p>
+                          ) : null}
+                          <p className="mb-1 text-sm lg:mb-2 text-text2">{bp.product.name}</p>
+                          <p className="text-xs text-text3">
+                            {t('purchase.netWeight')}: <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
+                          </p>
+                          <p className="text-xs text-text3">
+                            {t('purchase.quantity')}: <span>{bp.quantity} {bp.unit}</span>
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Total and Button moved to form */}
                 </>

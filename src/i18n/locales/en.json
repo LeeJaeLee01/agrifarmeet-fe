@@ -450,6 +450,7 @@
     "orderError": "Error occurred while placing order!"
   },
   "boxDetails": {
+    "category": "Category",
     "productDetailTitle": "Product details",
     "cooperativeName": "Cooperative name",
     "supplyCapacity": "Supply capacity",

@@ -6,6 +6,8 @@ export type TProduct = {
   images: string | string[]; // JSON string or array of images
   description: string;
   weight: number;
+  /** Đơn vị khối lượng (kg, bó, ...) — có trong API product */
+  unit?: string;
   categoryId: string;
   status: string;
   createdBy?: string | null;

@@ -452,6 +452,7 @@
     "orderError": "Có lỗi xảy ra khi đặt hàng!"
   },
   "boxDetails": {
+    "category": "Danh mục",
     "productDetailTitle": "Thông tin chi tiết sản phẩm",
     "cooperativeName": "Tên Hợp tác xã",
     "supplyCapacity": "Khả năng cung ứng",
