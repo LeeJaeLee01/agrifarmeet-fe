@@ -8,6 +8,7 @@ import AdminGuestRoute from './routes/AdminGuestRoute';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import PaymentReturn from './pages/Purchase/PaymentReturn';
 import ShipperLayout from './layouts/ShipperLayout';
+import MessengerFloatingButton from './components/MessengerFloatingButton/MessengerFloatingButton';
 
 // User pages
 const Landing = lazy(() => import('./pages/Landing/Landing'));
@@ -122,6 +123,7 @@ function App() {
           </Routes>
         </AntdApp>
       </ConfigProvider>
+      <MessengerFloatingButton href="https://m.me/1023499277515849" />
     </Fragment>
   );
 }
