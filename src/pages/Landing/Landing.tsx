@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, DownOutlined } from '@ant-design/icons';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import api from '../../utils/api';
@@ -44,6 +44,18 @@ const Landing: React.FC = () => {
   const commitmentsRef = useRef<HTMLElement | null>(null);
   const faqRef = useRef<HTMLElement | null>(null);
   const finalCtaRef = useRef<HTMLElement | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const [showHeroScrollHint, setShowHeroScrollHint] = useState(true);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const heroHeight = heroRef.current?.offsetHeight ?? window.innerHeight;
+      setShowHeroScrollHint(window.scrollY < Math.max(0, heroHeight - 40));
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const fetchWeeklyProducts = async () => {
@@ -167,7 +179,7 @@ const Landing: React.FC = () => {
       <div className="landing-page">
         {/* Hero Section */}
         {/* Hero Section */}
-        <section className="hero-section">
+        <section className="hero-section" ref={heroRef}>
           <Swiper
             modules={[Autoplay, Navigation]}
             navigation
@@ -185,7 +197,7 @@ const Landing: React.FC = () => {
               // },
               {
                 id: 2,
-                image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?q=80&w=2570&auto=format&fit=crop',
+                image: '/banner.png',
                 titleLine1: t('landing.heroTitleLine1'),
                 titleLine2: t('landing.heroTitleLine2'),
                 description: t('landing.heroDescription'),
@@ -202,9 +214,8 @@ const Landing: React.FC = () => {
                 <div className="container" style={{ height: '100%' }}>
                   <div className="hero-background">
                     <img src={slide.image} alt="Hero Slide" className="hero-image" />
-                    <div className="hero-overlay"></div>
                   </div>
-                  <div className="hero-content">
+                  {/* <div className="hero-content">
                     <div className="hero-text-content">
                       <h2 className="hero-title-line1">{slide.titleLine1}</h2>
                       <h4 className="hero-title-line2">{slide.titleLine2}</h4>
@@ -220,11 +231,22 @@ const Landing: React.FC = () => {
                         {t('landing.heroCta')}
                       </button>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
+          <button
+            type="button"
+            className={`hero-scroll-hint ${showHeroScrollHint ? '' : 'is-hidden'}`}
+            onClick={() => {
+              solutionsRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            aria-label="Chi tiết"
+          >
+            <span className="hero-scroll-hint__text">Chi tiết</span>
+            <DownOutlined className="hero-scroll-hint__icon" />
+          </button>
         </section>
 
         {/* User Problem Section */}

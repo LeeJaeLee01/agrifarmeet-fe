@@ -36,11 +36,16 @@
 }
 
 .header-simple {
-  position: fixed;
+  position: sticky;
   top: 0;
   z-index: 1000;
   background: #e9ecdc;
   @apply text-text1 shadow-sm;
+}
+
+// Ensure `.header` base rule (fixed) never overrides landing header.
+.header.header-simple {
+  position: sticky;
 }
 
 .logo {
