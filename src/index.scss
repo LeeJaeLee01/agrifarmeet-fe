@@ -31,64 +31,86 @@ body {
   @apply px-2 py-1 m-0 text-xs font-semibold rounded-full text-green2 bg-secondary-green h-fit w-fit;
 }
 
-.messenger-fab {
+.chat-fab-stack {
   position: fixed;
   right: 20px;
   bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 2147483000;
+}
+
+.chat-fab {
+  position: relative;
   width: 56px;
   height: 56px;
   border-radius: 9999px;
-  background: #0084ff;
   color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  z-index: 2147483000;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   transform: translateZ(0);
-  animation: messenger-pulse 1.2s ease-in-out infinite;
+  animation: chat-fab-pulse 1.2s ease-in-out infinite;
 }
 
-.messenger-fab:hover {
+.chat-fab--messenger {
+  background: #0084ff;
+}
+
+.chat-fab--zalo {
+  background: #0068ff;
+}
+
+.chat-fab:hover {
   filter: brightness(1.02);
 }
 
-.messenger-fab:active {
+.chat-fab:active {
   transform: translateZ(0) scale(0.98);
 }
 
-.messenger-fab:focus-visible {
-  outline: 3px solid rgba(0, 132, 255, 0.35);
+.chat-fab:focus-visible {
+  outline: 3px solid rgba(0, 104, 255, 0.35);
   outline-offset: 4px;
 }
 
-.messenger-fab__ring {
+.chat-fab__ring {
   position: absolute;
   inset: -8px;
   border-radius: 9999px;
-  border: 2px solid rgba(0, 132, 255, 0.35);
-  animation: messenger-ring 1.2s ease-out infinite;
+  border: 2px solid rgba(0, 104, 255, 0.28);
+  animation: chat-fab-ring 1.2s ease-out infinite;
 }
 
-.messenger-fab__icon {
+.chat-fab--messenger .chat-fab__ring {
+  border-color: rgba(0, 132, 255, 0.35);
+}
+
+.chat-fab--zalo .chat-fab__ring {
+  border-color: rgba(0, 104, 255, 0.3);
+}
+
+.chat-fab__icon {
   width: 26px;
   height: 26px;
 }
 
-.messenger-fab__icon svg {
+.chat-fab__icon svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-@keyframes messenger-pulse {
+@keyframes chat-fab-pulse {
   0% {
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     opacity: 1;
   }
   50% {
-    box-shadow: 0 12px 32px rgba(0, 132, 255, 0.32);
+    box-shadow: 0 12px 32px rgba(0, 104, 255, 0.28);
     opacity: 0.88;
   }
   100% {
@@ -97,7 +119,7 @@ body {
   }
 }
 
-@keyframes messenger-ring {
+@keyframes chat-fab-ring {
   0% {
     transform: scale(0.75);
     opacity: 0.0;
@@ -112,8 +134,19 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .messenger-fab,
-  .messenger-fab__ring {
+  .chat-fab,
+  .chat-fab__ring {
     animation: none !important;
   }
+}
+
+/* Backwards compatibility (in case any old markup remains) */
+.messenger-fab {
+  @extend .chat-fab;
+}
+.messenger-fab__ring {
+  @extend .chat-fab__ring;
+}
+.messenger-fab__icon {
+  @extend .chat-fab__icon;
 }

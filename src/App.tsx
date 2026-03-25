@@ -123,7 +123,10 @@ function App() {
           </Routes>
         </AntdApp>
       </ConfigProvider>
-      <MessengerFloatingButton href="https://m.me/1023499277515849" />
+      <MessengerFloatingButton
+        messengerHref="https://m.me/1023499277515849"
+        zaloHref="https://zalo.me/2768914139305378370"
+      />
     </Fragment>
   );
 }
