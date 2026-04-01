@@ -2,8 +2,50 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
-    <!-- Tránh lỗi "Can't find variable: zaloJSV2" từ script bên ngoài (GTM/hosting). Nếu không dùng Zalo OA có thể bỏ. -->
-    <script>window.zaloJSV2 = window.zaloJSV2 || null;</script>
+    <!-- Guard an toàn cho script ngoài có thể gọi zaloJSV2.zalo_h5_event_handler -->
+    <script>
+      window.zaloJSV2 =
+        window.zaloJSV2 ||
+        {
+          zalo_h5_event_handler: function () {
+            return null;
+          },
+        };
+    </script>
+    <script>
+      (function () {
+        var ZALO_ERROR_KEY = 'zaloJSV2.zalo_h5_event_handler';
+
+        function isIgnoredErrorMessage(msg) {
+          return typeof msg === 'string' && msg.indexOf(ZALO_ERROR_KEY) !== -1;
+        }
+
+        window.addEventListener(
+          'error',
+          function (event) {
+            var message = (event && (event.message || (event.error && event.error.message))) || '';
+            if (!isIgnoredErrorMessage(message)) return;
+            console.warn('[Ignored external script error]', message);
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          },
+          true
+        );
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event && event.reason;
+          var message =
+            typeof reason === 'string'
+              ? reason
+              : reason && reason.message
+              ? reason.message
+              : '';
+          if (!isIgnoredErrorMessage(message)) return;
+          console.warn('[Ignored external promise rejection]', message);
+          event.preventDefault();
+        });
+      })();
+    </script>
     <!-- Favicon - Đầy đủ các kích thước cho tất cả trình duyệt và thiết bị -->
     <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="shortcut icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
