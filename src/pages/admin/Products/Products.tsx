@@ -23,21 +23,42 @@ const Products: React.FC = () => {
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [search, setSearch] = useState<string>('');
+  const [categorySlug, setCategorySlug] = useState<string>('');
 
   const [form] = Form.useForm();
 
   const imageValue = Form.useWatch('image', form);
 
-  // Lấy danh sách sản phẩm
-  const fetchProducts = async (page = 1, limit = 20, keyword = '') => {
+  const jsonHeaders = { Accept: 'application/json' as const };
+
+  const productThumbUrl = (p: TProduct) => {
+    if (p.image) return p.image;
+    if (Array.isArray(p.images)) return p.images[0];
+    if (typeof p.images === 'string') return p.images;
+    return undefined;
+  };
+
+  // Lấy danh sách sản phẩm theo danh mục: GET /categories/:slug/products
+  const fetchProducts = async (page = 1, limit = 20, keyword = '', slug = categorySlug) => {
+    if (!slug) return;
     try {
       setLoading(true);
-      const res = await api.get(`/products?page=${page}&limit=${limit}&search=${keyword}`);
-      setData(res.data.data);
+      const q = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (keyword) q.set('search', keyword);
+      const res = await api.get(`/categories/${slug}/products?${q.toString()}`, {
+        headers: jsonHeaders,
+      });
+      const payload = res.data.data;
+      const items = payload?.items ?? [];
+      const meta = payload?.meta;
+      setData(items);
       setPagination({
-        current: page,
-        pageSize: limit,
-        total: res.data.total,
+        current: meta?.page ?? page,
+        pageSize: meta?.limit ?? limit,
+        total: meta?.total ?? items.length,
       });
     } catch (error) {
       console.error(error);
@@ -47,20 +68,28 @@ const Products: React.FC = () => {
     }
   };
 
-  // Lấy danh sách categories
+  // Lấy danh sách categories — response { status, data: [...] }
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/categories');
-      setCategories(res.data.data);
+      const res = await api.get('/categories', { headers: jsonHeaders });
+      const list: TCategory[] = res.data.data ?? [];
+      setCategories(list);
+      return list;
     } catch (error) {
       console.error(error);
       toast.error('Không thể tải danh mục');
+      return [];
     }
   };
 
   useEffect(() => {
-    fetchProducts(pagination.current, pagination.pageSize, search);
-    fetchCategories();
+    (async () => {
+      const list = await fetchCategories();
+      if (list.length === 0) return;
+      const firstSlug = list[0].slug;
+      setCategorySlug(firstSlug);
+      await fetchProducts(1, 20, '', firstSlug);
+    })();
   }, []);
 
   // Thêm / sửa sản phẩm
@@ -82,7 +111,7 @@ const Products: React.FC = () => {
       setCurrentProduct(null);
       setIsEdit(false);
 
-      fetchProducts(pagination.current, pagination.pageSize, search);
+      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
     } catch (error) {
       console.error(error);
       toast.error(isEdit ? 'Cập nhật sản phẩm thất bại!' : 'Thêm sản phẩm thất bại!');
@@ -96,7 +125,7 @@ const Products: React.FC = () => {
     try {
       await api.delete(`/products/${id}`, { withAuth: true });
       toast.success('Xóa sản phẩm thành công!');
-      fetchProducts(pagination.current, pagination.pageSize, search);
+      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
     } catch (error) {
       console.error(error);
       toast.error('Xóa sản phẩm thất bại!');
@@ -117,7 +146,14 @@ const Products: React.FC = () => {
       dataIndex: 'image',
       key: 'image',
       width: 100,
-      render: (url: string) => <img src={url} alt="product" className="object-cover w-16 h-16" />,
+      render: (_: unknown, record: TProduct) => {
+        const url = productThumbUrl(record);
+        return url ? (
+          <img src={url} alt="product" className="object-cover w-16 h-16" />
+        ) : (
+          <span className="text-gray-400">—</span>
+        );
+      },
     },
     {
       title: 'Tên sản phẩm',
@@ -202,6 +238,17 @@ const Products: React.FC = () => {
     <Fragment>
       <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý sản phẩm</h1>
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
+        <Select
+          placeholder="Chọn danh mục"
+          className="min-w-[200px]"
+          value={categorySlug || undefined}
+          options={categories.map((c) => ({ value: c.slug, label: c.name }))}
+          onChange={(slug) => {
+            setCategorySlug(slug);
+            setSearch('');
+            fetchProducts(1, pagination.pageSize, '', slug);
+          }}
+        />
         <Input.Search
           placeholder="Tìm kiếm sản phẩm"
           allowClear
@@ -209,7 +256,7 @@ const Products: React.FC = () => {
           style={{ maxWidth: 300 }}
           onSearch={(value) => {
             setSearch(value);
-            fetchProducts(1, pagination.pageSize, value);
+            fetchProducts(1, pagination.pageSize, value, categorySlug);
           }}
         />
 
@@ -236,8 +283,8 @@ const Products: React.FC = () => {
             ...pagination,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
-            onChange: (page, pageSize) => fetchProducts(page, pageSize, search),
-            onShowSizeChange: (current, size) => fetchProducts(current, size, search),
+            onChange: (page, pageSize) => fetchProducts(page, pageSize, search, categorySlug),
+            onShowSizeChange: (current, size) => fetchProducts(current, size, search, categorySlug),
           }}
           scroll={{ x: 1200 }}
         />

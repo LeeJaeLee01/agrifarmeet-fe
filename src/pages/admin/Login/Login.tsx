@@ -12,6 +12,21 @@ import { JwtPayload, TLogin } from '../../../types/TUser';
 import { useTitle } from '../../../hooks/useTitle';
 import { useTranslation } from 'react-i18next';
 
+type AdminLoginResponse = {
+  status: number;
+  data?: {
+    accessToken?: string;
+    tokenType?: string;
+    admin?: {
+      id: string;
+      account: string;
+      phone?: string;
+      email?: string;
+      role: string;
+    };
+  };
+};
+
 const Login: React.FC = () => {
   const { t } = useTranslation();
   useTitle(`${t('common.adminLoginTitle')} - Admin`);
@@ -60,27 +75,24 @@ const Login: React.FC = () => {
 
   const onSubmit: SubmitHandler<TLogin> = async (data) => {
     try {
-      console.log(data);
-
-      const res = await api.post('/users/login', {
-        username: data.username,
+      const res = await api.post<AdminLoginResponse>('/admin/auth/login', {
+        identifier: data.username,
         password: data.password,
       });
 
-      if (res.data?.token) {
-        const decoded: JwtPayload = jwtDecode<JwtPayload>(res.data.token);
+      const accessToken = res.data?.data?.accessToken;
+      const admin = res.data?.data?.admin;
+
+      if (accessToken) {
+        const decoded: JwtPayload = jwtDecode<JwtPayload>(accessToken);
 
         if (decoded.role === 'admin') {
-          localStorage.setItem('adminToken', res.data.token);
-          dispatch(setToken(res.data.token));
+          localStorage.setItem('adminToken', accessToken);
+          if (admin?.account) localStorage.setItem('username', admin.account);
+          dispatch(setToken(accessToken));
 
           navigate('/admin');
           toast.success(t('common.adminLoginSuccess'));
-        } else if (decoded.role === 'shipper') {
-          localStorage.setItem('shipperToken', res.data.token);
-          dispatch(setToken(res.data.token));
-          navigate('/shipper');
-          toast.success(t('common.shipperLoginSuccess'));
         } else {
           toast.error(t('common.invalidRole'));
         }
@@ -89,7 +101,7 @@ const Login: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(t('common.loginFailed2'));
+      toast.error(error?.response?.data?.message || t('common.loginFailed2'));
     }
   };
 
@@ -137,10 +149,6 @@ const Login: React.FC = () => {
                 control={control}
                 rules={{
                   required: t('common.passwordRequired2'),
-                  minLength: {
-                    value: 8,
-                    message: t('common.passwordMin8'),
-                  },
                 }}
                 render={({ field }) => (
                   <Input.Password {...field} placeholder={t('login.enterPassword')} size="large" />

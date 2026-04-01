@@ -1,0 +1,161 @@
+/* Giá gói — cùng block với Landing (.package-price-section) */
+@keyframes boxes-price-meta-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-4px);
+  }
+  75% {
+    transform: translateY(3px);
+  }
+}
+
+.boxes-page {
+  .package-price-section {
+    align-self: stretch;
+    width: 100%;
+    margin-bottom: 0;
+
+    .price-text {
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #2e7d32;
+      margin: 0;
+      letter-spacing: -0.02em;
+
+      span {
+        font-size: 1rem;
+        color: #666;
+      }
+    }
+
+    .price-meta-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 0;
+      text-align: left;
+    }
+
+    .price-meta-wavy {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .price-meta-wavy-char {
+      display: inline-block;
+      animation: boxes-price-meta-wave 0.6s ease-in-out 1;
+      font-size: 0.72rem;
+      line-height: 1.4;
+    }
+
+    .price-meta-wavy-char--vat {
+      color: #546e7a;
+      font-weight: 500;
+    }
+
+    .price-meta-wavy-char--strong {
+      font-weight: 700;
+      color: #2e7d32;
+      letter-spacing: 0.02em;
+    }
+
+    .price-meta-wavy-char--sep {
+      color: #b0bec5;
+      font-weight: 700;
+      padding: 0 1px;
+    }
+
+    .price-meta-wavy-char--sub {
+      font-size: 0.65rem;
+      color: #607d8b;
+      font-weight: 500;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .price-meta-wavy-char {
+        animation: none !important;
+      }
+    }
+
+    .price-meta-badge {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      text-align: left;
+      color: #546e7a;
+      max-width: 100%;
+      border: none;
+      background: none;
+      box-shadow: none;
+      border-radius: 0;
+
+      &__glyph {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.15em;
+        height: 1.15em;
+        font-size: 1em;
+        line-height: 1;
+      }
+
+      &__text {
+        flex: 1;
+        min-width: 0;
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+        line-height: 1.4;
+      }
+
+      &__strong {
+        font-weight: 700;
+        color: #2e7d32;
+        letter-spacing: 0.02em;
+      }
+
+      &__sub {
+        font-size: 0.65rem;
+        color: #607d8b;
+        font-weight: 500;
+      }
+
+      &__sep {
+        color: #b0bec5;
+        font-weight: 700;
+        padding: 0 1px;
+      }
+
+      &__text--ship {
+        gap: 0;
+        min-width: 0;
+      }
+
+      &--vat .price-meta-badge__glyph {
+        color: #2e7d32;
+        font-weight: 700;
+      }
+
+      &--ship .price-meta-badge__glyph {
+        font-size: 1em;
+        font-weight: 400;
+      }
+    }
+  }
+}

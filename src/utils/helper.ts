@@ -80,3 +80,16 @@ export const generateRandomString = (length: number = 13): string => {
   }
   return result;
 };
+
+/**
+ * Chuẩn hóa body API: mảng trực tiếp hoặc `{ data: T[] }` / `{ data: T }` (cùng logic trang Landing GET /boxes).
+ */
+export function unwrapApiList<T = unknown>(body: unknown): T[] {
+  if (body == null) return [];
+  if (Array.isArray(body)) return body as T[];
+  if (typeof body !== 'object') return [];
+  const raw = body as { data?: unknown };
+  if (Array.isArray(raw.data)) return raw.data as T[];
+  if (raw.data != null) return [raw.data as T];
+  return [];
+}

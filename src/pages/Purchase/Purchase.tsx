@@ -13,6 +13,7 @@ import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { QRCodeCanvas } from 'qrcode.react';
 import type { TBox } from '../../types/TBox';
+import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
 
 type PurchaseForm = {
@@ -26,6 +27,11 @@ type PurchaseForm = {
   addressDetail: string;
   timeActive: string;
   timeEnd: string;
+};
+
+type TAddOnProduct = TProduct & {
+  isAddOn?: boolean;
+  priceAddOn?: number;
 };
 
 const { Option } = Select;
@@ -54,8 +60,12 @@ const PurchasePage: React.FC = () => {
   const [qrExpireTime, setQrExpireTime] = useState<number>(0); // Thời gian còn lại (giây)
   const [currentBoxId, setCurrentBoxId] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null); // orderId để polling GET /boxes/payment/status/:orderId
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
+  const [paymentDisabled, setPaymentDisabled] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successPayDate, setSuccessPayDate] = useState<string | null>(null);
+  const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
+  const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -64,6 +74,34 @@ const PurchasePage: React.FC = () => {
     () => (boxInfo ? getBoxProductRows(boxInfo as TBox) : []),
     [boxInfo]
   );
+
+  const addOnTotal = useMemo(
+    () =>
+      addOns
+        .filter((item) => selectedAddOnIds.includes(item.id))
+        .reduce((sum, item) => sum + Number(item.priceAddOn || 0), 0),
+    [addOns, selectedAddOnIds]
+  );
+
+  const payableAmount = useMemo(
+    () => Number(boxInfo?.price || 0) + addOnTotal,
+    [boxInfo?.price, addOnTotal]
+  );
+
+  const isTrialBox = useMemo(() => {
+    const slugValue = String(boxInfo?.slug || '').toLowerCase();
+    const nameValue = String(boxInfo?.name || '').toLowerCase();
+    return (
+      slugValue.includes('trai-nghiem') ||
+      nameValue.includes('trải nghiệm') ||
+      nameValue.includes('trai nghiem')
+    );
+  }, [boxInfo?.slug, boxInfo?.name]);
+
+  const visibleAddOns = useMemo(() => {
+    if (!isTrialBox) return addOns;
+    return addOns.filter((item) => item.slug !== 'rau-them-1-loai');
+  }, [addOns, isTrialBox]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -91,6 +129,19 @@ const PurchasePage: React.FC = () => {
     fetch('https://provinces.open-api.vn/api/?depth=1')
       .then((res) => res.json())
       .then((data) => setProvinces(data));
+  }, []);
+
+  useEffect(() => {
+    const fetchAddOns = async () => {
+      try {
+        const res = await api.get('/products/add-ons?page=1&limit=20');
+        const items = res.data?.data?.items;
+        setAddOns(Array.isArray(items) ? items : []);
+      } catch (err) {
+        console.error('Error fetching add-ons:', err);
+      }
+    };
+    fetchAddOns();
   }, []);
 
   // 🔹 Lấy huyện theo tỉnh
@@ -186,9 +237,17 @@ const PurchasePage: React.FC = () => {
   const handleCloseQrModal = () => {
     setShowQrModal(false);
     setQrCodeData(null);
+    setQrImageUrl(null);
+    setPaymentDisabled(false);
     setQrExpireTime(0);
     setCurrentBoxId(null);
     setCurrentOrderId(null);
+  };
+
+  const toggleAddOn = (id: string) => {
+    setSelectedAddOnIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
   const onSubmit: SubmitHandler<PurchaseForm> = async (data) => {
@@ -196,7 +255,7 @@ const PurchasePage: React.FC = () => {
 
     // Tạo orderId ngẫu nhiên
     const orderId = generateRandomString(13);
-    const amount = Number(boxInfo.price);
+    const amount = payableAmount;
 
     try {
       setLoading(true);
@@ -212,15 +271,29 @@ const PurchasePage: React.FC = () => {
         address: `${data.province}, ${data.district}, ${data.ward}`,
         address_detail: data.addressDetail,
         box_id: boxInfo.id,
+        // Legacy payload:
+        // add_on_ids: selectedAddOnIds,
+        add_on: selectedAddOnIds.map((id) => ({
+          product_id: id,
+          quantity: 1,
+        })),
       };
 
       // Gọi API /boxes/payment/qr để tạo QR code
       const res = await api.post('/boxes/payment/qr', requestBody);
 
-      if (res.data && res.data.data && res.data.data.data) {
-        setQrCodeData(res.data.data.data);
+      const payload = res.data?.data;
+      if (payload?.qrImageUrl || payload?.data) {
+        // Legacy flow:
+        // if (res.data && res.data.data && res.data.data.data) {
+        //   setQrCodeData(res.data.data.data);
+        //   setCurrentOrderId(orderId);
+        // }
+        setQrCodeData(payload?.data ?? null);
+        setQrImageUrl(payload?.qrImageUrl ?? null);
+        setPaymentDisabled(Boolean(payload?.paymentDisabled));
         setCurrentBoxId(boxInfo.id);
-        setCurrentOrderId(orderId); // Lưu orderId để polling GET /boxes/payment/status/:orderId
+        setCurrentOrderId(payload?.paymentDisabled ? null : orderId); // Không polling khi payment đang disabled
         setShowQrModal(true);
         toast.success(t('purchase.createQrSuccess'));
       } else {
@@ -253,7 +326,7 @@ const PurchasePage: React.FC = () => {
             setSuccessPayDate(null);
             navigate('/order-lookup');
           }}>
-            OK
+            {t('purchase.ok')}
           </Button>
         }
         closable={false}
@@ -446,9 +519,10 @@ const PurchasePage: React.FC = () => {
 
               {/* Total & Button */}
               {boxInfo && (
-                <div className="mt-8">
+                <div className="hidden mt-8 lg:block">
                   <p className="text-lg text-left mb-8 font-semibold">
-                    {t('purchase.totalAmount')}: <span className="text-green-600 text-xl">{formatVND(boxInfo.price)}</span>
+                    {t('purchase.totalAmount')}:{' '}
+                    <span className="text-green-600 text-xl">{formatVND(payableAmount)}</span>
                   </p>
                   <div className="flex flex-wrap items-center justify-center w-full gap-3">
                     <Button
@@ -484,16 +558,84 @@ const PurchasePage: React.FC = () => {
                       <p className="mb-1 text-sm font-medium lg:mb-2 lg:text-lg text-text1">
                         {boxInfo.name}
                       </p>
-                      <p className="mb-1 text-xs lg:mb-2 lg:text-sm text-text2">
-                        {boxInfo.description}
-                      </p>
-                      <p className="text-xs lg:text-sm text-text3">
-                        {t('purchase.weight')}: <span>{boxInfo.includes?.serving_size}</span>
-                      </p>
+                      <ul className="mb-1 lg:mb-2">
+                        {(boxInfo.description || '')
+                          .split('.')
+                          .map((item: string) => item.trim())
+                          .filter(Boolean)
+                          .map((item: string, idx: number) => (
+                            <li
+                              key={`${boxInfo.id}-desc-${idx}`}
+                              className="flex items-start gap-2 text-xs lg:text-sm text-text2"
+                            >
+                              <span
+                                className="inline-flex items-center justify-center flex-none w-5 h-5 font-bold text-green-700 rounded-full bg-green-100"
+                                aria-hidden="true"
+                              >
+                                ✓
+                              </span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                      </ul>
                     </div>
                   </div>
 
-                  <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
+                  {visibleAddOns.length > 0 ? (
+                    <div className="pb-5 mb-5 border-b border-border">
+                      <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                        {t('purchase.addOn')}
+                      </h3>
+                      <div className="space-y-3">
+                        {visibleAddOns.map((item) => {
+                          const checked = selectedAddOnIds.includes(item.id);
+                          const imgSrc = Array.isArray(item.images)
+                            ? item.images[0]
+                            : typeof item.images === 'string'
+                              ? (() => {
+                                  try {
+                                    const parsed = JSON.parse(item.images || '[]');
+                                    return Array.isArray(parsed) && parsed[0] ? parsed[0] : '';
+                                  } catch {
+                                    return item.images;
+                                  }
+                                })()
+                              : '';
+
+                          return (
+                            <label
+                              key={item.id}
+                              className={`flex items-center gap-3 p-2 border rounded-lg cursor-pointer transition-colors ${
+                                checked ? 'border-green-600 bg-green-50' : 'border-border bg-white'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => toggleAddOn(item.id)}
+                                className="w-4 h-4 accent-green-600"
+                              />
+                              <img
+                                src={imgSrc || 'https://via.placeholder.com/80'}
+                                alt={item.name}
+                                className="object-cover w-12 h-12 rounded-md"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="m-0 text-sm font-medium text-text1 line-clamp-2">
+                                  {item.name}
+                                </p>
+                                <p className="m-0 text-xs text-text3">
+                                  {formatVND(Number(item.priceAddOn || 0))}
+                                </p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
                   {purchaseProductRows.map((bp) => {
                     const imgSrc = Array.isArray(bp.product.images)
                       ? bp.product.images[0]
@@ -528,13 +670,33 @@ const PurchasePage: React.FC = () => {
                         </div>
                       </div>
                     );
-                  })}
+                  })} */}
 
                   {/* Total and Button moved to form */}
                 </>
               ) : (
                 <p>{t('purchase.loadingBoxInfo')}</p>
               )}
+
+              {boxInfo ? (
+                <div className="mt-6 lg:hidden">
+                  <p className="mb-6 text-lg font-semibold text-left">
+                    {t('purchase.totalAmount')}:{' '}
+                    <span className="text-xl text-green-600">{formatVND(payableAmount)}</span>
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center w-full gap-3">
+                    <Button
+                      type="primary"
+                      className="bg-green h-[52px] text-lg font-semibold"
+                      loading={loading}
+                      htmlType="submit"
+                      form="purchase-form"
+                    >
+                      {t('purchase.confirmOrder')}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -572,32 +734,47 @@ const PurchasePage: React.FC = () => {
           <p className="text-sm text-center text-text3 mb-6">{t('purchase.scanQr')}</p>
 
           <div className="p-4 bg-white rounded-xl shadow-lg border border-gray-100 mb-6">
-            {qrCodeData ? (
+            {qrImageUrl ? (
+              <img src={qrImageUrl} alt="payment-qr" className="block object-cover w-[200px] h-[200px]" />
+            ) : qrCodeData ? (
               <QRCodeCanvas value={qrCodeData} size={200} level="H" />
             ) : (
               <div className="w-[200px] h-[200px] bg-gray-100 flex items-center justify-center text-gray-400">
-                Waiting...
+                {t('purchase.waiting')}
               </div>
             )}
+            {/* Legacy QR block:
+              {qrCodeData ? (
+                <QRCodeCanvas value={qrCodeData} size={200} level="H" />
+              ) : (
+                <div className="w-[200px] h-[200px] bg-gray-100 flex items-center justify-center text-gray-400">
+                  {t('purchase.waiting')}
+                </div>
+              )}
+            */}
           </div>
 
-          <div className="w-full text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-sm text-text3">{t('purchase.timeLeft')}:</span>
-              <span className={`text-xl font-bold font-mono ${qrExpireTime <= 30 ? 'text-red-500' : 'text-green-600'
-                }`}>
-                {formatTime(qrExpireTime)}
-              </span>
+          {paymentDisabled ? (
+            <div className="w-full text-center" />
+          ) : (
+            <div className="w-full text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-sm text-text3">{t('purchase.timeLeft')}:</span>
+                <span className={`text-xl font-bold font-mono ${qrExpireTime <= 30 ? 'text-red-500' : 'text-green-600'
+                  }`}>
+                  {formatTime(qrExpireTime)}
+                </span>
+              </div>
+              {qrExpireTime <= 30 && (
+                <p className="text-xs text-red-500 font-medium animate-pulse">
+                  {t('purchase.qrExpiring')}
+                </p>
+              )}
             </div>
-            {qrExpireTime <= 30 && (
-              <p className="text-xs text-red-500 font-medium animate-pulse">
-                {t('purchase.qrExpiring')}
-              </p>
-            )}
-          </div>
+          )}
 
           <p className="mt-6 text-xs text-center text-gray-400">
-            Vui lòng không tắt trình duyệt khi đang thanh toán
+            {t('purchase.doNotCloseBrowser')}
           </p>
         </div>
       </Modal>

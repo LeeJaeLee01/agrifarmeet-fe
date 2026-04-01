@@ -21,7 +21,7 @@
   position: sticky;
   top: 0;
   z-index: 999;
-  background: #e9ecdc;
+  background: #ffffff;
   transform: translateY(0);
   @apply text-text1 shadow-sm;
 }
@@ -30,7 +30,7 @@
   position: fixed;
   top: 0;
   z-index: 999;
-  background: #e9ecdc;
+  background: #ffffff;
   transform: translateY(0);
   @apply text-text1 shadow-sm;
 }
@@ -39,7 +39,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #e9ecdc;
+  background: #ffffff;
   @apply text-text1 shadow-sm;
 }
 
@@ -90,9 +90,17 @@ a {
   display: block;
 }
 
+.header-slogan-mobile--bordered {
+  border-top: 1px solid #e5e7eb;
+}
+
 @media (min-width: 1280px) {
   .header-slogan-desktop {
-    display: block;
+    display: flex;
+    flex: 1 1 0%;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
   }
 
   .header-slogan-mobile {

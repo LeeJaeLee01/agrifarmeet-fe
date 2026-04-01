@@ -1,6 +1,7 @@
 {
   "common": {
     "home": "Home",
+    "introduce": "Introduce",
     "slogan": "Transparent - Safe - Sustainable",
     "login": "Login",
     "logout": "Logout",
@@ -372,7 +373,29 @@
     "products": "products",
     "fixedSeasonalProducts": "Fixed seasonal products",
     "weeklyDelivery": "Weekly delivery products",
-    "forFamilySize": "For family of 4"
+    "forFamilySize": "For family of 4",
+    "partnersTitle": "Our partners",
+    "partnersSubtitle": "Partnering with trusted cooperatives to deliver high-quality produce",
+    "details": "Details",
+    "packageDescriptionFallback": "Package description is being updated.",
+    "trialNoFlexibleSelect": "cannot flexibly choose vegetables",
+    "trialNoExtraVegetables": "cannot add extra vegetables",
+    "vatIncludedTitle": "Price includes VAT",
+    "vatIncluded": "VAT included",
+    "shippingByArea": "Applied by shipping area",
+    "freeShip": "Free ship",
+    "freeDelivery": "free delivery",
+    "vegetableMix": "8 types of vegetables (300g-1kg/type, 4-5kg/box)",
+    "customerSay": "WHAT CUSTOMERS SAY",
+    "reviewTitle": "Reviews",
+    "detail": "Detail",
+    "avatar": "avatar",
+    "customerInitials": "CU",
+    "customer": "Customer",
+    "phoneLabel": "Phone",
+    "date": "Date",
+    "noFeedbackImage": "No feedback image.",
+    "address": "Address"
   },
   "login": {
     "title": "Login",
@@ -447,7 +470,11 @@
     "loginRequired": "Please login to place order!",
     "createQrSuccess": "QR code created successfully!",
     "createQrFailed": "Failed to create QR code",
-    "orderError": "Error occurred while placing order!"
+    "orderError": "Error occurred while placing order!",
+    "ok": "OK",
+    "addOn": "Add-on",
+    "waiting": "Waiting...",
+    "doNotCloseBrowser": "Please do not close the browser while payment is in progress"
   },
   "boxDetails": {
     "category": "Category",

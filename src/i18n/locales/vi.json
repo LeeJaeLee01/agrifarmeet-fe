@@ -1,6 +1,7 @@
 {
   "common": {
     "home": "Trang chủ",
+    "introduce": "Giới thiệu",
     "slogan": "Minh bạch - An toàn - Bền vững",
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
@@ -374,7 +375,27 @@
     "weeklyDelivery": "Sản phẩm được cung cấp hàng tuần",
     "forFamilySize": "Dành cho gia đình 4 người",
     "partnersTitle": "Đối tác của chúng tôi",
-    "partnersSubtitle": "Hợp tác cùng các đối tác uy tín để mang đến sản phẩm chất lượng cao"
+    "partnersSubtitle": "Hợp tác cùng các đối tác uy tín để mang đến sản phẩm chất lượng cao",
+    "details": "Chi tiết",
+    "packageDescriptionFallback": "Mô tả gói đang được cập nhật.",
+    "trialNoFlexibleSelect": "không được linh hoạt chọn rau",
+    "trialNoExtraVegetables": "không thể thêm rau củ",
+    "vatIncludedTitle": "Giá đã gồm thuế VAT",
+    "vatIncluded": "Đã bao gồm thuế VAT",
+    "shippingByArea": "Áp dụng theo khu vực giao hàng",
+    "freeShip": "Freeship",
+    "freeDelivery": "miễn phí giao",
+    "vegetableMix": "8 loại rau (300g-1kg/loại, 4-5kg/hộp)",
+    "customerSay": "KHÁCH HÀNG NÓI GÌ",
+    "reviewTitle": "Review",
+    "detail": "Chi tiết",
+    "avatar": "avatar",
+    "customerInitials": "KH",
+    "customer": "Khách hàng",
+    "phoneLabel": "SĐT",
+    "date": "Ngày",
+    "noFeedbackImage": "Chưa có ảnh feedback.",
+    "address": "Địa chỉ"
   },
   "login": {
     "title": "Đăng nhập",
@@ -449,7 +470,11 @@
     "loginRequired": "Vui lòng đăng nhập để đặt hàng!",
     "createQrSuccess": "Tạo mã QR thành công!",
     "createQrFailed": "Không tạo được mã QR",
-    "orderError": "Có lỗi xảy ra khi đặt hàng!"
+    "orderError": "Có lỗi xảy ra khi đặt hàng!",
+    "ok": "OK",
+    "addOn": "Add-on",
+    "waiting": "Đang chờ...",
+    "doNotCloseBrowser": "Vui lòng không tắt trình duyệt khi đang thanh toán"
   },
   "boxDetails": {
     "category": "Danh mục",

@@ -51,9 +51,14 @@ export type TBox = {
   description: string;
   images: string[];
   includes: {
-    serving_size: string;
-    duration_text: string;
-    product_count: number;
+    serving_size?: string;
+    duration_text?: string;
+    product_count?: number;
+    audience?: string;
+    box_weight?: string;
+    price_text?: string;
+    portion_per_type?: string;
+    price_per_week_vnd?: number;
   };
   price: string;
   duration: number;

@@ -14,7 +14,7 @@ const LanguageSwitcher: React.FC = () => {
     <Select
       value={i18n.language}
       onChange={handleChange}
-      style={{ width: 80 }}
+      style={{ width: 64 }}
       suffixIcon={<GlobalOutlined />}
       options={[
         { label: 'VN', value: 'vi' },

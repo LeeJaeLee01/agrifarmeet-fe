@@ -1,3 +1,5 @@
+import type { TCategory } from './TCategory';
+
 export type TProduct = {
   id: string;
   name: string;
@@ -9,6 +11,7 @@ export type TProduct = {
   /** Đơn vị khối lượng (kg, bó, ...) — có trong API product */
   unit?: string;
   categoryId: string;
+  category?: TCategory;
   status: string;
   createdBy?: string | null;
   createdAt: string;

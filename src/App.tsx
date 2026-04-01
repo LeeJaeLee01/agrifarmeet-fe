@@ -23,6 +23,7 @@ const Order = lazy(() => import('./pages/Order/Order'));
 const OrderLookup = lazy(() => import('./pages/OrderLookup/OrderLookup'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
+const Introduce = lazy(() => import('./pages/Introduce/Introduce'));
 const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
 
 // Admin pages
@@ -77,6 +78,7 @@ function App() {
               <Route path="/purchase/:slug" element={<Purchase />} />
               <Route path="/order" element={<Order />} />
               <Route path="/order-lookup" element={<OrderLookup />} />
+              <Route path="/introduce" element={<Introduce />} />
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
               <Route path="/payment/return" element={<PaymentReturn />} />

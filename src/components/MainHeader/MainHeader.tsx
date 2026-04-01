@@ -65,7 +65,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${isActive ? 'text-green2 font-semibold' : 'text-gray-700'
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
+      isActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
   const headerClass = simple
@@ -80,7 +81,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
 
   useEffect(() => {
     const runAnimation = () => {
-      setAnimKey(prev => prev + 1);
+      setAnimKey((prev) => prev + 1);
     };
 
     // Initial run
@@ -93,38 +94,40 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
   return (
     <Fragment>
       <header className={headerClass} ref={headerRef}>
-        <div className="flex items-center justify-between content">
+        <div className="flex items-center w-full content">
           {/* Logo */}
-          <div className="flex items-center gap-10 logo">
+          <div className="flex items-center gap-10 logo shrink-0">
             <NavLink to="/">
               <img src={logoSrc} alt="Logo" className="h-20 py-4 lg:h-24" />
             </NavLink>
           </div>
 
-          {/* Slogan desktop: nằm giữa trên header (control breakpoint bằng SCSS) */}
-          <div className="header-slogan-desktop absolute left-1/2 transform -translate-x-1/2 text-xl uppercase tracking-wider text-center wavy-text">
-            {sloganText
-              .split('')
-              .map((char, index) => (
-                <span
-                  key={`${index}-${animKey}`} // Update key to re-trigger animation
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
+          {/* Slogan desktop: flex-1 căn giữa khoảng giữa logo và menu (breakpoint trong SCSS) */}
+          <div className="header-slogan-desktop text-xl uppercase tracking-wider text-center wavy-text">
+            {sloganText.split('').map((char, index) => (
+              <span
+                key={`${index}-${animKey}`} // Update key to re-trigger animation
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </span>
+            ))}
           </div>
 
-          {/* Menu desktop */}
-          <div className="items-center hidden gap-5 md:flex">
-            {/* <NavLink to="/home" className={navLinkClass}>
-              {t('common.home')}
-            </NavLink>
-            <NavLink to="/boxes" className={navLinkClass}>
-              {t('common.allBoxes')}
-            </NavLink> */}
+          {/* Menu desktop + mobile toggle */}
+          <div className="flex items-center gap-5 ml-auto shrink-0 xl:ml-0">
+            <div className="items-center hidden gap-5 md:flex">
+              <NavLink to="/" className={navLinkClass}>
+                {t('common.home')}
+              </NavLink>
+              <NavLink to="/introduce" className={navLinkClass}>
+                {t('common.introduce')}
+              </NavLink>
+              <NavLink to="/boxes" className={navLinkClass}>
+                {t('common.allBoxes')}
+              </NavLink>
 
-            {/* {simple ? (
+              {/* {simple ? (
               <LanguageSwitcher />
             ) : (
               <>
@@ -148,41 +151,46 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
                 )}
               </>
             )} */}
-            <LanguageSwitcher />
-          </div>
+              <LanguageSwitcher />
+            </div>
 
-          {/* Mobile toggle button */}
-          <div className="flex items-center gap-5 md:hidden">
-            {open ? (
-              <CloseOutlined className="text-xl cursor-pointer" onClick={() => setOpen(false)} />
-            ) : (
-              <MenuOutlined className="text-xl cursor-pointer" onClick={() => setOpen(true)} />
-            )}
+            {/* Mobile toggle button */}
+            <div className="flex items-center gap-5 md:hidden">
+              {open ? (
+                <CloseOutlined className="text-xl cursor-pointer" onClick={() => setOpen(false)} />
+              ) : (
+                <MenuOutlined className="text-xl cursor-pointer" onClick={() => setOpen(true)} />
+              )}
+            </div>
           </div>
         </div>
 
         {/* Slogan mobile/tablet: nằm dưới header và vào giữa (control breakpoint bằng SCSS) */}
-        <div className="header-slogan-mobile py-2 text-center text-sm font-medium uppercase tracking-wider wavy-text">
-          {sloganText
-            .split('')
-            .map((char, index) => (
-              <span
-                key={`mobile-${index}-${animKey}`}
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </span>
-            ))}
+        <div className="header-slogan-mobile py-2 text-center text-sm font-medium uppercase tracking-wider wavy-text border-t border-[#d9d9d9]">
+          {sloganText.split('').map((char, index) => (
+            <span key={`mobile-${index}-${animKey}`} style={{ animationDelay: `${index * 0.05}s` }}>
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
         </div>
 
         {/* Mobile menu dropdown */}
-        {/* <div
+        <div
           className={`absolute max-h-fit -z-10 left-0 w-full shadow-sm transition-all overflow-hidden bg-white top-20 md:hidden bg-gray-50 ${
             open ? 'h-screen' : 'h-0'
           }`}
         >
-          <nav className="flex flex-col gap-1 px-5 py-10 space-y-5 text-text1">
-            <NavLink to="/home" className={navLinkClass} onClick={() => setOpen(false)}>
+          <nav className="flex flex-col items-end gap-1 px-5 py-10 space-y-5 text-right text-text1">
+            <NavLink to="/" className={navLinkClass}>
+              {t('common.home')}
+            </NavLink>
+            <NavLink to="/introduce" className={navLinkClass}>
+              {t('common.introduce')}
+            </NavLink>
+            <NavLink to="/boxes" className={navLinkClass}>
+              {t('common.allBoxes')}
+            </NavLink>
+            {/* <NavLink to="/home" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.home')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
@@ -221,9 +229,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
                   {t('common.logout')}
                 </span>
               </>
-            )}
+            )} */}
           </nav>
-        </div> */}
+        </div>
       </header>
     </Fragment>
   );

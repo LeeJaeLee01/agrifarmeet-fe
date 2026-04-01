@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setSelectedBoxId } from '../../store/slices/boxSlice';
 import api from '../../utils/api';
 import { useTitle } from '../../hooks/useTitle';
-import { formatVND, formatWeight } from '../../utils/helper';
+import { formatVND, formatWeight, unwrapApiList } from '../../utils/helper';
 import { TBox } from '../../types/TBox';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
@@ -30,14 +30,8 @@ const Home: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get<TBox[]>('/boxes');
-        const rawData = res.data as any;
-        const boxesData = Array.isArray(rawData)
-          ? rawData
-          : (Array.isArray(rawData.data)
-            ? rawData.data
-            : (rawData.data ? [rawData.data] : []));
-        setBoxes(boxesData);
+        const res = await api.get('/boxes');
+        setBoxes(unwrapApiList<TBox>(res.data));
       } catch (err) {
         console.error('Error fetching boxes:', err);
       } finally {
@@ -210,7 +204,7 @@ const Home: React.FC = () => {
           <div className="h-[650px] hidden md:block">
             <img src="/about.jpg" alt="" className="object-cover w-full h-full" />
           </div>
-          <div className="flex items-center justify-center w-full h-full px-5 py-10 bg-beige lg:p-20">
+          <div className="flex items-center justify-center w-full h-full px-5 py-10 bg-white lg:p-20">
             <div className="text-center">
               <h2 className="max-w-4xl mx-auto mt-2 mb-0 text-4xl font-semibold tracking-tight text-center text-balance sm:text-5xl text-brown">
                 {t('common.cleanProduceJourney')}
