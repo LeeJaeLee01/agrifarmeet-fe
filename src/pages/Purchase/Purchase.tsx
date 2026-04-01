@@ -250,6 +250,55 @@ const PurchasePage: React.FC = () => {
     );
   };
 
+  const renderAddOnOptions = () => (
+    <div className="space-y-3">
+      {visibleAddOns.map((item) => {
+        const checked = selectedAddOnIds.includes(item.id);
+        const imgSrc = Array.isArray(item.images)
+          ? item.images[0]
+          : typeof item.images === 'string'
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(item.images || '[]');
+                  return Array.isArray(parsed) && parsed[0] ? parsed[0] : '';
+                } catch {
+                  return item.images;
+                }
+              })()
+            : '';
+
+        return (
+          <label
+            key={item.id}
+            className={`flex items-center gap-3 p-2 border rounded-lg cursor-pointer transition-colors ${
+              checked ? 'border-green-600 bg-green-50' : 'border-border bg-white'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => toggleAddOn(item.id)}
+              className="w-4 h-4 accent-green-600"
+            />
+            <img
+              src={imgSrc || 'https://via.placeholder.com/80'}
+              alt={item.name}
+              className="object-cover w-12 h-12 rounded-md"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="m-0 text-sm font-medium text-text1 line-clamp-2">
+                {item.name}
+              </p>
+              <p className="m-0 text-xs text-text3">
+                {formatVND(Number(item.priceAddOn || 0))}
+              </p>
+            </div>
+          </label>
+        );
+      })}
+    </div>
+  );
+
   const onSubmit: SubmitHandler<PurchaseForm> = async (data) => {
     if (!boxInfo) return;
 
@@ -349,7 +398,7 @@ const PurchasePage: React.FC = () => {
             {/* FORM */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="w-full lg:w-2/3 xl:w-3/4"
+              className="order-2 w-full lg:order-1 lg:w-2/3 xl:w-3/4"
               id="purchase-form"
             >
               <h2 className="mb-5 text-lg font-medium lg:text-xl text-text1">
@@ -517,6 +566,15 @@ const PurchasePage: React.FC = () => {
                 )}
               </div>
 
+              {visibleAddOns.length > 0 ? (
+                <div className="pb-5 mb-5 border-b border-border lg:hidden">
+                  <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                    {t('purchase.addOn')}
+                  </h3>
+                  {renderAddOnOptions()}
+                </div>
+              ) : null}
+
               {/* Total & Button */}
               {boxInfo && (
                 <div className="hidden mt-8 lg:block">
@@ -536,10 +594,29 @@ const PurchasePage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {boxInfo ? (
+                <div className="mt-6 lg:hidden">
+                  <p className="mb-6 text-lg font-semibold text-left">
+                    {t('purchase.totalAmount')}:{' '}
+                    <span className="text-xl text-green-600">{formatVND(payableAmount)}</span>
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center w-full gap-3">
+                    <Button
+                      type="primary"
+                      className="bg-green h-[52px] text-lg font-semibold"
+                      loading={loading}
+                      htmlType="submit"
+                    >
+                      {t('purchase.confirmOrder')}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
             </form>
 
             {/* ORDER SUMMARY */}
-            <div className="w-full lg:w-1/3 xl:w-1/4">
+            <div className="order-1 w-full lg:order-2 lg:w-1/3 xl:w-1/4">
               <h2 className="mb-5 text-lg font-semibold lg:text-xl text-text1">
                 {t('purchase.orderInfo')}
               </h2>
@@ -582,56 +659,11 @@ const PurchasePage: React.FC = () => {
                   </div>
 
                   {visibleAddOns.length > 0 ? (
-                    <div className="pb-5 mb-5 border-b border-border">
+                    <div className="hidden pb-5 mb-5 border-b border-border lg:block">
                       <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
                         {t('purchase.addOn')}
                       </h3>
-                      <div className="space-y-3">
-                        {visibleAddOns.map((item) => {
-                          const checked = selectedAddOnIds.includes(item.id);
-                          const imgSrc = Array.isArray(item.images)
-                            ? item.images[0]
-                            : typeof item.images === 'string'
-                              ? (() => {
-                                  try {
-                                    const parsed = JSON.parse(item.images || '[]');
-                                    return Array.isArray(parsed) && parsed[0] ? parsed[0] : '';
-                                  } catch {
-                                    return item.images;
-                                  }
-                                })()
-                              : '';
-
-                          return (
-                            <label
-                              key={item.id}
-                              className={`flex items-center gap-3 p-2 border rounded-lg cursor-pointer transition-colors ${
-                                checked ? 'border-green-600 bg-green-50' : 'border-border bg-white'
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => toggleAddOn(item.id)}
-                                className="w-4 h-4 accent-green-600"
-                              />
-                              <img
-                                src={imgSrc || 'https://via.placeholder.com/80'}
-                                alt={item.name}
-                                className="object-cover w-12 h-12 rounded-md"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <p className="m-0 text-sm font-medium text-text1 line-clamp-2">
-                                  {item.name}
-                                </p>
-                                <p className="m-0 text-xs text-text3">
-                                  {formatVND(Number(item.priceAddOn || 0))}
-                                </p>
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
+                      {renderAddOnOptions()}
                     </div>
                   ) : null}
 
@@ -678,25 +710,6 @@ const PurchasePage: React.FC = () => {
                 <p>{t('purchase.loadingBoxInfo')}</p>
               )}
 
-              {boxInfo ? (
-                <div className="mt-6 lg:hidden">
-                  <p className="mb-6 text-lg font-semibold text-left">
-                    {t('purchase.totalAmount')}:{' '}
-                    <span className="text-xl text-green-600">{formatVND(payableAmount)}</span>
-                  </p>
-                  <div className="flex flex-wrap items-center justify-center w-full gap-3">
-                    <Button
-                      type="primary"
-                      className="bg-green h-[52px] text-lg font-semibold"
-                      loading={loading}
-                      htmlType="submit"
-                      form="purchase-form"
-                    >
-                      {t('purchase.confirmOrder')}
-                    </Button>
-                  </div>
-                </div>
-              ) : null}
             </div>
           </div>
         </div>
