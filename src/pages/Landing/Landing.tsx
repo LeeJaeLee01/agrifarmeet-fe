@@ -295,8 +295,8 @@ const Landing: React.FC = () => {
                   ...descriptionLines.map(line => ({ line, negative: false })),
                   ...(isTrialBox
                     ? [
-                        { line: t('landing.trialNoFlexibleSelect'), negative: true },
-                        { line: t('landing.trialNoExtraVegetables'), negative: true },
+                        { line: t('landing.farmHelp'), negative: true },
+                        // { line: t('landing.trialNoExtraVegetables'), negative: true },
                       ]
                     : []),
                 ];
@@ -317,13 +317,8 @@ const Landing: React.FC = () => {
                         <ul className="package-description package-description--checklist">
                           {descriptionItems.map((item, i) => (
                             <li key={`${box.id}-desc-mobile-${i}`}>
-                              <span
-                                className={`package-description__check ${
-                                  item.negative ? 'package-description__check--negative' : ''
-                                }`}
-                                aria-hidden="true"
-                              >
-                                {item.negative ? '✗' : '✓'}
+                              <span className="package-description__check" aria-hidden="true">
+                                ✓
                               </span>
                               <span className="package-description__text">{item.line}</span>
                             </li>
@@ -417,8 +412,8 @@ const Landing: React.FC = () => {
                   ...descriptionLines.map(line => ({ line, negative: false })),
                   ...(isTrialBox
                     ? [
-                        { line: t('landing.trialNoFlexibleSelect'), negative: true },
-                        { line: t('landing.trialNoExtraVegetables'), negative: true },
+                        { line: t('landing.farmHelp'), negative: true },
+                        // { line: t('landing.trialNoExtraVegetables'), negative: true },
                       ]
                     : []),
                 ];
@@ -438,13 +433,8 @@ const Landing: React.FC = () => {
                       <ul className="package-description package-description--checklist">
                         {descriptionItems.map((item, i) => (
                           <li key={`${box.id}-desc-${i}`}>
-                            <span
-                              className={`package-description__check ${
-                                item.negative ? 'package-description__check--negative' : ''
-                              }`}
-                              aria-hidden="true"
-                            >
-                              {item.negative ? '✗' : '✓'}
+                            <span className="package-description__check" aria-hidden="true">
+                              ✓
                             </span>
                             <span className="package-description__text">{item.line}</span>
                           </li>

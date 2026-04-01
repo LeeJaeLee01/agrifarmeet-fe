@@ -77,8 +77,8 @@ const Boxes: React.FC = () => {
                 ...descriptionLines.map((line) => ({ line, negative: false })),
                 ...(isTrialBox
                   ? [
-                      { line: t('landing.trialNoFlexibleSelect'), negative: true },
-                      { line: t('landing.trialNoExtraVegetables'), negative: true },
+                      { line: t('landing.farmHelp'), negative: true },
+                      // { line: t('landing.trialNoExtraVegetables'), negative: true },
                     ]
                   : []),
               ];
