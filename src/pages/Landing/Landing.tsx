@@ -13,7 +13,7 @@ import 'swiper/css/navigation';
 import './Landing.scss';
 import { useTranslation } from 'react-i18next';
 import { Modal, Button } from 'antd';
-  import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
+import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
 import { useNavigate } from 'react-router-dom';
 
 const Landing: React.FC = () => {
@@ -125,29 +125,51 @@ const Landing: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto scroll review section on mobile every 3s
+  // Tự động trượt ngang feedback (ping-pong) sau khi có dữ liệu
   useEffect(() => {
-    const gridEl = reviewsGridRef.current;
-    if (!gridEl) return;
+    if (feedbacks.length === 0) return;
 
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
+    let intervalId: number | undefined;
+    let cancelled = false;
 
-    const cardWidth = (gridEl.firstElementChild as HTMLElement | null)?.clientWidth || 280;
-    const gap = 16;
-    const step = cardWidth + gap;
+    const setup = () => {
+      if (cancelled) return;
+      const gridEl = reviewsGridRef.current;
+      if (!gridEl) return;
 
-    const interval = setInterval(() => {
-      const maxScroll = gridEl.scrollWidth - gridEl.clientWidth;
-      if (gridEl.scrollLeft + step >= maxScroll - 5) {
-        gridEl.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        gridEl.scrollBy({ left: step, behavior: 'smooth' });
-      }
-    }, 3000);
+      const first = gridEl.firstElementChild as HTMLElement | null;
+      const cardWidth = first?.clientWidth || 280;
+      const gapStyle = getComputedStyle(gridEl).gap || getComputedStyle(gridEl).columnGap;
+      const gap = parseFloat(gapStyle) || 16;
+      const step = cardWidth + gap;
+      let direction: 1 | -1 = 1;
 
-    return () => clearInterval(interval);
-  }, []);
+      intervalId = window.setInterval(() => {
+        const el = reviewsGridRef.current;
+        if (!el || cancelled) return;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 4) return;
+
+        if (direction === 1 && el.scrollLeft + step >= maxScroll - 4) {
+          direction = -1;
+          el.scrollTo({ left: maxScroll, behavior: 'smooth' });
+        } else if (direction === -1 && el.scrollLeft <= 4) {
+          direction = 1;
+          el.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          el.scrollBy({ left: direction * step, behavior: 'smooth' });
+        }
+      }, 3000);
+    };
+
+    const t = window.setTimeout(setup, 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+      if (intervalId) window.clearInterval(intervalId);
+    };
+  }, [feedbacks.length]);
 
   useEffect(() => {
     const fetchBoxes = async () => {
@@ -179,9 +201,15 @@ const Landing: React.FC = () => {
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const res = await api.get('/feedbacks');
+        const res = await api.get('/feedbacks?page=1&limit=20');
         const raw = res.data as any;
-        const list = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
+        const list = Array.isArray(raw?.data?.items)
+          ? raw.data.items
+          : Array.isArray(raw?.data)
+            ? raw.data
+            : Array.isArray(raw)
+              ? raw
+              : [];
         setFeedbacks(list);
       } catch (err) {
         console.error('Error fetching feedbacks:', err);
@@ -328,6 +356,7 @@ const Landing: React.FC = () => {
                       <div className="package-price-section">
                         <h2 className="price-text">
                           {box.price ? formatVND(box.price) : formatVND(360000)}
+                          {t('landing.pricePerWeekSuffix')}
                         </h2>
                         <div className="price-meta-badges" role="note">
                           <span
@@ -444,6 +473,7 @@ const Landing: React.FC = () => {
                     <div className="package-price-section">
                       <h2 className="price-text">
                         {box.price ? formatVND(box.price) : formatVND(360000)}
+                        {t('landing.pricePerWeekSuffix')}
                       </h2>
                       <div className="price-meta-badges" role="note">
                         <span
@@ -599,11 +629,11 @@ const Landing: React.FC = () => {
         {/* Customer Review Section */}
         <section ref={customerReviewRef} className="customer-review-section">
           <div className="container">
-            <h3
+            {/* <h3
               className={`section-label ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
             >
               {t('landing.customerSay')}
-            </h3>
+            </h3> */}
             <h2
               className={`section-title ${isCustomerReviewVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
               style={{ animationDelay: isCustomerReviewVisible ? '0.15s' : undefined }}
@@ -611,7 +641,7 @@ const Landing: React.FC = () => {
               {t('landing.reviewTitle')}
             </h2>
             <div className="reviews-grid" ref={reviewsGridRef}>
-              {feedbacks.slice(0, 6).map((r, index) => {
+              {feedbacks.map((r, index) => {
                 const rating = Math.max(0, Math.min(5, Number(r?.vote ?? 0)));
                 const feedbackImage = Array.isArray(r?.images) && r.images[0] ? r.images[0] : '';
                 const location = r?.addressDetail || r?.address || '';
@@ -621,15 +651,6 @@ const Landing: React.FC = () => {
                   .slice(-2)
                   .map((w) => w.charAt(0).toUpperCase())
                   .join('');
-                // Avatar user: dùng ảnh fake (không lấy từ API feedback)
-                const fakeAvatars = [
-                  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=70',
-                  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&q=70',
-                  'https://images.unsplash.com/photo-1548142813-c348350df52b?auto=format&fit=crop&w=256&q=70',
-                  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=70',
-                  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&q=70',
-                ];
-                const avatarUrl = fakeAvatars[index % fakeAvatars.length];
                 return (
                   <div
                     key={r.id}
@@ -638,41 +659,49 @@ const Landing: React.FC = () => {
                       animationDelay: isCustomerReviewVisible ? `${0.2 + index * 0.1}s` : undefined,
                     }}
                   >
-                    <div className="review-header">
-                      <img className="review-avatar" src={avatarUrl} alt={r.name} />
-                      <div className="review-meta">
-                        <div className="review-name-row">
-                          <p className="review-name">{r.name}</p>
-                          {location ? <p className="review-location">{location}</p> : null}
-                        </div>
-                        <div className="review-rating" aria-label={`rating-${rating}`}>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <span key={i} className={i < rating ? 'star star-filled' : 'star'}>
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                    <div className="review-media">
+                      {feedbackImage ? (
+                        <img
+                          className="review-photo"
+                          src={feedbackImage}
+                          alt=""
+                          draggable={false}
+                        />
+                      ) : (
+                        <div className="review-photo-placeholder">{t('landing.noFeedbackImage')}</div>
+                      )}
                     </div>
-                    <p className="review-feedback">“{r.description}”</p>
-                    <div className="review-actions">
-                      <Button
-                        type="link"
-                        className="review-detail-btn"
-                        onClick={() => {
-                          setSelectedFeedback({
-                            ...r,
-                            __rating: rating,
-                            __initials: initials,
-                            __avatarUrl: avatarUrl,
-                            __location: location,
-                            __image: feedbackImage,
-                          });
-                          setIsFeedbackModalOpen(true);
-                        }}
-                      >
-                        {t('landing.detail')}
-                      </Button>
+                    <div className="review-author">
+                      <div className="review-author-row">
+                        <div className="review-author-main">
+                          <p className="review-name">{r.name}</p>
+                          <div className="review-rating" aria-label={`rating-${rating}`}>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <span key={i} className={i < rating ? 'star star-filled' : 'star'}>
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <Button
+                          type="link"
+                          className="review-detail-btn"
+                          onClick={() => {
+                            setSelectedFeedback({
+                              ...r,
+                              __rating: rating,
+                              __initials: initials,
+                              __avatarUrl: feedbackImage || '',
+                              __location: location,
+                              __image: feedbackImage,
+                            });
+                            setIsFeedbackModalOpen(true);
+                          }}
+                        >
+                          {t('landing.detail')}
+                        </Button>
+                      </div>
+                      {location ? <p className="review-location">{location}</p> : null}
                     </div>
                   </div>
                 );
@@ -693,14 +722,13 @@ const Landing: React.FC = () => {
               destroyOnClose
             >
               <div className="feedback-modal">
-                {/* Header row (desktop & mobile) */}
                 <div className="feedback-modal-top">
                   <div className="feedback-modal-avatar-wrap" aria-hidden="true">
                     {selectedFeedback?.__avatarUrl ? (
                       <img
                         className="feedback-modal-avatar"
                         src={selectedFeedback.__avatarUrl}
-                        alt={selectedFeedback?.name || t('landing.avatar')}
+                        alt={selectedFeedback?.name || ''}
                       />
                     ) : (
                       <div className="feedback-modal-avatar-fallback">
@@ -725,9 +753,7 @@ const Landing: React.FC = () => {
                         <span
                           key={i}
                           className={
-                            i < Number(selectedFeedback?.__rating ?? 0)
-                              ? 'star star-filled'
-                              : 'star'
+                            i < Number(selectedFeedback?.__rating ?? 0) ? 'star star-filled' : 'star'
                           }
                         >
                           ★
@@ -754,7 +780,6 @@ const Landing: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Body: image below, text on right (desktop), stacked on mobile */}
                 <div className="feedback-modal-body">
                   <div className="feedback-modal-media">
                     {selectedFeedback?.__image ? (

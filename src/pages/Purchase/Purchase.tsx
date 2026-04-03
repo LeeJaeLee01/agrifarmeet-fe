@@ -15,6 +15,20 @@ import { QRCodeCanvas } from 'qrcode.react';
 import type { TBox } from '../../types/TBox';
 import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
+import { pickTrialWeekProductRows } from '../../utils/trialWeekProductRows';
+
+function productImageSrc(images: TProduct['images']): string {
+  if (Array.isArray(images)) return images[0] || '';
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images || '[]');
+      return Array.isArray(parsed) && parsed[0] ? parsed[0] : '';
+    } catch {
+      return images;
+    }
+  }
+  return '';
+}
 
 type PurchaseForm = {
   boxId: string;
@@ -37,7 +51,7 @@ type TAddOnProduct = TProduct & {
 const { Option } = Select;
 
 const PurchasePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useTitle(t('purchase.title'));
 
   const {
@@ -74,37 +88,90 @@ const PurchasePage: React.FC = () => {
     [boxInfo]
   );
 
-  const addOnTotal = useMemo(
-    () =>
-      addOns
-        .filter((item) => selectedAddOnIds.includes(item.id))
-        .reduce((sum, item) => sum + Number(item.priceAddOn || 0), 0),
-    [addOns, selectedAddOnIds]
-  );
-
-  const payableAmount = useMemo(
-    () => Number(boxInfo?.price || 0) + addOnTotal,
-    [boxInfo?.price, addOnTotal]
-  );
-
   const isTrialBox = useMemo(() => {
     const slugValue = String(boxInfo?.slug || '').toLowerCase();
     const nameValue = String(boxInfo?.name || '').toLowerCase();
     return (
       slugValue.includes('trai-nghiem') ||
       nameValue.includes('trải nghiệm') ||
-      nameValue.includes('trai nghiem')
+      nameValue.includes('trai nghiem') ||
+      nameValue.includes('thử nghiệm') ||
+      nameValue.includes('thu nghiem')
     );
   }, [boxInfo?.slug, boxInfo?.name]);
 
+  /** Danh sách rau/sản phẩm theo tuần giao (cột “Rau tuần này”) — mọi gói */
+  const weekProductRows = useMemo(() => {
+    if (!purchaseProductRows.length) return [];
+    const withWeek = purchaseProductRows.filter((r) => r.weekStartDate);
+    if (withWeek.length) return pickTrialWeekProductRows(withWeek);
+    return purchaseProductRows;
+  }, [purchaseProductRows]);
+
+  const weekRangeLabel = useMemo(() => {
+    const first = weekProductRows[0];
+    if (!first?.weekStartDate) return null;
+    const start = new Date(first.weekStartDate);
+    if (Number.isNaN(start.getTime())) return null;
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    const loc = i18n.language?.startsWith('vi') ? 'vi-VN' : 'en-US';
+    const fmt = (d: Date) =>
+      d.toLocaleDateString(loc, { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `${fmt(start)} – ${fmt(end)}`;
+  }, [weekProductRows, i18n.language]);
+
+  /** Add-on chỉ áp dụng gói trải nghiệm / thử nghiệm; gói khác không hiển thị */
   const visibleAddOns = useMemo(() => {
-    if (!isTrialBox) return addOns;
+    if (!isTrialBox) return [];
     return addOns.filter((item) => item.slug !== 'rau-them-1-loai');
   }, [addOns, isTrialBox]);
+
+  const addOnTotal = useMemo(
+    () =>
+      visibleAddOns
+        .filter((item) => selectedAddOnIds.includes(item.id))
+        .reduce((sum, item) => sum + Number(item.priceAddOn || 0), 0),
+    [visibleAddOns, selectedAddOnIds]
+  );
+
+  /** Gói cơ bản hoặc linh hoạt (đăng ký): tổng = giá box × 4. Không áp dụng gói trải nghiệm/thử. */
+  const isBasicFlexibleMonthlyBox = useMemo(() => {
+    if (isTrialBox) return false;
+    const slug = String(boxInfo?.slug || '').toLowerCase();
+    const name = String(boxInfo?.name || '').toLowerCase();
+    const hasBasic =
+      slug.includes('co-ban') ||
+      slug.includes('co_ban') ||
+      slug.includes('coban') ||
+      name.includes('cơ bản') ||
+      name.includes('co ban');
+    const hasFlexible =
+      slug.includes('linh-hoat') ||
+      slug.includes('linh_hoat') ||
+      slug.includes('linhhoat') ||
+      name.includes('linh hoạt') ||
+      name.includes('linh hoat');
+    return hasBasic || hasFlexible;
+  }, [boxInfo?.slug, boxInfo?.name, isTrialBox]);
+
+  const payableAmount = useMemo(() => {
+    const price = Number(boxInfo?.price || 0);
+    if (isBasicFlexibleMonthlyBox) {
+      return price * 4;
+    }
+    return price + addOnTotal;
+  }, [boxInfo?.price, addOnTotal, isBasicFlexibleMonthlyBox]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
+
+  useEffect(() => {
+    if (!isTrialBox) {
+      setSelectedAddOnIds([]);
+    }
+  }, [isTrialBox]);
 
   // 🔹 Lấy thông tin box từ API
   useEffect(() => {
@@ -319,10 +386,12 @@ const PurchasePage: React.FC = () => {
         box_id: boxInfo.id,
         // Legacy payload:
         // add_on_ids: selectedAddOnIds,
-        add_on: selectedAddOnIds.map((id) => ({
-          product_id: id,
-          quantity: 1,
-        })),
+        add_on: visibleAddOns
+          .filter((item) => selectedAddOnIds.includes(item.id))
+          .map((item) => ({
+            product_id: item.id,
+            quantity: 1,
+          })),
       };
 
       // Gọi API /boxes/payment/qr — VNPay: ưu tiên chuỗi QR cho QRCodeCanvas + polling theo orderId
@@ -404,14 +473,14 @@ const PurchasePage: React.FC = () => {
       <Section spaceBottom>
         <div className="container mx-auto">
           <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">{t('purchase.title')}</h1>
-          <div className="flex flex-col justify-between w-full gap-10 lg:flex-row item-center">
+          <div className="flex flex-col justify-between w-full gap-10 lg:flex-row lg:items-start">
             {/* FORM */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="order-2 w-full lg:order-1 lg:w-2/3 xl:w-3/4"
+              className="order-2 w-full lg:order-2 lg:w-4/12 xl:w-4/12"
               id="purchase-form"
             >
-              <h2 className="mb-5 text-lg font-medium lg:text-xl text-text1">
+              <h2 className="mb-5 pb-2 border-b border-border text-lg font-medium lg:text-xl text-text1">
                 {t('purchase.receiverInfo')}
               </h2>
               <div className="mb-4">
@@ -588,10 +657,17 @@ const PurchasePage: React.FC = () => {
               {/* Total & Button */}
               {boxInfo && (
                 <div className="hidden mt-8 lg:block">
-                  <p className="text-lg text-left mb-8 font-semibold">
+                  <p
+                    className={`text-lg text-left font-semibold ${isBasicFlexibleMonthlyBox ? 'mb-1' : 'mb-8'}`}
+                  >
                     {t('purchase.totalAmount')}:{' '}
                     <span className="text-green-600 text-xl">{formatVND(payableAmount)}</span>
                   </p>
+                  {isBasicFlexibleMonthlyBox ? (
+                    <p className="mb-8 text-xs text-left text-text3">
+                      {t('purchase.monthlyBasicFlexibleNote')}
+                    </p>
+                  ) : null}
                   <div className="flex flex-wrap items-center justify-center w-full gap-3">
                     <Button
                       type="primary"
@@ -607,10 +683,15 @@ const PurchasePage: React.FC = () => {
 
               {boxInfo ? (
                 <div className="mt-6 lg:hidden">
-                  <p className="mb-6 text-lg font-semibold text-left">
+                  <p
+                    className={`text-lg font-semibold text-left ${isBasicFlexibleMonthlyBox ? 'mb-1' : 'mb-6'}`}
+                  >
                     {t('purchase.totalAmount')}:{' '}
                     <span className="text-xl text-green-600">{formatVND(payableAmount)}</span>
                   </p>
+                  {isBasicFlexibleMonthlyBox ? (
+                    <p className="mb-6 text-xs text-left text-text3">{t('purchase.monthlyBasicFlexibleNote')}</p>
+                  ) : null}
                   <div className="flex flex-wrap items-center justify-center w-full gap-3">
                     <Button
                       type="primary"
@@ -626,8 +707,8 @@ const PurchasePage: React.FC = () => {
             </form>
 
             {/* ORDER SUMMARY */}
-            <div className="order-1 w-full lg:order-2 lg:w-1/3 xl:w-1/4">
-              <h2 className="mb-5 text-lg font-semibold lg:text-xl text-text1">
+            <div className="order-1 w-full lg:order-1 lg:w-4/12 xl:w-4/12">
+              <h2 className="mb-5 pb-2 border-b border-border text-lg font-semibold lg:text-xl text-text1">
                 {t('purchase.orderInfo')}
               </h2>
 
@@ -721,6 +802,47 @@ const PurchasePage: React.FC = () => {
               )}
 
             </div>
+
+            {/* Rau tuần này — mọi gói, cột cuối */}
+            <div className="order-3 w-full lg:order-3 lg:w-4/12 xl:w-4/12 purchase-week-veggies">
+              <h2 className="mb-2 pb-2 border-b border-border text-base font-semibold lg:text-lg text-text1 leading-tight">
+                {t('purchase.veggiesThisWeek')}
+              </h2>
+              {weekRangeLabel ? (
+                <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
+              ) : null}
+              {!boxInfo ? (
+                <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
+              ) : weekProductRows.length === 0 ? (
+                <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
+              ) : (
+                <div className="purchase-week-veggies__scroll">
+                  <ul className="p-0 m-0 list-none space-y-3">
+                    {weekProductRows.map((bp) => (
+                      <li key={bp.id} className="flex gap-2">
+                        <img
+                          src={productImageSrc(bp.product.images) || 'https://via.placeholder.com/80'}
+                          alt=""
+                          className="object-cover flex-none w-10 h-10 rounded-md"
+                        />
+                        <div className="min-w-0 flex-1">
+                          {bp.category?.name ? (
+                            <p className="mb-0.5 text-[10px] font-medium leading-tight text-green-700">
+                              {bp.category.name}
+                            </p>
+                          ) : null}
+                          <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
+                          <p className="m-0 text-[10px] leading-snug text-text3">
+                            {t('purchase.netWeight')}:{' '}
+                            <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Section>
@@ -765,7 +887,12 @@ const PurchasePage: React.FC = () => {
             />
             <div className="purchase-qr-frame__slot">
               {qrCodeData ? (
-                <QRCodeCanvas value={qrCodeData} size={156} level="H" />
+                <QRCodeCanvas
+                  value={qrCodeData}
+                  size={512}
+                  level="H"
+                  className="purchase-qr-frame__canvas"
+                />
               ) : qrImageUrl ? (
                 <img
                   src={qrImageUrl}
