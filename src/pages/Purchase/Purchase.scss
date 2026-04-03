@@ -1,3 +1,55 @@
+// Khung PNG bọc mã QR (căn giữa trong vùng “cửa sổ” của ảnh)
+.purchase-qr-frame {
+  position: relative;
+  display: inline-block;
+  max-width: 280px;
+  width: 100%;
+  margin: 0 auto 1.5rem;
+  line-height: 0;
+
+  &__border {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: top;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  &__slot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* Chỉnh % nếu mã QR lệch so với lỗ khung */
+    width: 56%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  &__qr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 0.5rem;
+  }
+}
+
 // Modal thành công: icon V màu xanh trong vòng tròn + hiệu ứng chạy
 .payment-success-modal {
   width: 100%;

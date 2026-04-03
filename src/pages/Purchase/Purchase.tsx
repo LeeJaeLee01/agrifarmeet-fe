@@ -61,7 +61,6 @@ const PurchasePage: React.FC = () => {
   const [currentBoxId, setCurrentBoxId] = useState<string | null>(null);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null); // orderId để polling GET /boxes/payment/status/:orderId
   const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
-  const [paymentDisabled, setPaymentDisabled] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successPayDate, setSuccessPayDate] = useState<string | null>(null);
   const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
@@ -167,23 +166,22 @@ const PurchasePage: React.FC = () => {
     }
   }, [selectedDistrict]);
 
-  // 🔹 Đếm ngược thời gian QR code (3 phút = 180 giây)
+  // 🔹 Đếm ngược thời gian QR code (3 phút = 180 giây) — chạy khi có chuỗi QR hoặc ảnh QR
   useEffect(() => {
-    if (!showQrModal || !qrCodeData) {
+    if (!showQrModal || (!qrCodeData && !qrImageUrl)) {
       setQrExpireTime(0);
       return;
     }
 
-    // Bắt đầu đếm ngược từ 180 giây (3 phút)
     setQrExpireTime(180);
 
     const interval = setInterval(() => {
       setQrExpireTime((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          // Hết hạn: đóng modal và hiển thị thông báo
           setShowQrModal(false);
           setQrCodeData(null);
+          setQrImageUrl(null);
           toast.error(t('purchase.qrExpired'));
           return 0;
         }
@@ -192,9 +190,9 @@ const PurchasePage: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [showQrModal, qrCodeData]);
+  }, [showQrModal, qrCodeData, qrImageUrl, t]);
 
-  // 🔹 Polling GET /boxes/payment/status/:orderId mỗi 5 giây; nếu status === 'completed' thì đóng QR và hiện modal thành công
+  // 🔹 Polling GET /boxes/payment/status/:orderId mỗi 5 giây (VNPay)
   useEffect(() => {
     if (!showQrModal || !currentOrderId) {
       return;
@@ -238,7 +236,6 @@ const PurchasePage: React.FC = () => {
     setShowQrModal(false);
     setQrCodeData(null);
     setQrImageUrl(null);
-    setPaymentDisabled(false);
     setQrExpireTime(0);
     setCurrentBoxId(null);
     setCurrentOrderId(null);
@@ -328,21 +325,34 @@ const PurchasePage: React.FC = () => {
         })),
       };
 
-      // Gọi API /boxes/payment/qr để tạo QR code
+      // Gọi API /boxes/payment/qr — VNPay: ưu tiên chuỗi QR cho QRCodeCanvas + polling theo orderId
       const res = await api.post('/boxes/payment/qr', requestBody);
 
-      const payload = res.data?.data;
-      if (payload?.qrImageUrl || payload?.data) {
-        // Legacy flow:
-        // if (res.data && res.data.data && res.data.data.data) {
-        //   setQrCodeData(res.data.data.data);
-        //   setCurrentOrderId(orderId);
-        // }
-        setQrCodeData(payload?.data ?? null);
-        setQrImageUrl(payload?.qrImageUrl ?? null);
-        setPaymentDisabled(Boolean(payload?.paymentDisabled));
+      const top = res.data?.data;
+      let qrString: string | null = null;
+      let imgUrl: string | null = null;
+
+      if (typeof top === 'string') {
+        qrString = top;
+      } else if (top && typeof top === 'object' && !Array.isArray(top)) {
+        const d = top as { data?: unknown; qrImageUrl?: string };
+        if (typeof d.data === 'string') qrString = d.data;
+        imgUrl = d.qrImageUrl ?? null;
+      }
+
+      // Legacy VNPay: res.data.data.data là chuỗi QR / URL thanh toán
+      if (!qrString && res.data?.data && typeof res.data.data === 'object') {
+        const nested = (res.data.data as { data?: unknown }).data;
+        if (typeof nested === 'string') qrString = nested;
+      }
+
+      const hasQr = Boolean(qrString || imgUrl);
+
+      if (hasQr) {
+        setQrCodeData(qrString);
+        setQrImageUrl(imgUrl);
         setCurrentBoxId(boxInfo.id);
-        setCurrentOrderId(payload?.paymentDisabled ? null : orderId); // Không polling khi payment đang disabled
+        setCurrentOrderId(orderId);
         setShowQrModal(true);
         toast.success(t('purchase.createQrSuccess'));
       } else {
@@ -746,45 +756,45 @@ const PurchasePage: React.FC = () => {
           <h3 className="text-2xl font-bold text-center text-text1 mb-2">{t('purchase.qrTitle')}</h3>
           <p className="text-sm text-center text-text3 mb-6">{t('purchase.scanQr')}</p>
 
-          <div className="p-4 bg-white rounded-xl shadow-lg border border-gray-100 mb-6">
-            {qrImageUrl ? (
-              <img src={qrImageUrl} alt="payment-qr" className="block object-cover w-[200px] h-[200px]" />
-            ) : qrCodeData ? (
-              <QRCodeCanvas value={qrCodeData} size={200} level="H" />
-            ) : (
-              <div className="w-[200px] h-[200px] bg-gray-100 flex items-center justify-center text-gray-400">
-                {t('purchase.waiting')}
-              </div>
-            )}
-            {/* Legacy QR block:
+          <div className="purchase-qr-frame">
+            <img
+              src={`${process.env.PUBLIC_URL || ''}/qr-frame.png`}
+              alt=""
+              className="purchase-qr-frame__border"
+              draggable={false}
+            />
+            <div className="purchase-qr-frame__slot">
               {qrCodeData ? (
-                <QRCodeCanvas value={qrCodeData} size={200} level="H" />
+                <QRCodeCanvas value={qrCodeData} size={156} level="H" />
+              ) : qrImageUrl ? (
+                <img
+                  src={qrImageUrl}
+                  alt="payment-qr"
+                  className="purchase-qr-frame__qr-image"
+                />
               ) : (
-                <div className="w-[200px] h-[200px] bg-gray-100 flex items-center justify-center text-gray-400">
-                  {t('purchase.waiting')}
-                </div>
-              )}
-            */}
-          </div>
-
-          {paymentDisabled ? (
-            <div className="w-full text-center" />
-          ) : (
-            <div className="w-full text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-sm text-text3">{t('purchase.timeLeft')}:</span>
-                <span className={`text-xl font-bold font-mono ${qrExpireTime <= 30 ? 'text-red-500' : 'text-green-600'
-                  }`}>
-                  {formatTime(qrExpireTime)}
-                </span>
-              </div>
-              {qrExpireTime <= 30 && (
-                <p className="text-xs text-red-500 font-medium animate-pulse">
-                  {t('purchase.qrExpiring')}
-                </p>
+                <div className="purchase-qr-frame__placeholder">{t('purchase.waiting')}</div>
               )}
             </div>
-          )}
+          </div>
+
+          <div className="w-full text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-sm text-text3">{t('purchase.timeLeft')}:</span>
+              <span
+                className={`text-xl font-bold font-mono ${
+                  qrExpireTime <= 30 ? 'text-red-500' : 'text-green-600'
+                }`}
+              >
+                {formatTime(qrExpireTime)}
+              </span>
+            </div>
+            {qrExpireTime <= 30 && qrExpireTime > 0 && (
+              <p className="text-xs text-red-500 font-medium animate-pulse">
+                {t('purchase.qrExpiring')}
+              </p>
+            )}
+          </div>
 
           <p className="mt-6 text-xs text-center text-gray-400">
             {t('purchase.doNotCloseBrowser')}
