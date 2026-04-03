@@ -19,9 +19,10 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Interceptor cho request
+// Interceptor cho request — ưu tiên token Redux; fallback adminToken (đăng nhập /admin)
 api.interceptors.request.use((config: InternalAxiosRequestConfig & { withAuth?: boolean }) => {
-  const token = (store.getState() as RootState).auth.token;
+  const stateToken = (store.getState() as RootState).auth.token;
+  const token = stateToken || localStorage.getItem('adminToken');
 
   if (token && config.withAuth) {
     if (!config.headers) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, Fragment, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Section from '../../components/Section/Section';
 import api from '../../utils/api';
 import { Spin, Table, Modal, Button } from 'antd';
@@ -18,6 +18,7 @@ import { getBoxProductRows } from '../../utils/boxProductRows';
 
 const BoxDetails: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [box, setBox] = useState<TBox | null>(null);
@@ -29,7 +30,13 @@ const BoxDetails: React.FC = () => {
   const [cooperativesData, setCooperativesData] = useState<Record<string, TProductCooperative[]>>({});
   const [loadingCooperatives, setLoadingCooperatives] = useState<Record<string, boolean>>({});
 
-  const currentUrl = window.location.href;
+  /** Link cố định dạng /boxes/{slug} (không dùng /purchase/...) để QR chia sẻ */
+  const boxShareUrl = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    if (!box?.slug) return window.location.href;
+    const base = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
+    return `${window.location.origin}${base}/boxes/${box.slug}`;
+  }, [box?.slug]);
 
   useEffect(() => {
     const fetchBox = async () => {
@@ -50,6 +57,19 @@ const BoxDetails: React.FC = () => {
   }, [id]);
 
   const productRows = useMemo(() => (box ? getBoxProductRows(box) : []), [box]);
+
+  const isTrialBox = useMemo(() => {
+    if (!box) return false;
+    const slugValue = String(box.slug || '').toLowerCase();
+    const nameValue = String(box.name || '').toLowerCase();
+    return (
+      slugValue.includes('trai-nghiem') ||
+      nameValue.includes('trải nghiệm') ||
+      nameValue.includes('trai nghiem') ||
+      nameValue.includes('thử nghiệm') ||
+      nameValue.includes('thu nghiem')
+    );
+  }, [box]);
 
   /** Mỗi danh mục một khối: dòng category, bên dưới là bảng sản phẩm */
   const productSections = useMemo(() => {
@@ -239,6 +259,17 @@ const BoxDetails: React.FC = () => {
             </div>
           ) : box ? (
             <>
+              {isTrialBox ? (
+                <div className="mb-4">
+                  <Button
+                    type="link"
+                    className="h-auto p-0 text-green-700 hover:text-green-800"
+                    onClick={() => navigate('/order-lookup')}
+                  >
+                    ← {t('orderLookup.backToLookup')}
+                  </Button>
+                </div>
+              ) : null}
               {/* Thông tin box */}
               <div className="flex items-start justify-between -mt-4 lg:mt-0">
                 <h1 className="section-title">{box.name}</h1>
@@ -262,7 +293,7 @@ const BoxDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center w-full gap-10 pb-10 mb-10 lg:flex-row lg:items-stretch">
+              <div className="flex flex-col items-center w-full gap-6 pb-4 mb-4 lg:flex-row lg:items-stretch">
                 <div className="w-full lg:w-60">
                   {/* Placeholder for Box Image based on product image or default */}
                   <img
@@ -273,29 +304,30 @@ const BoxDetails: React.FC = () => {
                 </div>
                 <div className="flex flex-col w-full gap-5 lg:w-1/2">
                   <p className="text-base text-text2">{box.description}</p>
-                  <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-                    <div className="flex items-center gap-3">
-                      <p className="text-lg font-semibold text-green-600">
-                        {t('common.price')}: {formatVND(box.price)}
-                      </p>
+                  {!isTrialBox ? (
+                    <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-3">
+                        <p className="text-lg font-semibold text-green-600">
+                          {t('common.price')}: {formatVND(box.price)}
+                        </p>
+                      </div>
+                      <Link to={`/purchase/${box.slug}`} className="sm:ml-4">
+                        <Button
+                          type="primary"
+                          size="large"
+                          className="w-full sm:w-auto bg-green2 hover:bg-green-700"
+                          style={{ backgroundColor: '#3da35d' }}
+                        >
+                          {t('common.buyNow')}
+                        </Button>
+                      </Link>
                     </div>
-                    {/* isTrial removed */}
-                    <Link to={`/purchase/${box.slug}`} className="sm:ml-4">
-                      <Button
-                        type="primary"
-                        size="large"
-                        className="w-full sm:w-auto bg-green2 hover:bg-green-700"
-                        style={{ backgroundColor: '#3da35d' }}
-                      >
-                        {t('common.buyNow')}
-                      </Button>
-                    </Link>
-                  </div>
+                  ) : null}
                 </div>
               </div>
 
               {/* Danh sách sản phẩm */}
-              <h2 className="mb-5 text-xl font-semibold text-text1">
+              <h2 className="mb-3 text-xl font-semibold text-text1">
                 {t('common.productsInPackage')}
               </h2>
               <div className="flex flex-col w-full gap-8 overflow-x-auto">
@@ -340,7 +372,7 @@ const BoxDetails: React.FC = () => {
                   className="flex flex-col items-center gap-5 p-5 bg-white rounded-xl"
                 >
                   <h3 className="text-xl font-semibold">{box.name}</h3>
-                  <QRCodeCanvas value={currentUrl} size={200} />
+                  <QRCodeCanvas value={boxShareUrl || window.location.href} size={200} />
                 </div>
               </Modal>
               {/* Modal Product Detail */}

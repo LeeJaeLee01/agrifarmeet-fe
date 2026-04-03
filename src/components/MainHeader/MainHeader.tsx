@@ -123,6 +123,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/introduce" className={navLinkClass}>
                 {t('common.introduce')}
               </NavLink>
+              <NavLink to="/news" className={navLinkClass}>
+                {t('common.news')}
+              </NavLink>
               <NavLink to="/boxes" className={navLinkClass}>
                 {t('common.allBoxes')}
               </NavLink>
@@ -186,6 +189,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
             <NavLink to="/introduce" className={navLinkClass}>
               {t('common.introduce')}
+            </NavLink>
+            <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
+              {t('common.news')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass}>
               {t('common.allBoxes')}

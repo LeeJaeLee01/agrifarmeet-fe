@@ -25,6 +25,7 @@ const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
 const Introduce = lazy(() => import('./pages/Introduce/Introduce'));
 const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
+const News = lazy(() => import('./pages/News/News'));
 
 // Admin pages
 const AdminLogin = lazy(() => import('./pages/admin/Login/Login'));
@@ -33,8 +34,12 @@ const AdminUsers = lazy(() => import('./pages/admin/Users/Users'));
 const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories'));
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
+const AdminBoxVegetables = lazy(() => import('./pages/admin/BoxVegetables/BoxVegetables'));
+const AdminFeedbacks = lazy(() => import('./pages/admin/FeedbacksAdmin/FeedbacksAdmin'));
+const AdminUserBoxes = lazy(() => import('./pages/admin/UserBoxes/UserBoxes'));
 const AdminShipping = lazy(() => import('./pages/admin/Shipping/Shipping'));
 const AdminShippers = lazy(() => import('./pages/admin/Shippers/Shippers'));
+const AdminNews = lazy(() => import('./pages/admin/NewsAdmin/NewsAdmin'));
 
 // Shipper
 const Shipper = lazy(() => import('./pages/Shipper/Shipper'));
@@ -79,6 +84,7 @@ function App() {
               <Route path="/order" element={<Order />} />
               <Route path="/order-lookup" element={<OrderLookup />} />
               <Route path="/introduce" element={<Introduce />} />
+              <Route path="/news" element={<News />} />
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />
               <Route path="/payment/return" element={<PaymentReturn />} />
@@ -101,8 +107,12 @@ function App() {
               <Route path="categories" element={<AdminCategories />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="boxes" element={<AdminBoxes />} />
+              <Route path="box-vegetables" element={<AdminBoxVegetables />} />
+              <Route path="feedbacks" element={<AdminFeedbacks />} />
+              <Route path="user-boxes" element={<AdminUserBoxes />} />
               <Route path="shippings" element={<AdminShipping />} />
               <Route path="shippers" element={<AdminShippers />} />
+              <Route path="news" element={<AdminNews />} />
             </Route>
             <Route
               path="/admin/login"

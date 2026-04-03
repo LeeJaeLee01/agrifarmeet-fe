@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   Spin,
@@ -34,17 +35,10 @@ interface Box {
   updatedAt: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  image?: string;
-}
-
 const Boxes: React.FC = () => {
   useTitle('Quản lý gói');
 
   const [data, setData] = useState<Box[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -100,20 +94,8 @@ const Boxes: React.FC = () => {
     }
   };
 
-  // Fetch products để chọn cho box
-  const fetchProducts = async () => {
-    try {
-      const res = await api.get('/products');
-      setProducts(res.data.data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Không thể tải sản phẩm');
-    }
-  };
-
   useEffect(() => {
     fetchBoxes(pagination.current, pagination.pageSize, search);
-    fetchProducts();
   }, []);
 
   // Add / Edit box
@@ -123,10 +105,13 @@ const Boxes: React.FC = () => {
       const values = await form.validateFields();
       values.totalWeight = Number(values.totalWeight);
       values.price = Number(values.price);
+      /** Sản phẩm trong gói quản lý tại /admin/box-vegetables — không gọi GET /products */
       if (isEdit && currentBox) {
+        values.productIds = currentBox.productIds;
         await api.put(`/boxes/${currentBox.id}`, values, { withAuth: true });
         toast.success('Cập nhật gói thành công!');
       } else {
+        values.productIds = [];
         await api.post('/boxes', values, { withAuth: true });
         toast.success('Thêm gói thành công!');
       }
@@ -259,7 +244,15 @@ const Boxes: React.FC = () => {
 
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý gói</h1>
+      <div className="flex flex-col gap-2 mb-5 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="mb-0 text-lg font-bold lg:text-2xl">Quản lý gói</h1>
+        <Link
+          to="/admin/box-vegetables"
+          className="text-sm font-medium text-green-600 hover:text-green-700 hover:underline"
+        >
+          Cập nhật sản phẩm / rau trong gói →
+        </Link>
+      </div>
 
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
         <Input.Search
@@ -386,29 +379,13 @@ const Boxes: React.FC = () => {
             />
           )}
 
-          <Form.Item
-            name="productIds"
-            label="Sản phẩm trong gói"
-            rules={[{ required: true, message: 'Chọn ít nhất 1 sản phẩm' }]}
-          >
-            <Select
-              mode="multiple"
-              placeholder="Chọn sản phẩm"
-              optionFilterProp="children"
-              style={{ width: '100%' }}
-            >
-              {products.map((p) => (
-                <Select.Option key={p.id} value={p.id}>
-                  <div className="flex items-center gap-2">
-                    {p.image && (
-                      <img src={p.image} alt={p.name} className="object-cover w-6 h-6 rounded" />
-                    )}
-                    <span>{p.name}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <p className="mb-4 text-sm text-gray-600">
+            Sản phẩm / rau trong gói: dùng{' '}
+            <Link to="/admin/box-vegetables" className="font-medium text-green-600 hover:underline">
+              Cập nhật rau trong gói
+            </Link>
+            .
+          </p>
 
           <Form.Item
             name="expiredAt"

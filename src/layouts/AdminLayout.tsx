@@ -15,6 +15,9 @@ import {
   TagOutlined,
   TruckOutlined,
   BellOutlined,
+  UnorderedListOutlined,
+  CommentOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
 import { setToken } from '../store/slices/authSlice';
 import { useDispatch } from 'react-redux';
@@ -60,6 +63,26 @@ const AdminLayout: React.FC = () => {
       key: 'boxes',
       icon: <CodeSandboxOutlined />,
       label: <Link to="/admin/boxes">{t('admin.boxes')}</Link>,
+    },
+    {
+      key: 'box-vegetables',
+      icon: <UnorderedListOutlined />,
+      label: <Link to="/admin/box-vegetables">{t('admin.boxVegetables')}</Link>,
+    },
+    {
+      key: 'feedbacks',
+      icon: <CommentOutlined />,
+      label: <Link to="/admin/feedbacks">{t('admin.feedbacks')}</Link>,
+    },
+    {
+      key: 'news',
+      icon: <BellOutlined />,
+      label: <Link to="/admin/news">{t('admin.news')}</Link>,
+    },
+    {
+      key: 'user-boxes',
+      icon: <BarChartOutlined />,
+      label: <Link to="/admin/user-boxes">{t('admin.userBoxes')}</Link>,
     },
     {
       key: 'shippings',
