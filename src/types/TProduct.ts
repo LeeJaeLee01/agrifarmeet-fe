@@ -16,4 +16,6 @@ export type TProduct = {
   createdBy?: string | null;
   createdAt: string;
   updatedAt: string;
+  priceAddOn?: number;
+  isAddOn?: boolean;
 };

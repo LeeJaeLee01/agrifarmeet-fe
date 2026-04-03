@@ -36,6 +36,8 @@ export type TBoxDetailProductItem = {
   isOptional: boolean;
   weekStartDate: string;
   boxProductId: string;
+  priceAddOn?: number;
+  isAddOn?: boolean;
 };
 
 export type TBoxDetailGroup = {

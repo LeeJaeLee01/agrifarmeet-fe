@@ -196,11 +196,20 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
     return maxExtraVegForBox(slug, name);
   }, [boxDetail?.slug, boxDetail?.name, box?.slug, box?.name]);
 
-  /** Phí rau thêm: 25k × số loại — không phụ thuộc có tìm được product add-on trên API hay không (tránh tổng 0 khi slug lệch) */
+  /** Phí rau thêm: Lấy giá từ priceAddOn của từng sản phẩm được chọn (nếu có), mặc định 25k */
   const extraVegLineTotal = useMemo(() => {
     if (!selectedWeekStart || selectedExtraProductIds.length === 0) return 0;
-    return selectedExtraProductIds.length * EXTRA_VEG_WEEKLY_FEE;
-  }, [selectedWeekStart, selectedExtraProductIds.length]);
+    let total = 0;
+    for (const pid of selectedExtraProductIds) {
+      const row = weekRows.find((r) => String(r.product.id) === pid);
+      if (row?.product?.priceAddOn != null) {
+        total += row.product.priceAddOn;
+      } else {
+        total += EXTRA_VEG_WEEKLY_FEE;
+      }
+    }
+    return total;
+  }, [selectedWeekStart, selectedExtraProductIds, weekRows]);
 
   const addOnTotal = useMemo(() => {
     const other = visibleAddOns
@@ -390,19 +399,17 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
       toast.error(t('orderLookup.addOnPickVegRequired'));
       return;
     }
-    if (selectedWeekStart && selectedExtraProductIds.length > 0 && !rauThemAddOn) {
-      toast.warning(t('orderLookup.addOnRauThemPayWithoutProduct'));
-    }
-
     const orderId = generateRandomString(13);
     const add_on = visibleAddOns
       .filter((item) => selectedIds.includes(addOnIdKey(item.id)))
       .map((item) => ({ product_id: item.id, quantity: 1 }));
 
-    if (rauThemAddOn && selectedWeekStart && selectedExtraProductIds.length > 0) {
-      add_on.push({
-        product_id: rauThemAddOn.id,
-        quantity: selectedExtraProductIds.length,
+    if (selectedWeekStart && selectedExtraProductIds.length > 0) {
+      selectedExtraProductIds.forEach((pid) => {
+        add_on.push({
+          product_id: pid,
+          quantity: 1,
+        });
       });
     }
 
@@ -549,6 +556,15 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
                                 <p className="m-0 text-[11px] text-green-700">{row.category.name}</p>
                               ) : null}
                             </div>
+                            {row.product?.priceAddOn != null ? (
+                              <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
+                                +{formatVND(row.product.priceAddOn)}
+                              </p>
+                            ) : (
+                              <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
+                                +{formatVND(EXTRA_VEG_WEEKLY_FEE)}
+                              </p>
+                            )}
                           </label>
                         );
                       })}

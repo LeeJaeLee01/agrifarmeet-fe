@@ -33,6 +33,8 @@ export function getBoxProductRows(box: TBox): TBoxProductRow[] {
           status: p.status,
           createdAt: '',
           updatedAt: '',
+          priceAddOn: p.priceAddOn,
+          isAddOn: p.isAddOn,
         },
         createdAt: '',
         updatedAt: '',
