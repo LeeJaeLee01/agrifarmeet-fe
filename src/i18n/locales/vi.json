@@ -178,7 +178,7 @@
     "periodicDeliveryDesc": "Nhận nông sản tại nhà hàng tuần với lịch giao cố định, đảm bảo tươi mới và tiện lợi.",
     "loadingBoxes": "Đang tải gói...",
     "errorLoadingBoxes": "Đã có lỗi xảy ra khi lấy thông tin gói",
-    "menu": "Menu",
+    "menu": "Khám phá",
     "events": "Sự kiện",
     "aboutUs": "Về chúng tôi",
     "followUs": "Kết nối với chúng tôi",
@@ -493,7 +493,11 @@
     "ok": "OK",
     "addOn": "Add-on",
     "waiting": "Đang chờ...",
-    "doNotCloseBrowser": "Vui lòng không tắt trình duyệt khi đang thanh toán"
+    "doNotCloseBrowser": "Vui lòng không tắt trình duyệt khi đang thanh toán",
+    "shareTitle": "Chia sẻ liên kết",
+    "scanToShare": "Quét mã QR dưới đây để chia sẻ.",
+    "copiedUrl": "Đã sao chép liên kết!",
+    "copyLink": "Sao chép liên kết"
   },
   "orderLookup": {
     "pageTitle": "Xem thông tin đơn hàng",
@@ -558,7 +562,11 @@
     "toastPhoneInvalid": "Vui lòng nhập đúng 10 số điện thoại",
     "toastNoOrders": "Không tìm thấy đơn hàng nào với số điện thoại này.",
     "toastLookupFailed": "Không tra cứu được đơn hàng.",
-    "toastDeliveryLoadFailed": "Không tải được chi tiết giao hàng."
+    "toastDeliveryLoadFailed": "Không tải được chi tiết giao hàng.",
+    "vegetablesInBox": "Các loại rau trong gói",
+    "userAddOns": "Các sản phẩm mua thêm",
+    "noProducts": "Chưa có sản phẩm nào trong gói này.",
+    "noData": "Không thể tải dữ liệu."
   },
   "boxDetails": {
     "category": "Danh mục",
@@ -568,5 +576,12 @@
     "status": "Trạng thái",
     "available": "Sẵn sàng",
     "unavailable": "Không sẵn sàng"
+  },
+  "introduce": {
+    "story": "Câu chuyện của Farme",
+    "mission": "Sứ mệnh",
+    "values": "Giá trị cốt lõi",
+    "journey": "Hành trình",
+    "commitment": "Cam kết"
   }
 }

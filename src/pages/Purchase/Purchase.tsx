@@ -12,6 +12,7 @@ import { formatWeight, generateRandomString, formatVND } from '../../utils/helpe
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { QRCodeCanvas } from 'qrcode.react';
+import { ShareAltOutlined } from '@ant-design/icons';
 import type { TBox } from '../../types/TBox';
 import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
@@ -79,6 +80,7 @@ const PurchasePage: React.FC = () => {
   const [successPayDate, setSuccessPayDate] = useState<string | null>(null);
   const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -722,10 +724,21 @@ const PurchasePage: React.FC = () => {
                       alt=""
                       className="block object-cover rounded-lg w-28 h-28"
                     />
-                    <div className="flex-1">
-                      <p className="mb-1 text-sm font-medium lg:mb-2 lg:text-lg text-text1">
-                        {boxInfo.name}
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1 lg:mb-2 gap-2">
+                        <p className="m-0 text-sm font-medium lg:text-lg text-text1 leading-tight break-words">
+                          {boxInfo.name}
+                        </p>
+                        <Button 
+                          type="primary" 
+                          size="small" 
+                          className="bg-green"
+                          icon={<ShareAltOutlined />} 
+                          onClick={() => setShowShareModal(true)}
+                        >
+                          {t('common.share') || 'Chia sẻ'}
+                        </Button>
+                      </div>
                       <ul className="mb-1 lg:mb-2">
                         {(boxInfo.description || '')
                           .split('.')
@@ -926,6 +939,35 @@ const PurchasePage: React.FC = () => {
           <p className="mt-6 text-xs text-center text-gray-400">
             {t('purchase.doNotCloseBrowser')}
           </p>
+        </div>
+      </Modal>
+
+      <Modal
+        title={t('purchase.shareTitle') || 'Chia sẻ liên kết'}
+        open={showShareModal}
+        onCancel={() => setShowShareModal(false)}
+        footer={null}
+        centered
+        width={350}
+      >
+        <div className="flex flex-col items-center justify-center p-4">
+          <p className="mb-4 text-sm text-center text-text2">
+            {t('purchase.scanToShare') || 'Quét mã QR dưới đây để chia sẻ.'}
+          </p>
+          <div className="p-2 border rounded-xl bg-white shadow-sm mb-5">
+            <QRCodeCanvas value={window.location.href} size={200} level="H" />
+          </div>
+          <Button 
+            type="primary" 
+            block 
+            className="bg-green"
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              toast.success(t('purchase.copiedUrl') || 'Đã sao chép liên kết!');
+            }}
+          >
+            {t('purchase.copyLink') || 'Sao chép liên kết'}
+          </Button>
         </div>
       </Modal>
 

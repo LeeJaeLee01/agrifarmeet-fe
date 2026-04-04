@@ -121,7 +121,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
                 {t('common.home')}
               </NavLink>
               <NavLink to="/introduce" className={navLinkClass}>
-                {t('common.introduce')}
+                {t('common.aboutUs')}
               </NavLink>
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}

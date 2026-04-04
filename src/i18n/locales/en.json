@@ -178,7 +178,7 @@
     "periodicDeliveryDesc": "Receive produce at home weekly with a fixed delivery schedule, ensuring freshness and convenience.",
     "loadingBoxes": "Loading boxes...",
     "errorLoadingBoxes": "Error occurred while fetching box information",
-    "menu": "Menu",
+    "menu": "Explore",
     "events": "Events",
     "aboutUs": "About Us",
     "followUs": "Follow us",
@@ -493,7 +493,11 @@
     "ok": "OK",
     "addOn": "Add-on",
     "waiting": "Waiting...",
-    "doNotCloseBrowser": "Please do not close the browser while payment is in progress"
+    "doNotCloseBrowser": "Please do not close the browser while payment is in progress",
+    "shareTitle": "Share Link",
+    "scanToShare": "Scan the QR code below to share.",
+    "copiedUrl": "Link copied to clipboard!",
+    "copyLink": "Copy Link"
   },
   "orderLookup": {
     "pageTitle": "Order lookup",
@@ -558,7 +562,11 @@
     "toastPhoneInvalid": "Please enter a valid 10-digit phone number",
     "toastNoOrders": "No orders found for this phone number.",
     "toastLookupFailed": "Could not look up orders.",
-    "toastDeliveryLoadFailed": "Could not load delivery details."
+    "toastDeliveryLoadFailed": "Could not load delivery details.",
+    "vegetablesInBox": "Vegetables in the box",
+    "userAddOns": "Add-on products",
+    "noProducts": "No products in this box.",
+    "noData": "Unable to load data."
   },
   "boxDetails": {
     "category": "Category",
@@ -568,5 +576,12 @@
     "status": "Status",
     "available": "Available",
     "unavailable": "Unavailable"
+  },
+  "introduce": {
+    "story": "Our Story",
+    "mission": "Mission",
+    "values": "Core Values",
+    "journey": "Our Journey",
+    "commitment": "Commitment"
   }
 }

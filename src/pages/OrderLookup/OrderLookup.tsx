@@ -11,6 +11,7 @@ import { formatDate } from '../../utils/helper';
 import { toast } from 'react-toastify';
 import './OrderLookup.scss';
 import OrderLookupAddOnModal, { type OrderLookupAddOnBox } from './OrderLookupAddOnModal';
+import UserBoxDetailsModal from './UserBoxDetailsModal';
 
 const ORDER_LOOKUP_PHONE_KEY = 'farme_order_lookup_phone';
 
@@ -89,6 +90,8 @@ const OrderLookup: React.FC = () => {
   const [deliveryDetails, setDeliveryDetails] = useState<any | null>(null);
   const [loadingDeliveryDetails, setLoadingDeliveryDetails] = useState(false);
   const [addOnBox, setAddOnBox] = useState<OrderLookupAddOnBox | null>(null);
+  const [viewVegUserBoxId, setViewVegUserBoxId] = useState<string | null>(null);
+
 
   const fetchOrdersByPhone = useCallback(
     async (trimmed: string) => {
@@ -268,7 +271,7 @@ const OrderLookup: React.FC = () => {
                                 <Button
                                   type="default"
                                   size="small"
-                                  onClick={() => navigate(`/boxes/${encodeURIComponent(String(boxPathId))}`)}
+                                  onClick={() => setViewVegUserBoxId(String(userBox.id))}
                                 >
                                   {t('orderLookup.viewVegetables')}
                                 </Button>
@@ -404,6 +407,12 @@ const OrderLookup: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      <UserBoxDetailsModal
+        open={!!viewVegUserBoxId}
+        userBoxId={viewVegUserBoxId}
+        onClose={() => setViewVegUserBoxId(null)}
+      />
 
       <MainFooter />
     </>
