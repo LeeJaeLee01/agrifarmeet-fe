@@ -75,26 +75,24 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
 
   const logoSrc = simple || sticky || isFixed || open ? '/logo.png' : '/logo-white.png';
 
-  /* Animation logic */
-  const [animKey, setAnimKey] = useState(0);
   const sloganText = t('common.slogan');
-
-  useEffect(() => {
-    const runAnimation = () => {
-      setAnimKey((prev) => prev + 1);
-    };
-
-    // Initial run
-    runAnimation();
-
-    const interval = setInterval(runAnimation, 3600); // Match slide autoplay delay
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <Fragment>
+      <div className="top-slogan-bar">
+        <div className="slogan-scroller-container">
+          <div className="slogan-scroller-track">
+            <span className="slogan-scroller-text">
+              {sloganText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span className="slogan-scroller-text">
+              {sloganText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+          </div>
+        </div>
+      </div>
       <header className={headerClass} ref={headerRef}>
-        <div className="flex items-center w-full content">
+        <div className="flex items-center justify-between w-full content">
           {/* Logo */}
           <div className="flex items-center gap-10 logo shrink-0">
             <NavLink to="/">
@@ -102,20 +100,10 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
           </div>
 
-          {/* Slogan desktop: flex-1 căn giữa khoảng giữa logo và menu (breakpoint trong SCSS) */}
-          <div className="header-slogan-desktop text-xl uppercase tracking-wider text-center wavy-text">
-            {sloganText.split('').map((char, index) => (
-              <span
-                key={`${index}-${animKey}`} // Update key to re-trigger animation
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </span>
-            ))}
-          </div>
+
 
           {/* Menu desktop + mobile toggle */}
-          <div className="flex items-center gap-5 ml-auto shrink-0 xl:ml-0">
+          <div className="flex items-center gap-5 shrink-0">
             <div className="items-center hidden gap-5 md:flex">
               <NavLink to="/" className={navLinkClass}>
                 {t('common.home')}
@@ -168,14 +156,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
           </div>
         </div>
 
-        {/* Slogan mobile/tablet: nằm dưới header và vào giữa (control breakpoint bằng SCSS) */}
-        <div className="header-slogan-mobile py-2 text-center text-sm font-medium uppercase tracking-wider wavy-text border-t border-[#d9d9d9]">
-          {sloganText.split('').map((char, index) => (
-            <span key={`mobile-${index}-${animKey}`} style={{ animationDelay: `${index * 0.05}s` }}>
-              {char === ' ' ? '\u00A0' : char}
-            </span>
-          ))}
-        </div>
+
 
         {/* Mobile menu dropdown */}
         <div
