@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { Input, Button, Select, Modal } from 'antd';
+import { Input, Button, Select, Modal, Radio } from 'antd';
 import Section from '../../components/Section/Section';
 import './Purchase.scss';
 import { toast } from 'react-toastify';
@@ -17,6 +17,10 @@ import type { TBox } from '../../types/TBox';
 import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
 import { pickTrialWeekProductRows } from '../../utils/trialWeekProductRows';
+import {
+  getSubscriptionComboAmount,
+  isSubscriptionComboSlug,
+} from './subscriptionCombo';
 
 function productImageSrc(images: TProduct['images']): string {
   if (Array.isArray(images)) return images[0] || '';
@@ -81,6 +85,7 @@ const PurchasePage: React.FC = () => {
   const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [subscriptionWeeks, setSubscriptionWeeks] = useState<6 | 8>(6);
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -102,7 +107,7 @@ const PurchasePage: React.FC = () => {
     );
   }, [boxInfo?.slug, boxInfo?.name]);
 
-  /** Danh sách rau/sản phẩm theo tuần giao (cột “Rau tuần này”) — mọi gói */
+  /** Danh sách rau/sản phẩm theo tuần giao cho cột “Rau tuần này” */
   const weekProductRows = useMemo(() => {
     if (!purchaseProductRows.length) return [];
     const withWeek = purchaseProductRows.filter((r) => r.weekStartDate);
@@ -137,33 +142,43 @@ const PurchasePage: React.FC = () => {
     [visibleAddOns, selectedAddOnIds]
   );
 
-  /** Gói cơ bản hoặc linh hoạt (đăng ký): tổng = giá box × 4. Không áp dụng gói trải nghiệm/thử. */
-  const isBasicFlexibleMonthlyBox = useMemo(() => {
+  /** Gói cơ bản / linh hoạt: combo 6 hoặc 8 tuần (giá cố định, đồng bộ BE). */
+  const isSubscriptionComboPurchase = useMemo(() => {
     if (isTrialBox) return false;
-    const slug = String(boxInfo?.slug || '').toLowerCase();
-    const name = String(boxInfo?.name || '').toLowerCase();
-    const hasBasic =
-      slug.includes('co-ban') ||
-      slug.includes('co_ban') ||
-      slug.includes('coban') ||
-      name.includes('cơ bản') ||
-      name.includes('co ban');
-    const hasFlexible =
-      slug.includes('linh-hoat') ||
-      slug.includes('linh_hoat') ||
-      slug.includes('linhhoat') ||
-      name.includes('linh hoạt') ||
-      name.includes('linh hoat');
-    return hasBasic || hasFlexible;
-  }, [boxInfo?.slug, boxInfo?.name, isTrialBox]);
+    return isSubscriptionComboSlug(boxInfo?.slug);
+  }, [boxInfo?.slug, isTrialBox]);
+
+  /** Không hiển thị “Rau tuần này”: trải nghiệm, gói cơ bản, gói linh hoạt */
+  const showVeggiesThisWeek = useMemo(() => {
+    const routeSlug = String(slug || '').toLowerCase();
+    if (routeSlug.includes('trai-nghiem')) return false;
+    if (
+      routeSlug.includes('co-ban') ||
+      routeSlug.includes('co_ban') ||
+      routeSlug.includes('coban') ||
+      routeSlug.includes('linh-hoat') ||
+      routeSlug.includes('linh_hoat') ||
+      routeSlug.includes('linhhoat')
+    ) {
+      return false;
+    }
+    if (!boxInfo) return true;
+    if (isTrialBox) return false;
+    if (isSubscriptionComboPurchase) return false;
+    return true;
+  }, [slug, boxInfo, isTrialBox, isSubscriptionComboPurchase]);
 
   const payableAmount = useMemo(() => {
-    const price = Number(boxInfo?.price || 0);
-    if (isBasicFlexibleMonthlyBox) {
-      return price * 4;
+    if (boxInfo?.slug && isSubscriptionComboSlug(boxInfo.slug)) {
+      return getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks);
     }
+    const price = Number(boxInfo?.price || 0);
     return price + addOnTotal;
-  }, [boxInfo?.price, addOnTotal, isBasicFlexibleMonthlyBox]);
+  }, [boxInfo?.slug, boxInfo?.price, subscriptionWeeks, addOnTotal]);
+
+  useEffect(() => {
+    setSubscriptionWeeks(6);
+  }, [boxInfo?.id]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -349,16 +364,16 @@ const PurchasePage: React.FC = () => {
             <img
               src={imgSrc || 'https://via.placeholder.com/80'}
               alt={item.name}
-              className="object-cover w-12 h-12 rounded-md"
+              className="object-cover w-11 h-11 rounded-md shrink-0"
             />
             <div className="flex-1 min-w-0">
               <p className="m-0 text-sm font-medium text-text1 line-clamp-2">
                 {item.name}
               </p>
-              <p className="m-0 text-xs text-text3">
-                {formatVND(Number(item.priceAddOn || 0))}
-              </p>
             </div>
+            <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
+              +{formatVND(Number(item.priceAddOn || 0))}
+            </p>
           </label>
         );
       })}
@@ -379,21 +394,22 @@ const PurchasePage: React.FC = () => {
       const requestBody = {
         orderId,
         amount,
-        orderInfo: `Thanh toán ${boxInfo.name}`,
+        orderInfo: `Thanh toán ${boxInfo.name}${
+          isSubscriptionComboPurchase ? ` — ${subscriptionWeeks} tuần` : ''
+        }`,
         fullname: data.fullname,
         email: data.email,
         phone: data.phone,
         address: `${data.province}, ${data.district}, ${data.ward}`,
         address_detail: data.addressDetail,
         box_id: boxInfo.id,
-        // Legacy payload:
-        // add_on_ids: selectedAddOnIds,
         add_on: visibleAddOns
           .filter((item) => selectedAddOnIds.includes(item.id))
           .map((item) => ({
             product_id: item.id,
             quantity: 1,
           })),
+        ...(isSubscriptionComboPurchase ? { subscription_weeks: subscriptionWeeks } : {}),
       };
 
       // Gọi API /boxes/payment/qr — VNPay: ưu tiên chuỗi QR cho QRCodeCanvas + polling theo orderId
@@ -475,11 +491,11 @@ const PurchasePage: React.FC = () => {
       <Section spaceBottom>
         <div className="container mx-auto">
           <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">{t('purchase.title')}</h1>
-          <div className="flex flex-col justify-between w-full gap-10 lg:flex-row lg:items-start">
-            {/* FORM */}
+          <div className="flex flex-col justify-between w-full gap-10 lg:flex-row lg:items-start lg:gap-8 xl:gap-10">
+            {/* FORM — trái 2/3 */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="order-2 w-full lg:order-2 lg:w-4/12 xl:w-4/12"
+              className="order-2 w-full min-w-0 lg:order-1 lg:w-8/12"
               id="purchase-form"
             >
               <h2 className="mb-5 pb-2 border-b border-border text-lg font-medium lg:text-xl text-text1">
@@ -660,14 +676,14 @@ const PurchasePage: React.FC = () => {
               {boxInfo && (
                 <div className="hidden mt-8 lg:block">
                   <p
-                    className={`text-lg text-left font-semibold ${isBasicFlexibleMonthlyBox ? 'mb-1' : 'mb-8'}`}
+                    className={`text-lg text-left font-semibold ${isSubscriptionComboPurchase ? 'mb-1' : 'mb-8'}`}
                   >
                     {t('purchase.totalAmount')}:{' '}
                     <span className="text-green-600 text-xl">{formatVND(payableAmount)}</span>
                   </p>
-                  {isBasicFlexibleMonthlyBox ? (
+                  {isSubscriptionComboPurchase ? (
                     <p className="mb-8 text-xs text-left text-text3">
-                      {t('purchase.monthlyBasicFlexibleNote')}
+                      {t('purchase.comboExpiryHint', { weeks: subscriptionWeeks })}
                     </p>
                   ) : null}
                   <div className="flex flex-wrap items-center justify-center w-full gap-3">
@@ -686,13 +702,15 @@ const PurchasePage: React.FC = () => {
               {boxInfo ? (
                 <div className="mt-6 lg:hidden">
                   <p
-                    className={`text-lg font-semibold text-left ${isBasicFlexibleMonthlyBox ? 'mb-1' : 'mb-6'}`}
+                    className={`text-lg font-semibold text-left ${isSubscriptionComboPurchase ? 'mb-1' : 'mb-6'}`}
                   >
                     {t('purchase.totalAmount')}:{' '}
                     <span className="text-xl text-green-600">{formatVND(payableAmount)}</span>
                   </p>
-                  {isBasicFlexibleMonthlyBox ? (
-                    <p className="mb-6 text-xs text-left text-text3">{t('purchase.monthlyBasicFlexibleNote')}</p>
+                  {isSubscriptionComboPurchase ? (
+                    <p className="mb-6 text-xs text-left text-text3">
+                      {t('purchase.comboExpiryHint', { weeks: subscriptionWeeks })}
+                    </p>
                   ) : null}
                   <div className="flex flex-wrap items-center justify-center w-full gap-3">
                     <Button
@@ -708,8 +726,9 @@ const PurchasePage: React.FC = () => {
               ) : null}
             </form>
 
-            {/* ORDER SUMMARY */}
-            <div className="order-1 w-full lg:order-1 lg:w-4/12 xl:w-4/12">
+            {/* Phải 1/3: thông tin gói + Rau tuần này (nếu có) */}
+            <div className="order-1 flex flex-col w-full min-w-0 gap-10 lg:order-2 lg:w-4/12">
+              <div className="w-full">
               <h2 className="mb-5 pb-2 border-b border-border text-lg font-semibold lg:text-xl text-text1">
                 {t('purchase.orderInfo')}
               </h2>
@@ -761,6 +780,41 @@ const PurchasePage: React.FC = () => {
                       </ul>
                     </div>
                   </div>
+
+                  {isSubscriptionComboPurchase && boxInfo.slug ? (
+                    <div className="p-4 mb-5 rounded-lg border border-border bg-stone-50/90">
+                      <h3 className="mb-1 text-sm font-semibold leading-snug text-text1">
+                        {boxInfo.slug === 'goi-co-ban'
+                          ? t('purchase.comboSectionTitleBasic')
+                          : t('purchase.comboSectionTitleFlexible')}
+                      </h3>
+                      <p className="mb-3 text-xs text-text3">
+                        {boxInfo.slug === 'goi-co-ban'
+                          ? t('purchase.comboPerWeekLineBasic')
+                          : t('purchase.comboPerWeekLineFlexible')}
+                      </p>
+                      <Radio.Group
+                        className="flex flex-col gap-2"
+                        value={subscriptionWeeks}
+                        onChange={(e) => setSubscriptionWeeks(e.target.value as 6 | 8)}
+                      >
+                        <Radio value={6} className="!items-start [&_span]:!leading-snug">
+                          <span className="text-sm text-text1">
+                            {boxInfo.slug === 'goi-co-ban'
+                              ? t('purchase.comboWeeks6Basic')
+                              : t('purchase.comboWeeks6Flexible')}
+                          </span>
+                        </Radio>
+                        <Radio value={8} className="!items-start [&_span]:!leading-snug">
+                          <span className="text-sm text-text1">
+                            {boxInfo.slug === 'goi-co-ban'
+                              ? t('purchase.comboWeeks8Basic')
+                              : t('purchase.comboWeeks8Flexible')}
+                          </span>
+                        </Radio>
+                      </Radio.Group>
+                    </div>
+                  ) : null}
 
                   {visibleAddOns.length > 0 ? (
                     <div className="hidden pb-5 mb-5 border-b border-border lg:block">
@@ -814,47 +868,49 @@ const PurchasePage: React.FC = () => {
                 <p>{t('purchase.loadingBoxInfo')}</p>
               )}
 
-            </div>
+              </div>
 
-            {/* Rau tuần này — mọi gói, cột cuối */}
-            <div className="order-3 w-full lg:order-3 lg:w-4/12 xl:w-4/12 purchase-week-veggies">
-              <h2 className="mb-2 pb-2 border-b border-border text-base font-semibold lg:text-lg text-text1 leading-tight">
-                {t('purchase.veggiesThisWeek')}
-              </h2>
-              {weekRangeLabel ? (
-                <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
-              ) : null}
-              {!boxInfo ? (
-                <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
-              ) : weekProductRows.length === 0 ? (
-                <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
-              ) : (
-                <div className="purchase-week-veggies__scroll">
-                  <ul className="p-0 m-0 list-none space-y-3">
-                    {weekProductRows.map((bp) => (
-                      <li key={bp.id} className="flex gap-2">
-                        <img
-                          src={productImageSrc(bp.product.images) || 'https://via.placeholder.com/80'}
-                          alt=""
-                          className="object-cover flex-none w-10 h-10 rounded-md"
-                        />
-                        <div className="min-w-0 flex-1">
-                          {bp.category?.name ? (
-                            <p className="mb-0.5 text-[10px] font-medium leading-tight text-green-700">
-                              {bp.category.name}
+            {showVeggiesThisWeek ? (
+              <div className="w-full purchase-week-veggies">
+                <h2 className="mb-2 pb-2 border-b border-border text-base font-semibold lg:text-lg text-text1 leading-tight">
+                  {t('purchase.veggiesThisWeek')}
+                </h2>
+                {weekRangeLabel ? (
+                  <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
+                ) : null}
+                {!boxInfo ? (
+                  <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
+                ) : weekProductRows.length === 0 ? (
+                  <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
+                ) : (
+                  <div className="purchase-week-veggies__scroll">
+                    <ul className="p-0 m-0 list-none space-y-3">
+                      {weekProductRows.map((bp) => (
+                        <li key={bp.id} className="flex gap-2">
+                          <img
+                            src={productImageSrc(bp.product.images) || 'https://via.placeholder.com/80'}
+                            alt=""
+                            className="object-cover flex-none w-10 h-10 rounded-md"
+                          />
+                          <div className="min-w-0 flex-1">
+                            {bp.category?.name ? (
+                              <p className="mb-0.5 text-[10px] font-medium leading-tight text-green-700">
+                                {bp.category.name}
+                              </p>
+                            ) : null}
+                            <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
+                            <p className="m-0 text-[10px] leading-snug text-text3">
+                              {t('purchase.netWeight')}:{' '}
+                              <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
                             </p>
-                          ) : null}
-                          <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
-                          <p className="m-0 text-[10px] leading-snug text-text3">
-                            {t('purchase.netWeight')}:{' '}
-                            <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : null}
             </div>
           </div>
         </div>

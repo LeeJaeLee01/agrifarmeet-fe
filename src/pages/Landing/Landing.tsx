@@ -16,6 +16,40 @@ import { Modal, Button } from 'antd';
 import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
 import { useNavigate } from 'react-router-dom';
 
+/** Gói đăng ký cơ bản / linh hoạt (không trải nghiệm) — cùng heuristic với trang Purchase */
+function isBasicOrFlexibleBox(box: TBox): boolean {
+  const slug = String(box.slug || '').toLowerCase();
+  const name = String(box.name || '').toLowerCase();
+  const isTrial =
+    slug.includes('trai-nghiem') ||
+    name.includes('trải nghiệm') ||
+    name.includes('trai nghiem') ||
+    name.includes('thử nghiệm') ||
+    name.includes('thu nghiem');
+  if (isTrial) return false;
+  const hasBasic =
+    slug.includes('co-ban') ||
+    slug.includes('co_ban') ||
+    slug.includes('coban') ||
+    name.includes('cơ bản') ||
+    name.includes('co ban');
+  const hasFlexible =
+    slug.includes('linh-hoat') ||
+    slug.includes('linh_hoat') ||
+    slug.includes('linhhoat') ||
+    name.includes('linh hoạt') ||
+    name.includes('linh hoat');
+  return hasBasic || hasFlexible;
+}
+
+/** Tách "1.234.567" và " VND" từ chuỗi formatVND để tô màu giống nhau */
+function splitFormattedVnd(formatted: string): { amount: string; vndSuffix: string } {
+  if (formatted.endsWith(' VND')) {
+    return { amount: formatted.slice(0, -4), vndSuffix: ' VND' };
+  }
+  return { amount: formatted, vndSuffix: '' };
+}
+
 const Landing: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -355,8 +389,27 @@ const Landing: React.FC = () => {
                       </div>
                       <div className="package-price-section">
                         <h2 className="price-text">
-                          {box.price ? formatVND(box.price) : formatVND(360000)}
-                          {t('landing.pricePerWeekSuffix')}
+                          {(() => {
+                            const { amount, vndSuffix } = splitFormattedVnd(
+                              box.price ? formatVND(box.price) : formatVND(360000)
+                            );
+                            return (
+                              <>
+                                {isBasicOrFlexibleBox(box) ? (
+                                  <span className="price-text__only">{t('landing.priceOnlyPrefix')}</span>
+                                ) : null}
+                                <span className="price-text__figures">
+                                  <span className="price-text__amount">{amount}</span>
+                                  <span className="price-text__vnd-suffix">
+                                    {vndSuffix ? (
+                                      <span className="price-text__vnd">{vndSuffix}</span>
+                                    ) : null}
+                                    <span className="price-text__suffix">{t('landing.pricePerWeekSuffix')}</span>
+                                  </span>
+                                </span>
+                              </>
+                            );
+                          })()}
                         </h2>
                         <div className="price-meta-badges" role="note">
                           <span
@@ -472,8 +525,27 @@ const Landing: React.FC = () => {
                     </div>
                     <div className="package-price-section">
                       <h2 className="price-text">
-                        {box.price ? formatVND(box.price) : formatVND(360000)}
-                        {t('landing.pricePerWeekSuffix')}
+                        {(() => {
+                          const { amount, vndSuffix } = splitFormattedVnd(
+                            box.price ? formatVND(box.price) : formatVND(360000)
+                          );
+                          return (
+                            <>
+                              {isBasicOrFlexibleBox(box) ? (
+                                <span className="price-text__only">{t('landing.priceOnlyPrefix')}</span>
+                              ) : null}
+                              <span className="price-text__figures">
+                                <span className="price-text__amount">{amount}</span>
+                                <span className="price-text__vnd-suffix">
+                                  {vndSuffix ? (
+                                    <span className="price-text__vnd">{vndSuffix}</span>
+                                  ) : null}
+                                  <span className="price-text__suffix">{t('landing.pricePerWeekSuffix')}</span>
+                                </span>
+                              </span>
+                            </>
+                          );
+                        })()}
                       </h2>
                       <div className="price-meta-badges" role="note">
                         <span

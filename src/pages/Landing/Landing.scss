@@ -551,16 +551,54 @@
         margin-bottom: 20px;
 
         .price-text {
-          text-align: center;
+          --price-text-gap: 0.5rem;
+
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: baseline;
+          gap: var(--price-text-gap);
+          width: 100%;
           font-size: 1.75rem;
           font-weight: 700;
           color: #2e7d32; // Darker green
           margin: 0;
           letter-spacing: -0.02em;
 
-          span {
-            font-size: 1rem;
+          /* Số tiền | (VND + /tuần) — khoảng cách = khoảng “chỉ” | cụm giá */
+          .price-text__figures {
+            display: inline-flex;
+            align-items: baseline;
+            flex-wrap: nowrap;
+            gap: var(--price-text-gap);
+            white-space: nowrap;
+          }
+
+          /* VND và /tuần dính nhau trong cụm */
+          .price-text__vnd-suffix {
+            display: inline-flex;
+            align-items: baseline;
+            flex-wrap: nowrap;
+            gap: 0;
+            white-space: nowrap;
+          }
+
+          /* Số tiền — cỡ/màu xanh như h2 */
+          .price-text__amount {
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+          }
+
+          /* “chỉ”, “ VND”, /tuần — cùng style (như nhau) */
+          .price-text__only,
+          .price-text__vnd,
+          .price-text__suffix {
+            font-size: 0.875rem;
+            font-weight: 400;
             color: #666;
+            line-height: 1.4;
+            vertical-align: baseline;
           }
         }
 

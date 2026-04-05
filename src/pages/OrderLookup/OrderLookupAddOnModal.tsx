@@ -610,12 +610,14 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
                   <img
                     src={imgSrc || 'https://via.placeholder.com/80'}
                     alt=""
-                    className="object-cover w-12 h-12 rounded-md"
+                    className="object-cover w-11 h-11 rounded-md shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="m-0 text-sm font-medium text-text1 line-clamp-2">{item.name}</p>
-                    <p className="m-0 text-xs text-text3">{formatVND(addOnLinePrice(item))}</p>
                   </div>
+                  <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
+                    +{formatVND(addOnLinePrice(item))}
+                  </p>
                 </label>
               );
             })}
