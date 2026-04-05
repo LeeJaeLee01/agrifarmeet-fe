@@ -207,7 +207,7 @@ const Introduce: React.FC = () => {
             </div>
             <div className="mt-12 p-8 bg-[#1b4332] rounded-2xl shadow-xl">
               <h3 className="text-xl md:text-2xl font-medium text-white italic leading-relaxed">
-                "Với Farme, mỗi hộp rau không chỉ đơn thuần là thực phẩm cho bữa ăn, mà còn là sự an tâm mà chúng tôi mong muốn gửi gắm đến từng gia đình thành phố."
+                "Với Farme, mỗi hộp rau không chỉ đơn thuần là thực phẩm cho bữa ăn, mà còn là sự an tâm mà chúng tôi mong muốn gửi gắm đến từng gia đình."
               </h3>
             </div>
           </div>
