@@ -35,6 +35,7 @@ const AdminCategories = lazy(() => import('./pages/admin/Categories/Categories')
 const AdminProducts = lazy(() => import('./pages/admin/Products/Products'));
 const AdminBoxes = lazy(() => import('./pages/admin/Boxes/Boxes'));
 const AdminBoxVegetables = lazy(() => import('./pages/admin/BoxVegetables/BoxVegetables'));
+const AdminExperienceWeekly = lazy(() => import('./pages/admin/ExperienceWeekly/ExperienceWeekly'));
 const AdminFeedbacks = lazy(() => import('./pages/admin/FeedbacksAdmin/FeedbacksAdmin'));
 const AdminUserBoxes = lazy(() => import('./pages/admin/UserBoxes/UserBoxes'));
 const AdminShipping = lazy(() => import('./pages/admin/Shipping/Shipping'));
@@ -108,6 +109,7 @@ function App() {
               <Route path="products" element={<AdminProducts />} />
               <Route path="boxes" element={<AdminBoxes />} />
               <Route path="box-vegetables" element={<AdminBoxVegetables />} />
+              <Route path="experience-weekly" element={<AdminExperienceWeekly />} />
               <Route path="feedbacks" element={<AdminFeedbacks />} />
               <Route path="user-boxes" element={<AdminUserBoxes />} />
               <Route path="shippings" element={<AdminShipping />} />

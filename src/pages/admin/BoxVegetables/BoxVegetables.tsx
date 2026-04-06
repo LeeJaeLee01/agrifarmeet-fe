@@ -119,7 +119,7 @@ const BoxVegetables: React.FC = () => {
       const seen = new Set<string>();
       for (const c of cats) {
         try {
-          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=500`);
+          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=20`);
           const payload = getPayloadData(pr);
           const items = payload?.items ?? [];
           for (const p of items) {

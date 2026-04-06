@@ -63,11 +63,54 @@ const UserBoxDetailsModal: React.FC<UserBoxDetailsModalProps> = ({ open, userBox
         <p className="text-sm text-text3 my-4">{t('orderLookup.loading') || 'Đang tải...'}</p>
       ) : data ? (
         <div className="max-h-[70vh] overflow-y-auto pr-2 mt-4 space-y-6">
-          {/* box_details */}
+          {/* Rau đăng ký đã lưu trong box_products */}
+          {data.subscriptionVegBoxProducts && data.subscriptionVegBoxProducts.length > 0 && (
+            <div>
+              <h3 className="text-base font-semibold text-text1 mb-3">
+                {t('orderLookup.subscriptionVegSavedListTitle')}
+              </h3>
+              <div className="space-y-4">
+                {(['soft', 'hardy', 'root'] as const).map((gk) => {
+                  const items = data.subscriptionVegBoxProducts.filter((x: { group: string }) => x.group === gk);
+                  if (items.length === 0) return null;
+                  return (
+                    <div key={gk} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                      <p className="font-medium text-green-700 text-sm mb-2">
+                        {{
+                          soft: t('orderLookup.subscriptionVegGroupSoft'),
+                          hardy: t('orderLookup.subscriptionVegGroupHardy'),
+                          root: t('orderLookup.subscriptionVegGroupRoot'),
+                        }[gk]}
+                      </p>
+                      <div className="space-y-2">
+                        {items.map((prod: { productId: string; name: string; images?: unknown; quantity?: number; unit?: string }) => (
+                          <div key={prod.productId} className="flex gap-3 items-center">
+                            <img
+                              src={getProductImage(prod.images)}
+                              alt={prod.name}
+                              className="w-12 h-12 object-cover rounded-md flex-shrink-0 border"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-text1 line-clamp-1">{prod.name}</p>
+                            </div>
+                            <div className="text-sm font-medium text-text3 shrink-0">
+                              x{prod.quantity ?? 1} {prod.unit || ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* box_details — rau mẫu theo tuần (template) */}
           {data.box_details && data.box_details.length > 0 && (
             <div>
               <h3 className="text-base font-semibold text-text1 mb-3">
-                {t('orderLookup.vegetablesInBox') || 'Các loại rau trong gói'}
+                {t('orderLookup.weeklyBoxVegetablesTitle')}
               </h3>
               <div className="space-y-4">
                 {data.box_details.map((detail: any, idx: number) => (
@@ -128,7 +171,9 @@ const UserBoxDetailsModal: React.FC<UserBoxDetailsModalProps> = ({ open, userBox
             </div>
           )}
 
-          {(!data.box_details?.length && !data.user_add_ons?.length) && (
+          {!data.box_details?.length &&
+            !data.user_add_ons?.length &&
+            !(data.subscriptionVegBoxProducts && data.subscriptionVegBoxProducts.length > 0) && (
             <p className="text-sm text-text3 text-center my-8">
               {t('orderLookup.noProducts') || 'Chưa có sản phẩm nào trong gói này.'}
             </p>

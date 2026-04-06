@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Modal, Select } from 'antd';
+import { Button, Modal, Pagination, Select } from 'antd';
 import { QRCodeCanvas } from 'qrcode.react';
 import api from '../../utils/api';
 import { formatVND, generateRandomString } from '../../utils/helper';
@@ -10,6 +10,13 @@ import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
 
 const EXTRA_VEG_WEEKLY_FEE = 25000;
+const ON_SALE_PAGE_SIZE = 10;
+
+function extraVegPricePerUnit(product: TProduct): number {
+  const pa = product.priceAddOn;
+  if (pa != null && Number.isFinite(pa) && pa >= 0) return pa;
+  return EXTRA_VEG_WEEKLY_FEE;
+}
 
 function isBasicBoxSlugName(slug: string, name: string): boolean {
   const s = slug.toLowerCase();
@@ -142,6 +149,12 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
   const [loadingBoxDetail, setLoadingBoxDetail] = useState(false);
   const [selectedWeekStart, setSelectedWeekStart] = useState<string | null>(null);
   const [selectedExtraProductIds, setSelectedExtraProductIds] = useState<string[]>([]);
+  /** Khi box không có tuần trong box_products: dùng GET /products/on-sale (is_sale + price_add_on) */
+  const [saleExtraProducts, setSaleExtraProducts] = useState<TProduct[]>([]);
+  const [saleProductsById, setSaleProductsById] = useState<Record<string, TProduct>>({});
+  const [salePage, setSalePage] = useState(1);
+  const [saleTotal, setSaleTotal] = useState(0);
+  const [loadingSaleCatalog, setLoadingSaleCatalog] = useState(false);
 
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
@@ -190,6 +203,12 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
     return boxProductRows.filter((r) => r.weekStartDate === selectedWeekStart);
   }, [boxProductRows, selectedWeekStart]);
 
+  /** Không có dữ liệu tuần → chọn rau thêm từ danh sách is_sale (API subscription-veggie-catalog) */
+  const isSaleExtraMode = useMemo(
+    () => !loadingBoxDetail && boxDetail != null && weekOptions.length === 0,
+    [loadingBoxDetail, boxDetail, weekOptions.length]
+  );
+
   const maxExtraVeg = useMemo(() => {
     const slug = String(boxDetail?.slug ?? box?.slug ?? '');
     const name = String(boxDetail?.name ?? box?.name ?? '');
@@ -198,7 +217,16 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
 
   /** Phí rau thêm: Lấy giá từ priceAddOn của từng sản phẩm được chọn (nếu có), mặc định 25k */
   const extraVegLineTotal = useMemo(() => {
-    if (!selectedWeekStart || selectedExtraProductIds.length === 0) return 0;
+    if (selectedExtraProductIds.length === 0) return 0;
+    if (isSaleExtraMode) {
+      let total = 0;
+      for (const pid of selectedExtraProductIds) {
+        const p = saleProductsById[pid];
+        total += p ? extraVegPricePerUnit(p) : EXTRA_VEG_WEEKLY_FEE;
+      }
+      return total;
+    }
+    if (!selectedWeekStart) return 0;
     let total = 0;
     for (const pid of selectedExtraProductIds) {
       const row = weekRows.find((r) => String(r.product.id) === pid);
@@ -209,7 +237,13 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
       }
     }
     return total;
-  }, [selectedWeekStart, selectedExtraProductIds, weekRows]);
+  }, [
+    isSaleExtraMode,
+    saleProductsById,
+    selectedExtraProductIds,
+    selectedWeekStart,
+    weekRows,
+  ]);
 
   const addOnTotal = useMemo(() => {
     const other = visibleAddOns
@@ -224,6 +258,10 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
     setSelectedIds([]);
     setSelectedWeekStart(null);
     setSelectedExtraProductIds([]);
+    setSaleExtraProducts([]);
+    setSaleProductsById({});
+    setSalePage(1);
+    setSaleTotal(0);
   }, []);
 
   useEffect(() => {
@@ -262,6 +300,54 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
       cancelled = true;
     };
   }, [open, box?.slug, t]);
+
+  useEffect(() => {
+    if (!open || loadingBoxDetail || !boxDetail || weekOptions.length > 0) {
+      if (weekOptions.length > 0) {
+        setSaleExtraProducts([]);
+        setSaleProductsById({});
+        setSalePage(1);
+        setSaleTotal(0);
+        setLoadingSaleCatalog(false);
+      }
+      return;
+    }
+    let cancelled = false;
+    setLoadingSaleCatalog(true);
+    api
+      .get('/products/on-sale', { params: { page: salePage, limit: ON_SALE_PAGE_SIZE } })
+      .then((res) => {
+        const payload = res.data?.data ?? res.data;
+        const items = payload?.items ?? payload;
+        const meta = payload?.meta;
+        const list = Array.isArray(items) ? items : [];
+        const total = typeof meta?.total === 'number' ? meta.total : list.length;
+        if (cancelled) return;
+        setSaleExtraProducts(list);
+        setSaleTotal(total);
+        setSaleProductsById((prev) => {
+          const next = { ...prev };
+          for (const p of list) {
+            next[String(p.id)] = p;
+          }
+          return next;
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        if (!cancelled) {
+          setSaleExtraProducts([]);
+          setSaleTotal(0);
+          toast.error(t('orderLookup.onSaleProductsLoadFailed'));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSaleCatalog(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, loadingBoxDetail, boxDetail, weekOptions.length, salePage, t]);
 
   /** Nếu đổi gói / giới hạn mà đang chọn quá số loại cho phép → cắt bớt */
   useEffect(() => {
@@ -404,7 +490,9 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
       .filter((item) => selectedIds.includes(addOnIdKey(item.id)))
       .map((item) => ({ product_id: item.id, quantity: 1 }));
 
-    if (selectedWeekStart && selectedExtraProductIds.length > 0) {
+    const includeExtraVeg =
+      selectedExtraProductIds.length > 0 && (isSaleExtraMode || selectedWeekStart);
+    if (includeExtraVeg) {
       selectedExtraProductIds.forEach((pid) => {
         add_on.push({
           product_id: pid,
@@ -418,10 +506,15 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
       return;
     }
 
-    const extraNames = weekRows
-      .filter((r) => selectedExtraProductIds.includes(String(r.product.id)))
-      .map((r) => r.product.name)
-      .join(', ');
+    const extraNames = isSaleExtraMode
+      ? selectedExtraProductIds
+          .map((id) => saleProductsById[id]?.name)
+          .filter((n): n is string => Boolean(n))
+          .join(', ')
+      : weekRows
+          .filter((r) => selectedExtraProductIds.includes(String(r.product.id)))
+          .map((r) => r.product.name)
+          .join(', ');
     const orderInfo =
       extraNames.length > 0
         ? `${t('orderLookup.addOnOrderInfoPrefix')} ${box.name} | ${t('orderLookup.addOnOrderInfoVeg')}: ${extraNames}`
@@ -496,9 +589,7 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
           <p className="mb-3 text-xs text-text3">{t('orderLookup.addOnExtraVegLimitHint', { max: maxExtraVeg })}</p>
           {loadingBoxDetail ? (
             <p className="text-sm text-text3">{t('orderLookup.loading')}</p>
-          ) : weekOptions.length === 0 ? (
-            <p className="text-sm text-text3">{t('orderLookup.addOnNoWeeksInBox')}</p>
-          ) : (
+          ) : weekOptions.length > 0 ? (
             <>
               <label className="block mb-1 text-xs font-medium text-text1">
                 {t('orderLookup.addOnSelectWeekLabel')}
@@ -579,6 +670,79 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
                     </p>
                   ) : null}
                 </>
+              ) : null}
+            </>
+          ) : loadingSaleCatalog ? (
+            <p className="text-sm text-text3">{t('orderLookup.loading')}</p>
+          ) : (
+            <>
+              <p className="mb-2 text-xs text-text3">{t('orderLookup.addOnExtraVegIsSaleHint')}</p>
+              <p className="mb-2 text-xs font-medium text-text2">
+                {t('orderLookup.addOnWeekVegListTitle', { max: maxExtraVeg })}
+              </p>
+              {saleExtraProducts.length === 0 ? (
+                <p className="text-sm text-text3">{t('orderLookup.onSaleProductsEmpty')}</p>
+              ) : (
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  {saleExtraProducts.map((p) => {
+                    const pid = String(p.id);
+                    const checked = selectedExtraProductIds.includes(pid);
+                    const atMax = selectedExtraProductIds.length >= maxExtraVeg;
+                    const disablePick = !checked && atMax;
+                    const imgSrc = productImageSrc(p.images);
+                    const unit = extraVegPricePerUnit(p);
+                    return (
+                      <label
+                        key={pid}
+                        className={`flex items-center gap-3 p-2 border rounded-lg transition-colors ${
+                          disablePick ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                        } ${checked ? 'border-green-600 bg-green-50' : 'border-[#e9ecef] bg-white'}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={disablePick}
+                          onChange={() => toggleExtraProduct(pid)}
+                          className="w-4 h-4 accent-green-600"
+                        />
+                        <img
+                          src={imgSrc || 'https://via.placeholder.com/80'}
+                          alt=""
+                          className="object-cover w-11 h-11 rounded-md shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="m-0 text-sm font-medium text-text1 line-clamp-2">{p.name}</p>
+                          {p.category?.name ? (
+                            <p className="m-0 text-[11px] text-green-700">{p.category.name}</p>
+                          ) : null}
+                        </div>
+                        <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
+                          +{formatVND(unit)}
+                        </p>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              {saleTotal > 0 ? (
+                <div className="flex justify-end mt-3">
+                  <Pagination
+                    size="small"
+                    current={salePage}
+                    pageSize={ON_SALE_PAGE_SIZE}
+                    total={saleTotal}
+                    onChange={(p) => setSalePage(p)}
+                    showSizeChanger={false}
+                  />
+                </div>
+              ) : null}
+              {selectedExtraProductIds.length > 0 ? (
+                <p className="mt-2 text-xs text-text3">
+                  {t('orderLookup.addOnRauThemSubtotal', {
+                    count: selectedExtraProductIds.length,
+                    total: formatVND(extraVegLineTotal),
+                  })}
+                </p>
               ) : null}
             </>
           )}

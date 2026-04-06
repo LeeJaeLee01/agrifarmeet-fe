@@ -70,6 +70,11 @@ const AdminLayout: React.FC = () => {
       label: <Link to="/admin/box-vegetables">{t('admin.boxVegetables')}</Link>,
     },
     {
+      key: 'experience-weekly',
+      icon: <CarryOutOutlined />,
+      label: <Link to="/admin/experience-weekly">{t('admin.experienceWeekly')}</Link>,
+    },
+    {
       key: 'feedbacks',
       icon: <CommentOutlined />,
       label: <Link to="/admin/feedbacks">{t('admin.feedbacks')}</Link>,

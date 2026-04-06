@@ -11,6 +11,7 @@ import { formatDate } from '../../utils/helper';
 import { toast } from 'react-toastify';
 import './OrderLookup.scss';
 import OrderLookupAddOnModal, { type OrderLookupAddOnBox } from './OrderLookupAddOnModal';
+import OrderLookupSubscriptionVegModal from './OrderLookupSubscriptionVegModal';
 import UserBoxDetailsModal from './UserBoxDetailsModal';
 
 const ORDER_LOOKUP_PHONE_KEY = 'farme_order_lookup_phone';
@@ -90,6 +91,7 @@ const OrderLookup: React.FC = () => {
   const [deliveryDetails, setDeliveryDetails] = useState<any | null>(null);
   const [loadingDeliveryDetails, setLoadingDeliveryDetails] = useState(false);
   const [addOnBox, setAddOnBox] = useState<OrderLookupAddOnBox | null>(null);
+  const [vegBox, setVegBox] = useState<OrderLookupAddOnBox | null>(null);
   const [viewVegUserBoxId, setViewVegUserBoxId] = useState<string | null>(null);
 
 
@@ -250,22 +252,40 @@ const OrderLookup: React.FC = () => {
                             delivery.status === 'delivering') && (
                             <div className="order-card-actions order-card-actions--row">
                               {showBasicFlexibleAddOn ? (
-                                <Button
-                                  type="default"
-                                  size="small"
-                                  className="order-lookup-addon-btn"
-                                  onClick={() =>
-                                    setAddOnBox({
-                                      id: String(box.id),
-                                      slug: String(boxPathId),
-                                      name: String(box.name ?? ''),
-                                      price: box.price != null ? Number(box.price) : null,
-                                      userBoxId: String(userBox.id),
-                                    })
-                                  }
-                                >
-                                  {t('orderLookup.addOn')}
-                                </Button>
+                                <>
+                                  <Button
+                                    type="default"
+                                    size="small"
+                                    className="order-lookup-addon-btn"
+                                    onClick={() =>
+                                      setAddOnBox({
+                                        id: String(box.id),
+                                        slug: String(boxPathId),
+                                        name: String(box.name ?? ''),
+                                        price: box.price != null ? Number(box.price) : null,
+                                        userBoxId: String(userBox.id),
+                                      })
+                                    }
+                                  >
+                                    {t('orderLookup.addOn')}
+                                  </Button>
+                                  <Button
+                                    type="default"
+                                    size="small"
+                                    className="order-lookup-veg-btn"
+                                    onClick={() =>
+                                      setVegBox({
+                                        id: String(box.id),
+                                        slug: String(boxPathId),
+                                        name: String(box.name ?? ''),
+                                        price: box.price != null ? Number(box.price) : null,
+                                        userBoxId: String(userBox.id),
+                                      })
+                                    }
+                                  >
+                                    {t('orderLookup.addVegButton')}
+                                  </Button>
+                                </>
                               ) : null}
                               {boxPathId ? (
                                 <Button
@@ -304,6 +324,12 @@ const OrderLookup: React.FC = () => {
         onClose={() => setAddOnBox(null)}
         box={addOnBox}
         defaultPhone={phone}
+      />
+
+      <OrderLookupSubscriptionVegModal
+        open={!!vegBox}
+        onClose={() => setVegBox(null)}
+        box={vegBox}
       />
 
       <Modal

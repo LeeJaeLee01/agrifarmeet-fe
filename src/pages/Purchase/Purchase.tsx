@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { Input, Button, Select, Modal, Radio } from 'antd';
+import { Input, Button, Select, Modal, Radio, Spin } from 'antd';
 import Section from '../../components/Section/Section';
 import './Purchase.scss';
 import { toast } from 'react-toastify';
@@ -17,6 +17,11 @@ import type { TBox } from '../../types/TBox';
 import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
 import { pickTrialWeekProductRows } from '../../utils/trialWeekProductRows';
+import {
+  fetchExperienceWeeklyPublic,
+  type ExperienceWeeklyPublicResponse,
+} from '../../api/experienceWeeklyPublic';
+import type { TBoxProductRow } from '../../types/TBox';
 import {
   getSubscriptionComboAmount,
   isSubscriptionComboSlug,
@@ -55,6 +60,43 @@ type TAddOnProduct = TProduct & {
 
 const { Option } = Select;
 
+const EXPERIENCE_BOX_SLUG = 'goi-trai-nghiem';
+
+function mapExperienceWeeklyToRows(data: ExperienceWeeklyPublicResponse): TBoxProductRow[] {
+  return data.items.map((item) => ({
+    id: item.id,
+    boxId: data.box.id,
+    productId: item.productId,
+    quantity: item.quantity,
+    unit: item.unit,
+    isOptional: item.isOptional,
+    weekStartDate: item.weekStartDate,
+    createdAt: '',
+    updatedAt: '',
+    product: {
+      id: item.product.id,
+      name: item.product.name,
+      slug: item.product.slug,
+      description: item.product.description ?? '',
+      weight: item.product.weight ?? 0,
+      unit: item.product.unit ?? undefined,
+      images: item.product.images ?? [],
+      categoryId: item.product.category?.id ?? '',
+      status: 'active',
+      createdAt: '',
+      updatedAt: '',
+    },
+    category: item.product.category
+      ? {
+          id: item.product.category.id,
+          name: item.product.category.name,
+          slug: item.product.category.slug,
+          image: '',
+        }
+      : undefined,
+  }));
+}
+
 const PurchasePage: React.FC = () => {
   const { t, i18n } = useTranslation();
   useTitle(t('purchase.title'));
@@ -86,9 +128,14 @@ const PurchasePage: React.FC = () => {
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [subscriptionWeeks, setSubscriptionWeeks] = useState<6 | 8>(6);
+  const [experienceWeeklyRows, setExperienceWeeklyRows] = useState<TBoxProductRow[]>([]);
+  const [experienceWeekStartFromApi, setExperienceWeekStartFromApi] = useState<string | null>(null);
+  const [experienceWeeklyLoading, setExperienceWeeklyLoading] = useState(false);
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+
+  const isExperiencePurchaseRoute = String(slug || '').toLowerCase() === EXPERIENCE_BOX_SLUG;
 
   const purchaseProductRows = useMemo(
     () => (boxInfo ? getBoxProductRows(boxInfo as TBox) : []),
@@ -109,13 +156,26 @@ const PurchasePage: React.FC = () => {
 
   /** Danh sách rau/sản phẩm theo tuần giao cho cột “Rau tuần này” */
   const weekProductRows = useMemo(() => {
+    if (isExperiencePurchaseRoute) {
+      return experienceWeeklyRows;
+    }
     if (!purchaseProductRows.length) return [];
     const withWeek = purchaseProductRows.filter((r) => r.weekStartDate);
     if (withWeek.length) return pickTrialWeekProductRows(withWeek);
     return purchaseProductRows;
-  }, [purchaseProductRows]);
+  }, [isExperiencePurchaseRoute, experienceWeeklyRows, purchaseProductRows]);
 
   const weekRangeLabel = useMemo(() => {
+    if (isExperiencePurchaseRoute && experienceWeekStartFromApi) {
+      const start = new Date(experienceWeekStartFromApi);
+      if (Number.isNaN(start.getTime())) return null;
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      const loc = i18n.language?.startsWith('vi') ? 'vi-VN' : 'en-US';
+      const fmt = (d: Date) =>
+        d.toLocaleDateString(loc, { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return `${fmt(start)} – ${fmt(end)}`;
+    }
     const first = weekProductRows[0];
     if (!first?.weekStartDate) return null;
     const start = new Date(first.weekStartDate);
@@ -126,7 +186,7 @@ const PurchasePage: React.FC = () => {
     const fmt = (d: Date) =>
       d.toLocaleDateString(loc, { day: '2-digit', month: '2-digit', year: 'numeric' });
     return `${fmt(start)} – ${fmt(end)}`;
-  }, [weekProductRows, i18n.language]);
+  }, [isExperiencePurchaseRoute, experienceWeekStartFromApi, weekProductRows, i18n.language]);
 
   /** Add-on chỉ áp dụng gói trải nghiệm / thử nghiệm; gói khác không hiển thị */
   const visibleAddOns = useMemo(() => {
@@ -148,9 +208,10 @@ const PurchasePage: React.FC = () => {
     return isSubscriptionComboSlug(boxInfo?.slug);
   }, [boxInfo?.slug, isTrialBox]);
 
-  /** Không hiển thị “Rau tuần này”: trải nghiệm, gói cơ bản, gói linh hoạt */
+  /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-trai-nghiem`) qua API riêng; các gói khác theo rule cũ */
   const showVeggiesThisWeek = useMemo(() => {
     const routeSlug = String(slug || '').toLowerCase();
+    if (routeSlug === EXPERIENCE_BOX_SLUG) return true;
     if (routeSlug.includes('trai-nghiem')) return false;
     if (
       routeSlug.includes('co-ban') ||
@@ -167,6 +228,35 @@ const PurchasePage: React.FC = () => {
     if (isSubscriptionComboPurchase) return false;
     return true;
   }, [slug, boxInfo, isTrialBox, isSubscriptionComboPurchase]);
+
+  useEffect(() => {
+    if (!isExperiencePurchaseRoute) {
+      setExperienceWeeklyRows([]);
+      setExperienceWeekStartFromApi(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        setExperienceWeeklyLoading(true);
+        const data = await fetchExperienceWeeklyPublic();
+        if (cancelled) return;
+        setExperienceWeekStartFromApi(data.weekStartDate);
+        setExperienceWeeklyRows(mapExperienceWeeklyToRows(data));
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) {
+          setExperienceWeekStartFromApi(null);
+          setExperienceWeeklyRows([]);
+        }
+      } finally {
+        if (!cancelled) setExperienceWeeklyLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isExperiencePurchaseRoute]);
 
   const payableAmount = useMemo(() => {
     if (boxInfo?.slug && isSubscriptionComboSlug(boxInfo.slug)) {
@@ -878,7 +968,11 @@ const PurchasePage: React.FC = () => {
                 {weekRangeLabel ? (
                   <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
                 ) : null}
-                {!boxInfo ? (
+                {isExperiencePurchaseRoute && experienceWeeklyLoading ? (
+                  <div className="py-6 flex justify-center">
+                    <Spin />
+                  </div>
+                ) : !boxInfo && !isExperiencePurchaseRoute ? (
                   <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
                 ) : weekProductRows.length === 0 ? (
                   <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
@@ -902,6 +996,12 @@ const PurchasePage: React.FC = () => {
                             <p className="m-0 text-[10px] leading-snug text-text3">
                               {t('purchase.netWeight')}:{' '}
                               <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
+                            </p>
+                            <p className="m-0 text-[10px] leading-snug text-text3">
+                              {t('purchase.quantity')}:{' '}
+                              <span>
+                                {bp.quantity} {bp.unit}
+                              </span>
                             </p>
                           </div>
                         </li>
