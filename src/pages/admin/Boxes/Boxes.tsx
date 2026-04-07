@@ -13,9 +13,13 @@ import {
   InputNumber,
   Card,
   Tag,
+  Upload,
+  Image,
+  Checkbox
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { formatDate, formatVND, formatWeight } from '../../../utils/helper';
@@ -25,10 +29,14 @@ interface Box {
   id: string;
   name: string;
   description: string;
+  shortTitle?: string;
+  includes?: string;
+  duration?: number;
   status: string;
   price: number;
   totalWeight: number;
-  image: string;
+  image?: string;
+  images?: string | string[];
   productIds: string[];
   expiredAt: number;
   createdAt: string;
@@ -49,20 +57,25 @@ const Boxes: React.FC = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [search, setSearch] = useState<string>('');
 
-  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
-  const imageValue = Form.useWatch('image', form);
+  const [form] = Form.useForm();
 
   // Normalize dữ liệu box trả về từ API
   const normalizeBox = (raw: any): Box => {
     return {
       id: raw.id,
       name: raw.name,
+      shortTitle: raw.shortTitle,
       description: raw.description,
+      includes: raw.includes,
+      duration: raw.duration ?? raw.expiredAt,
       status: raw.status,
       price: raw.price,
       totalWeight: raw.totalWeight,
       image: raw.image,
+      images: raw.images,
       expiredAt: raw.expiredAt,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
@@ -103,22 +116,45 @@ const Boxes: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-      values.totalWeight = Number(values.totalWeight);
-      values.price = Number(values.price);
-      /** Sản phẩm trong gói quản lý tại /admin/box-vegetables — không gọi GET /products */
+      
+      const formData = new FormData();
+      Object.keys(values).forEach((key) => {
+        if (key === 'clearImages' || key === 'image' || key === 'images') return;
+        if (values[key] !== undefined && values[key] !== null) {
+          if (key === 'productIds') {
+            // Handled below
+          } else {
+            formData.append(key, String(values[key]));
+          }
+        }
+      });
+
+      const selectedFiles = fileList
+        .map((f) => f.originFileObj)
+        .filter(Boolean) as File[];
+
+      selectedFiles.forEach((f) => {
+        formData.append('images', f);
+      });
+
       if (isEdit && currentBox) {
-        values.productIds = currentBox.productIds;
-        await api.put(`/boxes/${currentBox.id}`, values, { withAuth: true });
+        (currentBox.productIds || []).forEach((pid) => formData.append('productIds[]', pid));
+        let url = `/admin/boxes/${currentBox.id}`;
+        if (selectedFiles.length > 0 || values.clearImages) {
+          url += '?mode=replace';
+        }
+        await api.put(url, formData, { withAuth: true });
         toast.success('Cập nhật gói thành công!');
       } else {
-        values.productIds = [];
-        await api.post('/boxes', values, { withAuth: true });
+        await api.post('/admin/boxes', formData, { withAuth: true });
         toast.success('Thêm gói thành công!');
       }
 
       setOpen(false);
       form.resetFields();
       setCurrentBox(null);
+      setFileList([]);
+      setExistingImages([]);
       setIsEdit(false);
       fetchBoxes(pagination.current, pagination.pageSize, search);
     } catch (error) {
@@ -132,7 +168,7 @@ const Boxes: React.FC = () => {
   // Delete box
   const handleDelete = async (id: string) => {
     try {
-      await api.delete(`/boxes/${id}`, { withAuth: true });
+      await api.delete(`/admin/boxes/${id}`, { withAuth: true });
       toast.success('Xóa gói thành công!');
       fetchBoxes(pagination.current, pagination.pageSize, search);
     } catch (error) {
@@ -145,7 +181,21 @@ const Boxes: React.FC = () => {
     setIsEdit(true);
     setCurrentBox(box);
     setOpen(true);
-    form.setFieldsValue(box); // productIds đã chuẩn hóa rồi
+    form.setFieldsValue({
+      ...box,
+      clearImages: false,
+    });
+    
+    let imgs: string[] = [];
+    if (Array.isArray(box.images)) {
+      imgs = box.images;
+    } else if (typeof box.images === 'string') {
+      imgs = [box.images];
+    } else if (box.image) {
+      imgs = [box.image];
+    }
+    setExistingImages(imgs);
+    setFileList([]);
   };
 
   const columns: ColumnsType<Box> = [
@@ -161,7 +211,15 @@ const Boxes: React.FC = () => {
       dataIndex: 'image',
       key: 'image',
       width: 100,
-      render: (url: string) => <img src={url} alt="box" className="object-cover w-16 h-16" />,
+      render: (url: string, record: Box) => {
+        let finalUrl = url;
+        if (!finalUrl && Array.isArray(record.images) && record.images.length > 0) {
+          finalUrl = record.images[0];
+        } else if (!finalUrl && typeof record.images === 'string') {
+          finalUrl = record.images;
+        }
+        return finalUrl ? <img src={finalUrl} alt="box" className="object-cover w-16 h-16" /> : <span className="text-gray-400">—</span>;
+      },
     },
     {
       title: 'Tên gói',
@@ -271,6 +329,8 @@ const Boxes: React.FC = () => {
             setIsEdit(false);
             setCurrentBox(null);
             form.resetFields();
+            setExistingImages([]);
+            setFileList([]);
             setOpen(true);
           }}
         >
@@ -304,6 +364,8 @@ const Boxes: React.FC = () => {
           form.resetFields();
           setIsEdit(false);
           setCurrentBox(null);
+          setFileList([]);
+          setExistingImages([]);
         }}
         onOk={handleAddOrEditBox}
         okButtonProps={{ loading: submitting, disabled: submitting }}
@@ -318,6 +380,10 @@ const Boxes: React.FC = () => {
             rules={[{ required: true, message: 'Vui lòng nhập tên gói' }]}
           >
             <Input placeholder="Nhập tên gói" />
+          </Form.Item>
+
+          <Form.Item name="shortTitle" label="Tiêu đề ngắn">
+            <Input placeholder="Nhập tiêu đề ngắn" />
           </Form.Item>
 
           <Form.Item name="description" label="Mô tả">
@@ -352,31 +418,33 @@ const Boxes: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            name="totalWeight"
-            label="Tổng khối lượng (g)"
-            rules={[{ required: true, message: 'Vui lòng nhập khối lượng' }]}
-          >
-            <InputNumber className="w-full" min={0} placeholder="Nhập tổng khối lượng gói" />
+          {isEdit && (
+            <Form.Item name="clearImages" valuePropName="checked">
+              <Checkbox>Xóa ảnh hiện có (nếu không chọn ảnh mới)</Checkbox>
+            </Form.Item>
+          )}
+
+          <Form.Item label="Ảnh gói">
+            <Upload
+              multiple
+              beforeUpload={() => false}
+              fileList={fileList}
+              onChange={({ fileList: fl }) => setFileList(fl)}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+            </Upload>
           </Form.Item>
 
-          <Form.Item name="image" label="Ảnh (URL)">
-            <Input placeholder="Nhập đường dẫn ảnh" />
-          </Form.Item>
-
-          {/* Preview ảnh chỉ hiện khi có link */}
-          {imageValue && (
-            <Card
-              hoverable
-              style={{
-                width: 240,
-                height: 300,
-                backgroundImage: `url('${imageValue}')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                marginBottom: 16,
-              }}
-            />
+          {isEdit && existingImages.length > 0 && (
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">Ảnh hiện có</div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {existingImages.slice(0, 8).map((src, i) => (
+                  <Image key={`existing-${i}`} src={src} width={72} height={48} className="object-cover rounded" />
+                ))}
+              </div>
+            </div>
           )}
 
           <p className="mb-4 text-sm text-gray-600">
@@ -388,11 +456,11 @@ const Boxes: React.FC = () => {
           </p>
 
           <Form.Item
-            name="expiredAt"
-            label="Thời hạn (tuần)"
-            rules={[{ required: true, message: 'Nhập số ngày hết hạn' }]}
+            name="duration"
+            label="Thời hạn (ngày)"
+            rules={[{ required: true, message: 'Nhập số ngày (vd: 30)' }]}
           >
-            <InputNumber className="w-full" min={1} placeholder="Nhập thời hạn" />
+            <InputNumber className="w-full" min={1} placeholder="Nhập số ngày" />
           </Form.Item>
         </Form>
       </Modal>

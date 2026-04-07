@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Card } from 'antd';
+import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Upload, Image, Checkbox } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import api from '../../../utils/api';
 import { formatDate, formatWeight } from '../../../utils/helper';
@@ -25,9 +26,10 @@ const Products: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [categorySlug, setCategorySlug] = useState<string>('');
 
-  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
-  const imageValue = Form.useWatch('image', form);
+  const [form] = Form.useForm();
 
   const jsonHeaders = { Accept: 'application/json' as const };
 
@@ -97,18 +99,40 @@ const Products: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-      values.weight = Number(values.weight);
+      
+      const formData = new FormData();
+      formData.append('categoryId', values.categoryId);
+      formData.append('name', values.name);
+      formData.append('weight', String(values.weight));
+      if (values.description) {
+        formData.append('description', values.description);
+      }
+
+      const selectedFiles = fileList
+        .map((f) => f.originFileObj)
+        .filter(Boolean) as File[];
+
+      selectedFiles.forEach((f) => {
+        formData.append('images', f);
+      });
+
       if (isEdit && currentProduct) {
-        await api.put(`/products/${currentProduct.id}`, values, { withAuth: true });
+        let url = `/admin/products/${currentProduct.id}`;
+        if (selectedFiles.length > 0 || values.clearImages) {
+          url += '?mode=replace';
+        }
+        await api.put(url, formData, { withAuth: true });
         toast.success('Cập nhật sản phẩm thành công!');
       } else {
-        await api.post('/products', values, { withAuth: true });
+        await api.post('/admin/products', formData, { withAuth: true });
         toast.success('Thêm sản phẩm thành công!');
       }
 
       setOpen(false);
       form.resetFields();
       setCurrentProduct(null);
+      setFileList([]);
+      setExistingImages([]);
       setIsEdit(false);
 
       fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
@@ -123,7 +147,7 @@ const Products: React.FC = () => {
   // Xóa sản phẩm
   const handleDelete = async (id: string) => {
     try {
-      await api.delete(`/products/${id}`, { withAuth: true });
+      await api.delete(`/admin/products/${id}`, { withAuth: true });
       toast.success('Xóa sản phẩm thành công!');
       fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
     } catch (error) {
@@ -215,10 +239,21 @@ const Products: React.FC = () => {
               form.setFieldsValue({
                 categoryId: record.categoryId,
                 name: record.name,
-                image: record.image,
                 description: record.description,
                 weight: record.weight,
+                clearImages: false,
               });
+              
+              let imgs: string[] = [];
+              if (Array.isArray(record.images)) {
+                imgs = record.images;
+              } else if (typeof record.images === 'string') {
+                imgs = [record.images];
+              } else if (record.image) {
+                imgs = [record.image];
+              }
+              setExistingImages(imgs);
+              setFileList([]);
             }}
           />
           <Popconfirm
@@ -266,6 +301,8 @@ const Products: React.FC = () => {
             setIsEdit(false);
             setCurrentProduct(null);
             form.resetFields();
+            setExistingImages([]);
+            setFileList([]);
             setOpen(true);
           }}
         >
@@ -300,6 +337,8 @@ const Products: React.FC = () => {
           form.resetFields();
           setIsEdit(false);
           setCurrentProduct(null);
+          setFileList([]);
+          setExistingImages([]);
         }}
         onOk={handleAddOrEditProduct}
         okButtonProps={{ loading: submitting, disabled: submitting }}
@@ -329,26 +368,33 @@ const Products: React.FC = () => {
             <Input placeholder="Nhập tên sản phẩm" />
           </Form.Item>
 
-          <Form.Item
-            name="image"
-            label="Ảnh (URL)"
-            rules={[{ required: true, message: 'Vui lòng nhập URL ảnh' }]}
-          >
-            <Input placeholder="Dán link ảnh vào đây" />
+          {isEdit && (
+            <Form.Item name="clearImages" valuePropName="checked">
+              <Checkbox>Xóa ảnh hiện có (nếu không chọn ảnh mới)</Checkbox>
+            </Form.Item>
+          )}
+
+          <Form.Item label="Ảnh sản phẩm">
+            <Upload
+              multiple
+              beforeUpload={() => false}
+              fileList={fileList}
+              onChange={({ fileList: fl }) => setFileList(fl)}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+            </Upload>
           </Form.Item>
 
-          {imageValue && (
-            <Card
-              hoverable
-              style={{
-                width: 240,
-                height: 300,
-                backgroundImage: `url('${imageValue}')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                marginBottom: 16,
-              }}
-            />
+          {isEdit && existingImages.length > 0 && (
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">Ảnh hiện có</div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {existingImages.slice(0, 8).map((src, i) => (
+                  <Image key={`existing-${i}`} src={src} width={72} height={48} className="object-cover rounded" />
+                ))}
+              </div>
+            </div>
           )}
 
           <Form.Item name="description" label="Mô tả">
