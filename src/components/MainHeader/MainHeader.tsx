@@ -111,6 +111,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/introduce" className={navLinkClass}>
                 {t('common.aboutUs')}
               </NavLink>
+              <NavLink to="/introduce#cam-ket" className={navLinkClass}>
+                {t('common.policy')}
+              </NavLink>
+              <NavLink to="/introduce#hanh-trinh" className={navLinkClass}>
+                {t('common.process')}
+              </NavLink>
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}
               </NavLink>
@@ -168,8 +174,14 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/" className={navLinkClass}>
               {t('common.home')}
             </NavLink>
-            <NavLink to="/introduce" className={navLinkClass}>
+            <NavLink to="/introduce" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.introduce')}
+            </NavLink>
+            <NavLink to="/introduce#cam-ket" className={navLinkClass} onClick={() => setOpen(false)}>
+              {t('common.policy')}
+            </NavLink>
+            <NavLink to="/introduce#hanh-trinh" className={navLinkClass} onClick={() => setOpen(false)}>
+              {t('common.process')}
             </NavLink>
             <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.news')}
