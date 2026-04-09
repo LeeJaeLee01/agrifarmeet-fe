@@ -19,8 +19,7 @@ import { isExperienceBoxBySlug, isFlexibleBoxBySlug } from '../../utils/boxType'
 
 /**
  * Mapping mới từ BE:
- * - goi-trai-nghiem => Gói Cơ Bản
- * - goi-co-ban      => Gói Tiêu Chuẩn
+ * - goi-co-ban   => Gói Cơ Bản (đổi từ gói trải nghiệm)
  * - goi-linh-hoat   => Gói Linh Hoạt
  *
  * Chữ "chỉ" trên Landing áp dụng cho Cơ Bản + Linh Hoạt.
@@ -55,6 +54,7 @@ const Landing: React.FC = () => {
   const [isTitleVisible] = useState(true);
   const [isPartnersVisible] = useState(true);
   const [isCustomerReviewVisible] = useState(true);
+  const [weeklySlidesPerView, setWeeklySlidesPerView] = useState(5);
   const weeklyRef = useRef<HTMLDivElement>(null);
   const partnersRef = useRef<HTMLDivElement>(null);
   const partnersGridRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +95,22 @@ const Landing: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const updateWeeklyPerView = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) {
+        setWeeklySlidesPerView(5);
+      } else if (w >= 768) {
+        setWeeklySlidesPerView(3);
+      } else {
+        setWeeklySlidesPerView(2);
+      }
+    };
+    updateWeeklyPerView();
+    window.addEventListener('resize', updateWeeklyPerView);
+    return () => window.removeEventListener('resize', updateWeeklyPerView);
+  }, []);
+
+  useEffect(() => {
     if (window.location.hash !== '#landing-packages') return;
     const timer = window.setTimeout(() => {
       solutionsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -105,9 +121,11 @@ const Landing: React.FC = () => {
   useEffect(() => {
     const fetchWeeklyProducts = async () => {
       try {
-        const res = await api.get('/products/weekly');
+        const res = await api.get('/products/is-week');
         const rawData = res.data as any;
-        const productsData = Array.isArray(rawData)
+        const productsData = Array.isArray(rawData?.data?.items)
+          ? rawData.data.items
+          : Array.isArray(rawData)
           ? rawData
           : Array.isArray(rawData.data)
             ? rawData.data
@@ -595,7 +613,7 @@ const Landing: React.FC = () => {
         </section>
 
         {/* Weekly Products Section */}
-        {/* <section ref={weeklyRef} className="weekly-products-section">
+        <section ref={weeklyRef} className="weekly-products-section">
           <div className="container">
             <h2 className={`section-title ${isWeeklyVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
               {t('landing.weeklyTitle')}
@@ -607,40 +625,87 @@ const Landing: React.FC = () => {
               {t('landing.weeklySubtitle')}
             </p>
 
-            <SwiperList
-              className="products-swiper"
-              slidesPerViewConfig={{
-                0: { slidesPerView: 1 },
-                768: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-              }}
-              spaceBetween={20}
-            >
-              {products.map((product) => (
-                <SwiperSlide key={product.id}>
-                  <div className="product-item">
-                    <div className="product-image">
-                      <img
-                        src={
-                          (Array.isArray(product.images)
-                            ? product.images[0]
-                            : product.images
-                              ? JSON.parse(product.images || '[]')[0]
-                              : product.image) || farmerImageUrl
-                        }
-                        alt={product.name}
-                      />
+            {products.length === 0 ? (
+              <p className="text-center text-text3">{t('common.noData')}</p>
+            ) : products.length <= weeklySlidesPerView ? (
+              <div className="weekly-products-static">
+                {products.map((product) => {
+                  const imgSrc = (() => {
+                    const first = Array.isArray(product.images)
+                      ? product.images[0]
+                      : typeof product.images === 'string'
+                        ? (() => {
+                            try {
+                              const parsed = JSON.parse(product.images || '[]');
+                              return Array.isArray(parsed) && parsed[0] ? parsed[0] : product.images;
+                            } catch {
+                              return product.images;
+                            }
+                          })()
+                        : product.image || '';
+                    if (!first) return farmerImageUrl;
+                    if (/^https?:\/\//i.test(first)) return first;
+                    const base =
+                      process.env.REACT_APP_API_URL ||
+                      (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3030');
+                    return `${base.replace(/\/$/, '')}/${String(first).replace(/^\//, '')}`;
+                  })();
+                  return (
+                    <div key={product.id} className="product-item">
+                      <div className="product-image">
+                        <img src={imgSrc} alt={product.name} />
+                      </div>
+                      <h3 className="product-name">{product.name}</h3>
                     </div>
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-description">
-                      {product.description || t('landing.productDefaultDescription')}
-                    </p>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </SwiperList>
+                  );
+                })}
+              </div>
+            ) : (
+              <SwiperList
+                className="products-swiper"
+                slidesPerViewConfig={{
+                  0: { slidesPerView: 2 },
+                  768: { slidesPerView: 3 },
+                  1024: { slidesPerView: 5 },
+                }}
+                spaceBetween={24}
+              >
+                {products.map((product) => {
+                  const imgSrc = (() => {
+                    const first = Array.isArray(product.images)
+                      ? product.images[0]
+                      : typeof product.images === 'string'
+                        ? (() => {
+                            try {
+                              const parsed = JSON.parse(product.images || '[]');
+                              return Array.isArray(parsed) && parsed[0] ? parsed[0] : product.images;
+                            } catch {
+                              return product.images;
+                            }
+                          })()
+                        : product.image || '';
+                    if (!first) return farmerImageUrl;
+                    if (/^https?:\/\//i.test(first)) return first;
+                    const base =
+                      process.env.REACT_APP_API_URL ||
+                      (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3030');
+                    return `${base.replace(/\/$/, '')}/${String(first).replace(/^\//, '')}`;
+                  })();
+                  return (
+                    <SwiperSlide key={product.id}>
+                      <div className="product-item">
+                        <div className="product-image">
+                          <img src={imgSrc} alt={product.name} />
+                        </div>
+                        <h3 className="product-name">{product.name}</h3>
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
+              </SwiperList>
+            )}
           </div>
-        </section> */}
+        </section>
 
         {/* Partners Section */}
         <section ref={partnersRef} className="partners-section">

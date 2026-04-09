@@ -31,11 +31,11 @@ export type ExperienceWeeklyPublicResponse = {
 };
 
 /**
- * GET `/boxes/goi-trai-nghiem/weekly-products` — rau tuần cho gói trải nghiệm (public).
+ * GET `/boxes/goi-co-ban/weekly-products` — rau tuần cho gói trải nghiệm (public).
  * `weekStartDate` tùy chọn (YYYY-MM-DD, Thứ Hai).
  */
 export async function fetchExperienceWeeklyPublic(weekStartDate?: string): Promise<ExperienceWeeklyPublicResponse> {
-  const res = await api.get<ExperienceWeeklyPublicResponse>('/boxes/goi-trai-nghiem/weekly-products', {
+  const res = await api.get<ExperienceWeeklyPublicResponse>('/boxes/goi-co-ban/weekly-products', {
     params: weekStartDate ? { weekStartDate } : {},
   });
   return getData(res);

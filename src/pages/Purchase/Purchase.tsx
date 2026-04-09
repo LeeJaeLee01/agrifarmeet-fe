@@ -54,6 +54,7 @@ type PurchaseForm = {
   district: string | null;
   ward: string | null;
   addressDetail: string;
+  note?: string;
   timeActive: string;
   timeEnd: string;
 };
@@ -203,7 +204,7 @@ const PurchasePage: React.FC = () => {
     return isSubscriptionComboSlug(boxInfo?.slug);
   }, [boxInfo?.slug, isTrialBox]);
 
-  /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-trai-nghiem`) qua API riêng; các gói khác theo rule cũ */
+  /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-co-ban`) qua API riêng; các gói khác theo rule cũ */
   const showVeggiesThisWeek = useMemo(() => {
     const routeSlug = String(slug || '').toLowerCase();
     if (routeSlug === BOX_SLUG_EXPERIENCE) return true;
@@ -477,6 +478,7 @@ const PurchasePage: React.FC = () => {
         phone: data.phone,
         address: `${data.province}, ${data.district}, ${data.ward}`,
         address_detail: data.addressDetail,
+        note: (data.note || '').trim(),
         box_id: boxInfo.id,
         add_on: visibleAddOns
           .filter((item) => selectedAddOnIds.includes(item.id))
@@ -738,6 +740,21 @@ const PurchasePage: React.FC = () => {
                 )}
               </div>
 
+              <div className="mb-6">
+                <label className="inline-block mb-1 text-sm font-medium">Ghi chú</label>
+                <Controller
+                  name="note"
+                  control={control}
+                  render={({ field }) => (
+                    <Input.TextArea
+                      {...field}
+                      placeholder="Ví dụ như dị ứng với rau gì"
+                      autoSize={{ minRows: 3, maxRows: 5 }}
+                    />
+                  )}
+                />
+              </div>
+
               {visibleAddOns.length > 0 ? (
                 <div className="pb-5 mb-5 border-b border-border lg:hidden">
                   <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
@@ -888,6 +905,44 @@ const PurchasePage: React.FC = () => {
                           </span>
                         </Radio>
                       </Radio.Group>
+                    </div>
+                  ) : null}
+
+                  {isSubscriptionComboPurchase ? (
+                    <div className="p-4 mb-5 border border-green-100 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50">
+                      <h3 className="mb-1 text-sm font-semibold text-green-800 lg:text-base">
+                        Hướng dẫn đặt hàng và giao hàng
+                      </h3>
+                      <p className="mb-3 text-xs leading-relaxed text-green-700 lg:text-sm">
+                        Áp dụng cho gói cơ bản và gói linh hoạt.
+                      </p>
+                      <ul className="m-0 space-y-2 list-none p-0">
+                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
+                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
+                            1
+                          </span>
+                          <span>Các gói rau sẽ được giao 1 tuần/lần vào sáng Chủ Nhật.</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
+                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
+                            2
+                          </span>
+                          <span>
+                            Ngay khi khách hàng đặt mua gói cơ bản/gói linh hoạt, khách hàng sẽ được add vào group
+                            Zalo để cập nhật danh sách rau theo tuần.
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
+                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
+                            3
+                          </span>
+                          <span>
+                            Hàng tuần Farme sẽ gửi danh sách rau kèm link chọn rau. Khách hàng có thể đặt qua link
+                            hoặc liên hệ trực tiếp bộ phận CSKH để chọn theo ý thích. Nếu khách hàng không chọn rau,
+                            Farme sẽ thay khách hàng lựa chọn những loại rau tươi ngon nhất theo mùa.
+                          </span>
+                        </li>
+                      </ul>
                     </div>
                   ) : null}
 

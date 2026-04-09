@@ -1,4 +1,4 @@
-export const BOX_SLUG_EXPERIENCE = 'goi-trai-nghiem';
+export const BOX_SLUG_EXPERIENCE = 'goi-co-ban';
 export const BOX_SLUG_STANDARD = 'goi-co-ban';
 export const BOX_SLUG_FLEXIBLE = 'goi-linh-hoat';
 
@@ -23,7 +23,7 @@ export function isFlexibleBoxBySlug(slug: string | null | undefined): boolean {
 }
 
 export function isSubscriptionComboBoxBySlug(slug: string | null | undefined): boolean {
-  return isStandardBoxBySlug(slug) || isFlexibleBoxBySlug(slug);
+  return isFlexibleBoxBySlug(slug);
 }
 
 export function isExperienceBox(box: BoxLike | null | undefined): boolean {

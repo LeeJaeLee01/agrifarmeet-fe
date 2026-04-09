@@ -33,7 +33,7 @@ export interface ExperienceWeeklyListResponse {
   items: ExperienceWeeklyProductRow[];
 }
 
-/** Danh sách rau trong tuần cho gói trải nghiệm (`goi-trai-nghiem`). `weekStartDate`: YYYY-MM-DD (Thứ Hai). */
+/** Danh sách rau trong tuần cho gói trải nghiệm (`goi-co-ban`). `weekStartDate`: YYYY-MM-DD (Thứ Hai). */
 export async function fetchExperienceWeeklyProducts(weekStartDate: string): Promise<ExperienceWeeklyListResponse> {
   const res = await api.get<ExperienceWeeklyListResponse>('/admin/experience-weekly/box-products', {
     params: { weekStartDate },

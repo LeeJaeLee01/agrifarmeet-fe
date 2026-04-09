@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Upload, Image, Checkbox } from 'antd';
+import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Upload, Image, Checkbox, Switch, Tabs } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
@@ -17,6 +17,7 @@ const Products: React.FC = () => {
   const [categories, setCategories] = useState<TCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState(false);
+  const [updatingWeekIds, setUpdatingWeekIds] = useState<Record<string, boolean>>({});
 
   const [open, setOpen] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -25,6 +26,7 @@ const Products: React.FC = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [search, setSearch] = useState<string>('');
   const [categorySlug, setCategorySlug] = useState<string>('');
+  const [productTab, setProductTab] = useState<'all' | 'week'>('all');
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -41,7 +43,13 @@ const Products: React.FC = () => {
   };
 
   // Lấy danh sách sản phẩm theo danh mục: GET /categories/:slug/products
-  const fetchProducts = async (page = 1, limit = 20, keyword = '', slug = categorySlug) => {
+  const fetchProducts = async (
+    page = 1,
+    limit = 20,
+    keyword = '',
+    slug = categorySlug,
+    tab: 'all' | 'week' = productTab
+  ) => {
     if (!slug) return;
     try {
       setLoading(true);
@@ -50,6 +58,7 @@ const Products: React.FC = () => {
         limit: String(limit),
       });
       if (keyword) q.set('search', keyword);
+      if (tab === 'week') q.set('isWeek', 'true');
       const res = await api.get(`/categories/${slug}/products?${q.toString()}`, {
         headers: jsonHeaders,
       });
@@ -90,7 +99,7 @@ const Products: React.FC = () => {
       if (list.length === 0) return;
       const firstSlug = list[0].slug;
       setCategorySlug(firstSlug);
-      await fetchProducts(1, 20, '', firstSlug);
+      await fetchProducts(1, 20, '', firstSlug, 'all');
     })();
   }, []);
 
@@ -135,7 +144,7 @@ const Products: React.FC = () => {
       setExistingImages([]);
       setIsEdit(false);
 
-      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
+      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug, productTab);
     } catch (error) {
       console.error(error);
       toast.error(isEdit ? 'Cập nhật sản phẩm thất bại!' : 'Thêm sản phẩm thất bại!');
@@ -149,10 +158,34 @@ const Products: React.FC = () => {
     try {
       await api.delete(`/admin/products/${id}`, { withAuth: true });
       toast.success('Xóa sản phẩm thành công!');
-      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug);
+      fetchProducts(pagination.current, pagination.pageSize, search, categorySlug, productTab);
     } catch (error) {
       console.error(error);
       toast.error('Xóa sản phẩm thất bại!');
+    }
+  };
+
+  const isWeekValue = (record: TProduct): boolean => {
+    const raw = (record as TProduct & { isWeek?: boolean | number }).isWeek;
+    return raw === true || raw === 1;
+  };
+
+  const handleToggleIsWeek = async (record: TProduct, checked: boolean) => {
+    const productId = record.id;
+    try {
+      setUpdatingWeekIds((prev) => ({ ...prev, [productId]: true }));
+      await api.patch(`/admin/products/${productId}/is-week`, { isWeek: checked }, { withAuth: true });
+      setData((prev) =>
+        prev.map((item) =>
+          item.id === productId ? ({ ...item, isWeek: checked } as TProduct & { isWeek?: boolean }) : item
+        )
+      );
+      toast.success(checked ? 'Đã bật sản phẩm tuần' : 'Đã tắt sản phẩm tuần');
+    } catch (error) {
+      console.error(error);
+      toast.error('Cập nhật isWeek thất bại');
+    } finally {
+      setUpdatingWeekIds((prev) => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -207,6 +240,19 @@ const Products: React.FC = () => {
       key: 'category',
       width: 150,
       render: (category: TCategory) => category?.name || null,
+    },
+    {
+      title: 'Sản phẩm tuần',
+      key: 'isWeek',
+      width: 130,
+      align: 'center',
+      render: (_: unknown, record: TProduct) => (
+        <Switch
+          checked={isWeekValue(record)}
+          loading={!!updatingWeekIds[record.id]}
+          onChange={(checked) => handleToggleIsWeek(record, checked)}
+        />
+      ),
     },
     {
       title: 'Ngày tạo',
@@ -272,6 +318,19 @@ const Products: React.FC = () => {
   return (
     <Fragment>
       <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý sản phẩm</h1>
+      <Tabs
+        activeKey={productTab}
+        onChange={(key) => {
+          const next = key as 'all' | 'week';
+          setProductTab(next);
+          fetchProducts(1, pagination.pageSize, search, categorySlug, next);
+        }}
+        className="mb-2"
+        items={[
+          { key: 'all', label: 'Tất cả sản phẩm' },
+          { key: 'week', label: 'Rau theo tuần' },
+        ]}
+      />
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
         <Select
           placeholder="Chọn danh mục"
@@ -281,7 +340,7 @@ const Products: React.FC = () => {
           onChange={(slug) => {
             setCategorySlug(slug);
             setSearch('');
-            fetchProducts(1, pagination.pageSize, '', slug);
+            fetchProducts(1, pagination.pageSize, '', slug, productTab);
           }}
         />
         <Input.Search
@@ -291,7 +350,7 @@ const Products: React.FC = () => {
           style={{ maxWidth: 300 }}
           onSearch={(value) => {
             setSearch(value);
-            fetchProducts(1, pagination.pageSize, value, categorySlug);
+            fetchProducts(1, pagination.pageSize, value, categorySlug, productTab);
           }}
         />
 
@@ -320,8 +379,9 @@ const Products: React.FC = () => {
             ...pagination,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
-            onChange: (page, pageSize) => fetchProducts(page, pageSize, search, categorySlug),
-            onShowSizeChange: (current, size) => fetchProducts(current, size, search, categorySlug),
+            onChange: (page, pageSize) => fetchProducts(page, pageSize, search, categorySlug, productTab),
+            onShowSizeChange: (current, size) =>
+              fetchProducts(current, size, search, categorySlug, productTab),
           }}
           scroll={{ x: 1200 }}
         />

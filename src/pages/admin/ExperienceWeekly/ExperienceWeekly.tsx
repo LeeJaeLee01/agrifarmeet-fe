@@ -272,7 +272,7 @@ const ExperienceWeekly: React.FC = () => {
             {t('admin.experienceWeekly')}
           </h1>
           <p className="mb-0 text-sm text-gray-500">
-            Chỉ áp cho gói <strong>trải nghiệm</strong> (slug <code className="text-xs">goi-trai-nghiem</code>). Mỗi
+            Chỉ áp cho gói <strong>trải nghiệm</strong> (slug <code className="text-xs">goi-co-ban</code>). Mỗi
             lần lưu sẽ <strong>thay toàn bộ</strong> danh sách rau của tuần đã chọn.
           </p>
         </div>
