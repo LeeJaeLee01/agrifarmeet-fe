@@ -27,6 +27,7 @@ import {
   isSubscriptionComboSlug,
 } from './subscriptionCombo';
 import {
+  isStandardBoxBySlug,
   BOX_SLUG_EXPERIENCE,
   isExperienceBox,
   isSubscriptionComboBoxBySlug,
@@ -131,7 +132,7 @@ const PurchasePage: React.FC = () => {
   const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [subscriptionWeeks, setSubscriptionWeeks] = useState<6 | 8>(6);
+  const [subscriptionWeeks, setSubscriptionWeeks] = useState<4 | 6 | 8>(6);
   const [experienceWeeklyRows, setExperienceWeeklyRows] = useState<TBoxProductRow[]>([]);
   const [experienceWeekStartFromApi, setExperienceWeekStartFromApi] = useState<string | null>(null);
   const [experienceWeeklyLoading, setExperienceWeeklyLoading] = useState(false);
@@ -198,16 +199,17 @@ const PurchasePage: React.FC = () => {
     [visibleAddOns, selectedAddOnIds]
   );
 
-  /** Gói cơ bản / linh hoạt: combo 6 hoặc 8 tuần (giá cố định, đồng bộ BE). */
+  /** Gói tiêu chuẩn / linh hoạt: combo tuần theo cấu hình. */
   const isSubscriptionComboPurchase = useMemo(() => {
     if (isTrialBox) return false;
     return isSubscriptionComboSlug(boxInfo?.slug);
   }, [boxInfo?.slug, isTrialBox]);
 
-  /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-co-ban`) qua API riêng; các gói khác theo rule cũ */
+  /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-co-ban`) qua API riêng; tiêu chuẩn/linh hoạt thì ẩn */
   const showVeggiesThisWeek = useMemo(() => {
     const routeSlug = String(slug || '').toLowerCase();
     if (routeSlug === BOX_SLUG_EXPERIENCE) return true;
+    if (isStandardBoxBySlug(routeSlug)) return false;
     if (isSubscriptionComboBoxBySlug(routeSlug)) return false;
     if (!boxInfo) return true;
     if (isTrialBox) return false;
@@ -253,8 +255,12 @@ const PurchasePage: React.FC = () => {
   }, [boxInfo?.slug, boxInfo?.price, subscriptionWeeks, addOnTotal]);
 
   useEffect(() => {
-    setSubscriptionWeeks(6);
-  }, [boxInfo?.id]);
+    if (isStandardBoxBySlug(boxInfo?.slug)) {
+      setSubscriptionWeeks(4);
+    } else {
+      setSubscriptionWeeks(6);
+    }
+  }, [boxInfo?.id, boxInfo?.slug]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -876,45 +882,50 @@ const PurchasePage: React.FC = () => {
                   {isSubscriptionComboPurchase && boxInfo.slug ? (
                     <div className="p-4 mb-5 rounded-lg border border-border bg-stone-50/90">
                       <h3 className="mb-1 text-sm font-semibold leading-snug text-text1">
-                        {boxInfo.slug === 'goi-co-ban'
+                        {isStandardBoxBySlug(boxInfo.slug)
                           ? t('purchase.comboSectionTitleBasic')
                           : t('purchase.comboSectionTitleFlexible')}
                       </h3>
                       <p className="mb-3 text-xs text-text3">
-                        {boxInfo.slug === 'goi-co-ban'
+                        {isStandardBoxBySlug(boxInfo.slug)
                           ? t('purchase.comboPerWeekLineBasic')
                           : t('purchase.comboPerWeekLineFlexible')}
                       </p>
                       <Radio.Group
                         className="flex flex-col gap-2"
                         value={subscriptionWeeks}
-                        onChange={(e) => setSubscriptionWeeks(e.target.value as 6 | 8)}
+                        onChange={(e) => setSubscriptionWeeks(e.target.value as 4 | 6 | 8)}
                       >
-                        <Radio value={6} className="!items-start [&_span]:!leading-snug">
-                          <span className="text-sm text-text1">
-                            {boxInfo.slug === 'goi-co-ban'
-                              ? t('purchase.comboWeeks6Basic')
-                              : t('purchase.comboWeeks6Flexible')}
-                          </span>
-                        </Radio>
-                        <Radio value={8} className="!items-start [&_span]:!leading-snug">
-                          <span className="text-sm text-text1">
-                            {boxInfo.slug === 'goi-co-ban'
-                              ? t('purchase.comboWeeks8Basic')
-                              : t('purchase.comboWeeks8Flexible')}
-                          </span>
-                        </Radio>
+                        {isStandardBoxBySlug(boxInfo.slug) ? (
+                          <>
+                            <Radio value={4} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">{t('purchase.comboWeeks4Basic')}</span>
+                            </Radio>
+                            <Radio value={6} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">{t('purchase.comboWeeks6Basic')}</span>
+                            </Radio>
+                          </>
+                        ) : (
+                          <>
+                            <Radio value={6} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">{t('purchase.comboWeeks6Flexible')}</span>
+                            </Radio>
+                            <Radio value={8} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">{t('purchase.comboWeeks8Flexible')}</span>
+                            </Radio>
+                          </>
+                        )}
                       </Radio.Group>
                     </div>
                   ) : null}
 
-                  {isSubscriptionComboPurchase ? (
+                  {isTrialBox || isSubscriptionComboPurchase ? (
                     <div className="p-4 mb-5 border border-green-100 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50">
                       <h3 className="mb-1 text-sm font-semibold text-green-800 lg:text-base">
                         Hướng dẫn đặt hàng và giao hàng
                       </h3>
                       <p className="mb-3 text-xs leading-relaxed text-green-700 lg:text-sm">
-                        Áp dụng cho gói cơ bản và gói linh hoạt.
+                        Áp dụng cho gói cơ bản, gói tiêu chuẩn và gói linh hoạt.
                       </p>
                       <ul className="m-0 space-y-2 list-none p-0">
                         <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
