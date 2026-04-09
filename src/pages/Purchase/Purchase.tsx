@@ -26,6 +26,11 @@ import {
   getSubscriptionComboAmount,
   isSubscriptionComboSlug,
 } from './subscriptionCombo';
+import {
+  BOX_SLUG_EXPERIENCE,
+  isExperienceBox,
+  isSubscriptionComboBoxBySlug,
+} from '../../utils/boxType';
 
 function productImageSrc(images: TProduct['images']): string {
   if (Array.isArray(images)) return images[0] || '';
@@ -59,8 +64,6 @@ type TAddOnProduct = TProduct & {
 };
 
 const { Option } = Select;
-
-const EXPERIENCE_BOX_SLUG = 'goi-trai-nghiem';
 
 function mapExperienceWeeklyToRows(data: ExperienceWeeklyPublicResponse): TBoxProductRow[] {
   return data.items.map((item) => ({
@@ -135,7 +138,7 @@ const PurchasePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const isExperiencePurchaseRoute = String(slug || '').toLowerCase() === EXPERIENCE_BOX_SLUG;
+  const isExperiencePurchaseRoute = String(slug || '').toLowerCase() === BOX_SLUG_EXPERIENCE;
 
   const purchaseProductRows = useMemo(
     () => (boxInfo ? getBoxProductRows(boxInfo as TBox) : []),
@@ -143,15 +146,7 @@ const PurchasePage: React.FC = () => {
   );
 
   const isTrialBox = useMemo(() => {
-    const slugValue = String(boxInfo?.slug || '').toLowerCase();
-    const nameValue = String(boxInfo?.name || '').toLowerCase();
-    return (
-      slugValue.includes('trai-nghiem') ||
-      nameValue.includes('trải nghiệm') ||
-      nameValue.includes('trai nghiem') ||
-      nameValue.includes('thử nghiệm') ||
-      nameValue.includes('thu nghiem')
-    );
+    return isExperienceBox(boxInfo);
   }, [boxInfo?.slug, boxInfo?.name]);
 
   /** Danh sách rau/sản phẩm theo tuần giao cho cột “Rau tuần này” */
@@ -211,18 +206,8 @@ const PurchasePage: React.FC = () => {
   /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-trai-nghiem`) qua API riêng; các gói khác theo rule cũ */
   const showVeggiesThisWeek = useMemo(() => {
     const routeSlug = String(slug || '').toLowerCase();
-    if (routeSlug === EXPERIENCE_BOX_SLUG) return true;
-    if (routeSlug.includes('trai-nghiem')) return false;
-    if (
-      routeSlug.includes('co-ban') ||
-      routeSlug.includes('co_ban') ||
-      routeSlug.includes('coban') ||
-      routeSlug.includes('linh-hoat') ||
-      routeSlug.includes('linh_hoat') ||
-      routeSlug.includes('linhhoat')
-    ) {
-      return false;
-    }
+    if (routeSlug === BOX_SLUG_EXPERIENCE) return true;
+    if (isSubscriptionComboBoxBySlug(routeSlug)) return false;
     if (!boxInfo) return true;
     if (isTrialBox) return false;
     if (isSubscriptionComboPurchase) return false;

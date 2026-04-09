@@ -15,6 +15,7 @@ import MainFooter from '../../components/MainFooter/MainFooter';
 import { useTitle } from '../../hooks/useTitle';
 import { formatVND, getFirstCooperativeImageUrl } from '../../utils/helper';
 import { getBoxProductRows } from '../../utils/boxProductRows';
+import { isExperienceBox } from '../../utils/boxType';
 
 const BoxDetails: React.FC = () => {
   const { t } = useTranslation();
@@ -59,16 +60,7 @@ const BoxDetails: React.FC = () => {
   const productRows = useMemo(() => (box ? getBoxProductRows(box) : []), [box]);
 
   const isTrialBox = useMemo(() => {
-    if (!box) return false;
-    const slugValue = String(box.slug || '').toLowerCase();
-    const nameValue = String(box.name || '').toLowerCase();
-    return (
-      slugValue.includes('trai-nghiem') ||
-      nameValue.includes('trải nghiệm') ||
-      nameValue.includes('trai nghiem') ||
-      nameValue.includes('thử nghiệm') ||
-      nameValue.includes('thu nghiem')
-    );
+    return isExperienceBox(box);
   }, [box]);
 
   /** Mỗi danh mục một khối: dòng category, bên dưới là bảng sản phẩm */

@@ -15,31 +15,19 @@ import { useTranslation } from 'react-i18next';
 import { Modal, Button } from 'antd';
 import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
 import { useNavigate } from 'react-router-dom';
+import { isExperienceBoxBySlug, isFlexibleBoxBySlug } from '../../utils/boxType';
 
-/** Gói đăng ký cơ bản / linh hoạt (không trải nghiệm) — cùng heuristic với trang Purchase */
+/**
+ * Mapping mới từ BE:
+ * - goi-trai-nghiem => Gói Cơ Bản
+ * - goi-co-ban      => Gói Tiêu Chuẩn
+ * - goi-linh-hoat   => Gói Linh Hoạt
+ *
+ * Chữ "chỉ" trên Landing áp dụng cho Cơ Bản + Linh Hoạt.
+ */
 function isBasicOrFlexibleBox(box: TBox): boolean {
-  const slug = String(box.slug || '').toLowerCase();
-  const name = String(box.name || '').toLowerCase();
-  const isTrial =
-    slug.includes('trai-nghiem') ||
-    name.includes('trải nghiệm') ||
-    name.includes('trai nghiem') ||
-    name.includes('thử nghiệm') ||
-    name.includes('thu nghiem');
-  if (isTrial) return false;
-  const hasBasic =
-    slug.includes('co-ban') ||
-    slug.includes('co_ban') ||
-    slug.includes('coban') ||
-    name.includes('cơ bản') ||
-    name.includes('co ban');
-  const hasFlexible =
-    slug.includes('linh-hoat') ||
-    slug.includes('linh_hoat') ||
-    slug.includes('linhhoat') ||
-    name.includes('linh hoạt') ||
-    name.includes('linh hoat');
-  return hasBasic || hasFlexible;
+  const slug = box.slug;
+  return isExperienceBoxBySlug(slug) || isFlexibleBoxBySlug(slug);
 }
 
 /** Tách "1.234.567" và " VND" từ chuỗi formatVND để tô màu giống nhau */
@@ -344,10 +332,7 @@ const Landing: React.FC = () => {
                 const audience =
                   (includes.audience as string | undefined) || box.includes.serving_size;
                 const meal_suggestion_per_week = includes.meal_suggestion_per_week as string | undefined;
-                const isTrialBox =
-                  box.slug?.toLowerCase().includes('trai-nghiem') ||
-                  box.name?.toLowerCase().includes('trải nghiệm') ||
-                  box.name?.toLowerCase().includes('trai nghiem');
+                const isTrialBox = isExperienceBoxBySlug(box.slug);
                 const descriptionText = box.description || t('landing.packageDescriptionFallback');
                 const descriptionLines = descriptionText
                   .split('.')
@@ -481,10 +466,7 @@ const Landing: React.FC = () => {
                 const audience =
                   (includes.audience as string | undefined) || box.includes.serving_size;
                 const meal_suggestion_per_week = includes.meal_suggestion_per_week as string | undefined;
-                const isTrialBox =
-                  box.slug?.toLowerCase().includes('trai-nghiem') ||
-                  box.name?.toLowerCase().includes('trải nghiệm') ||
-                  box.name?.toLowerCase().includes('trai nghiem');
+                const isTrialBox = isExperienceBoxBySlug(box.slug);
                 const descriptionText = box.description || t('landing.packageDescriptionFallback');
                 const descriptionLines = descriptionText
                   .split('.')

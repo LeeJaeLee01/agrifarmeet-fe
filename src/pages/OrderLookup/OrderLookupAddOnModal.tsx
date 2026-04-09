@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import type { TBox, TBoxProductRow } from '../../types/TBox';
 import type { TProduct } from '../../types/TProduct';
 import { getBoxProductRows } from '../../utils/boxProductRows';
+import { isFlexibleBoxBySlug, isStandardBoxBySlug } from '../../utils/boxType';
 
 const EXTRA_VEG_WEEKLY_FEE = 25000;
 const ON_SALE_PAGE_SIZE = 10;
@@ -18,28 +19,12 @@ function extraVegPricePerUnit(product: TProduct): number {
   return EXTRA_VEG_WEEKLY_FEE;
 }
 
-function isBasicBoxSlugName(slug: string, name: string): boolean {
-  const s = slug.toLowerCase();
-  const n = name.toLowerCase();
-  return (
-    s.includes('co-ban') ||
-    s.includes('co_ban') ||
-    s.includes('coban') ||
-    n.includes('cơ bản') ||
-    n.includes('co ban')
-  );
+function isBasicBoxSlugName(slug: string, _name: string): boolean {
+  return isStandardBoxBySlug(slug);
 }
 
-function isFlexibleBoxSlugName(slug: string, name: string): boolean {
-  const s = slug.toLowerCase();
-  const n = name.toLowerCase();
-  return (
-    s.includes('linh-hoat') ||
-    s.includes('linh_hoat') ||
-    s.includes('linhhoat') ||
-    n.includes('linh hoạt') ||
-    n.includes('linh hoat')
-  );
+function isFlexibleBoxSlugName(slug: string, _name: string): boolean {
+  return isFlexibleBoxBySlug(slug);
 }
 
 /** Gói linh hoạt: tối đa 2 loại rau thêm; gói cơ bản: 1 loại */

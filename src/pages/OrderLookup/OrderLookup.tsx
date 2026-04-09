@@ -13,39 +13,17 @@ import './OrderLookup.scss';
 import OrderLookupAddOnModal, { type OrderLookupAddOnBox } from './OrderLookupAddOnModal';
 import OrderLookupSubscriptionVegModal from './OrderLookupSubscriptionVegModal';
 import UserBoxDetailsModal from './UserBoxDetailsModal';
+import { isExperienceBoxBySlug, isSubscriptionComboBoxBySlug } from '../../utils/boxType';
 
 const ORDER_LOOKUP_PHONE_KEY = 'farme_order_lookup_phone';
 
 function isTrialBoxFromBox(box: { slug?: string; name?: string }): boolean {
-  const slugValue = String(box?.slug || '').toLowerCase();
-  const nameValue = String(box?.name || '').toLowerCase();
-  return (
-    slugValue.includes('trai-nghiem') ||
-    nameValue.includes('trải nghiệm') ||
-    nameValue.includes('trai nghiem') ||
-    nameValue.includes('thử nghiệm') ||
-    nameValue.includes('thu nghiem')
-  );
+  return isExperienceBoxBySlug(box?.slug);
 }
 
 /** Gói cơ bản / linh hoạt (đăng ký), không tính gói trải nghiệm */
 function isBasicFlexibleBoxFromBox(box: { slug?: string; name?: string }): boolean {
-  if (isTrialBoxFromBox(box)) return false;
-  const slug = String(box?.slug || '').toLowerCase();
-  const name = String(box?.name || '').toLowerCase();
-  const hasBasic =
-    slug.includes('co-ban') ||
-    slug.includes('co_ban') ||
-    slug.includes('coban') ||
-    name.includes('cơ bản') ||
-    name.includes('co ban');
-  const hasFlexible =
-    slug.includes('linh-hoat') ||
-    slug.includes('linh_hoat') ||
-    slug.includes('linhhoat') ||
-    name.includes('linh hoạt') ||
-    name.includes('linh hoat');
-  return hasBasic || hasFlexible;
+  return isSubscriptionComboBoxBySlug(box?.slug);
 }
 
 function readStoredPhone(): string {

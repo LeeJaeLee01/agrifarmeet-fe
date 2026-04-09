@@ -20,6 +20,7 @@ import { Spin } from 'antd';
 import { useTitle } from '../../hooks/useTitle';
 import { useTranslation } from 'react-i18next';
 import './Boxes.scss';
+import { isExperienceBoxBySlug } from '../../utils/boxType';
 
 const Boxes: React.FC = () => {
   const { t } = useTranslation();
@@ -64,10 +65,7 @@ const Boxes: React.FC = () => {
             </div>
           ) : (
             boxes.map((box) => {
-              const isTrialBox =
-                box.slug?.toLowerCase().includes('trai-nghiem') ||
-                box.name?.toLowerCase().includes('trải nghiệm') ||
-                box.name?.toLowerCase().includes('trai nghiem');
+              const isTrialBox = isExperienceBoxBySlug(box.slug);
               const descriptionText = box.description || t('landing.packageDescriptionFallback');
               const descriptionLines = descriptionText
                 .split('.')
