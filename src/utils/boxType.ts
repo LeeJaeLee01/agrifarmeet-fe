@@ -1,7 +1,6 @@
 export const BOX_SLUG_EXPERIENCE = 'goi-co-ban';
 export const BOX_SLUG_STANDARD = 'goi-tieu-chuan';
 export const BOX_SLUG_FLEXIBLE = 'goi-linh-hoat';
-export const BOX_SLUG_STANDARD_LEGACY = 'goi-co-ban';
 
 type BoxLike = {
   slug?: string | null;
@@ -16,8 +15,7 @@ export function isExperienceBoxBySlug(slug: string | null | undefined): boolean 
 }
 
 export function isStandardBoxBySlug(slug: string | null | undefined): boolean {
-  const s = normalizeBoxSlug(slug);
-  return s === BOX_SLUG_STANDARD || s === BOX_SLUG_STANDARD_LEGACY;
+  return normalizeBoxSlug(slug) === BOX_SLUG_STANDARD;
 }
 
 export function isFlexibleBoxBySlug(slug: string | null | undefined): boolean {

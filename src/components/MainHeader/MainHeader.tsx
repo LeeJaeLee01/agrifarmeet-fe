@@ -111,6 +111,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/introduce" className={navLinkClass}>
                 {t('common.aboutUs')}
               </NavLink>
+              <NavLink to="/boxes" className={navLinkClass}>
+                {t('common.allBoxes')}
+              </NavLink>
               <NavLink to="/introduce#cam-ket" className={navLinkClass}>
                 {t('common.policy')}
               </NavLink>
@@ -120,9 +123,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}
               </NavLink>
-              <NavLink to="/boxes" className={navLinkClass}>
-                {t('common.allBoxes')}
-              </NavLink>
+              <a
+                href="/#footer-contact"
+                className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
+              >
+                {t('common.contact')}
+              </a>
 
               {/* {simple ? (
               <LanguageSwitcher />
@@ -177,6 +183,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/introduce" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.introduce')}
             </NavLink>
+            <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
+              {t('common.allBoxes')}
+            </NavLink>
             <NavLink to="/introduce#cam-ket" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.policy')}
             </NavLink>
@@ -186,9 +195,13 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.news')}
             </NavLink>
-            <NavLink to="/boxes" className={navLinkClass}>
-              {t('common.allBoxes')}
-            </NavLink>
+            <a
+              href="/#footer-contact"
+              className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
+              onClick={() => setOpen(false)}
+            >
+              {t('common.contact')}
+            </a>
             {/* <NavLink to="/home" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.home')}
             </NavLink>

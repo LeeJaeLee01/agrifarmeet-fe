@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 type MessengerFloatingButtonProps = {
   messengerHref?: string;
@@ -9,8 +9,50 @@ export default function MessengerFloatingButton({
   messengerHref = 'https://m.me/1023499277515849',
   zaloHref = 'https://zalo.me/2768914139305378370',
 }: MessengerFloatingButtonProps) {
+  const [showContactInfo, setShowContactInfo] = useState(false);
+  const stackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onClickOutside = (event: MouseEvent) => {
+      if (!stackRef.current) return;
+      if (!stackRef.current.contains(event.target as Node)) {
+        setShowContactInfo(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
   return (
-    <div className="chat-fab-stack" aria-label="Chat shortcuts">
+    <div className="chat-fab-stack" aria-label="Chat shortcuts" ref={stackRef}>
+      {showContactInfo ? (
+        <div className="chat-fab-contact-tab" role="note" aria-label="Thông tin liên hệ">
+          <p><strong>Công ty TNHH Agrifarmeet</strong></p>
+          <p>MST: 0111166829</p>
+          <p>DC: 20 Vo Chi Cong, phuong Tay Ho, Ha Noi</p>
+          <p>Email: contact@agrifarmeet.vn</p>
+          <p>SDT: 0981817189</p>
+        </div>
+      ) : null}
+
+      <button
+        className="chat-fab chat-fab--hotline"
+        type="button"
+        aria-label="Xem thong tin lien he"
+        title="Xem thong tin lien he"
+        onClick={() => setShowContactInfo((v) => !v)}
+      >
+        <span className="chat-fab__ring" aria-hidden="true" />
+        <span className="chat-fab__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M6.62 10.79a15.9 15.9 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1-.24c1.1.36 2.28.56 3.49.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.85 21 3 13.15 3 3a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.21.19 2.39.56 3.49a1 1 0 0 1-.25 1.01l-2.19 2.29Z"
+            />
+          </svg>
+        </span>
+      </button>
+
       <a
         className="chat-fab chat-fab--messenger"
         href={messengerHref}
@@ -39,14 +81,12 @@ export default function MessengerFloatingButton({
         title="Mở Zalo để chat"
       >
         <span className="chat-fab__ring" aria-hidden="true" />
-        <span className="chat-fab__icon chat-fab__icon--zalo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-            <path
-              fill="currentColor"
-              d="M12 2a10 10 0 0 0-6.2 17.8V22l2.7-1.5A10 10 0 1 0 12 2Zm4.7 13.1c-.2.6-.9 1.1-1.5 1.2-.4.1-.9.1-1.8-.1-.6-.2-1.4-.4-2.4-.9-2.1-1-3.5-2.9-3.6-3.1-.1-.2-.9-1.2-.9-2.3 0-1.1.6-1.7.8-1.9.2-.2.4-.2.6-.2h.4c.1 0 .3 0 .4.3.2.4.6 1.5.7 1.6.1.2.1.3 0 .5-.1.2-.1.3-.3.5-.1.1-.3.3-.4.4-.1.1-.2.3-.1.5.1.2.6 1.1 1.3 1.7.9.8 1.6 1 1.8 1.1.2.1.4.1.5-.1.2-.2.6-.7.7-.9.2-.2.3-.2.6-.1.2.1 1.4.7 1.7.8.3.1.4.2.5.3.0.1.0.6-.2 1.2Z"
-            />
-          </svg>
-        </span>
+        <img
+          src={`${process.env.PUBLIC_URL || ''}/zalo.webp`}
+          alt="Zalo"
+          className="chat-fab__logo"
+          draggable={false}
+        />
       </a>
     </div>
   );

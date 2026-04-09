@@ -58,10 +58,16 @@ body {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   transform: translateZ(0);
   animation: chat-fab-pulse 1.2s ease-in-out infinite;
+  border: 0;
+  cursor: pointer;
 }
 
 .chat-fab--messenger {
   background: #0084ff;
+}
+
+.chat-fab--hotline {
+  background: #0068ff;
 }
 
 .chat-fab--zalo {
@@ -93,6 +99,10 @@ body {
   border-color: rgba(0, 132, 255, 0.35);
 }
 
+.chat-fab--hotline .chat-fab__ring {
+  border-color: rgba(0, 104, 255, 0.3);
+}
+
 .chat-fab--zalo .chat-fab__ring {
   border-color: rgba(0, 104, 255, 0.3);
 }
@@ -106,6 +116,56 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.chat-fab__label {
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.chat-fab__text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.chat-fab__logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
+.chat-fab-contact-tab {
+  position: absolute;
+  right: 66px;
+  top: 0;
+  width: min(340px, calc(100vw - 108px));
+  min-height: 56px;
+  padding: 10px 14px;
+  border-radius: 12px 0 0 12px;
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-right: 0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  color: #1f2937;
+  line-height: 1.4;
+  z-index: 2147483001;
+
+  p {
+    margin: 0 0 4px;
+    font-size: 12px;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 @keyframes chat-fab-pulse {

@@ -16,6 +16,7 @@ import { Modal, Button } from 'antd';
 import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
 import { useNavigate } from 'react-router-dom';
 import { isExperienceBoxBySlug, isFlexibleBoxBySlug } from '../../utils/boxType';
+import { isStandardBoxBySlug } from '../../utils/boxType';
 
 /**
  * Mapping mới từ BE:
@@ -365,6 +366,11 @@ const Landing: React.FC = () => {
                       ]
                     : []),
                 ];
+                const comboLabel = isExperienceBoxBySlug(box.slug)
+                  ? '(Combo 1/4 tuần)'
+                  : isStandardBoxBySlug(box.slug) || isFlexibleBoxBySlug(box.slug)
+                    ? '(Combo 6/8 tuần)'
+                    : '';
                 const total = `${includes.total} (${includes.box_weight})`;
 
                 return (
@@ -379,6 +385,17 @@ const Landing: React.FC = () => {
 
                       <div className="package-title-section">
                         <h3>{box.name}</h3>
+                        <p
+                          className={`package-combo-line ${
+                            isExperienceBoxBySlug(box.slug) ||
+                            isStandardBoxBySlug(box.slug) ||
+                            isFlexibleBoxBySlug(box.slug)
+                              ? ''
+                              : 'package-combo-line--placeholder'
+                          }`}
+                        >
+                          {comboLabel}
+                        </p>
                         <ul className="package-description package-description--checklist">
                           {descriptionItems.map((item, i) => (
                             <li key={`${box.id}-desc-mobile-${i}`}>
@@ -499,6 +516,11 @@ const Landing: React.FC = () => {
                       ]
                     : []),
                 ];
+                const comboLabel = isExperienceBoxBySlug(box.slug)
+                  ? '(Combo 1/4 tuần)'
+                  : isStandardBoxBySlug(box.slug) || isFlexibleBoxBySlug(box.slug)
+                    ? '(Combo 6/8 tuần)'
+                    : '';
                 const total = `${includes.total} (${includes.box_weight})`;
 
                 return (
@@ -512,6 +534,17 @@ const Landing: React.FC = () => {
 
                     <div className="package-title-section">
                       <h3>{box.name}</h3>
+                      <p
+                        className={`package-combo-line ${
+                          isExperienceBoxBySlug(box.slug) ||
+                          isStandardBoxBySlug(box.slug) ||
+                          isFlexibleBoxBySlug(box.slug)
+                            ? ''
+                            : 'package-combo-line--placeholder'
+                        }`}
+                      >
+                        {comboLabel}
+                      </p>
                       <ul className="package-description package-description--checklist">
                         {descriptionItems.map((item, i) => (
                           <li key={`${box.id}-desc-${i}`}>
@@ -663,6 +696,7 @@ const Landing: React.FC = () => {
             ) : (
               <SwiperList
                 className="products-swiper"
+                loop={true}
                 slidesPerViewConfig={{
                   0: { slidesPerView: 2 },
                   768: { slidesPerView: 3 },

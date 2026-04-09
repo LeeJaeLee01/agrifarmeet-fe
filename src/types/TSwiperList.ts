@@ -3,4 +3,5 @@ export type TSwiperList = {
   slidesPerViewConfig?: Record<number, { slidesPerView: number }>;
   spaceBetween?: number;
   className?: string;
+  loop?: boolean;
 };

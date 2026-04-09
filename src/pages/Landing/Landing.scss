@@ -497,7 +497,19 @@
           font-size: 1.25rem;
           font-weight: 700;
           color: black;
-          margin: 0 0 10px;
+          margin: 0 0 4px !important;
+        }
+
+        .package-combo-line {
+          margin: 0 0 8px;
+          min-height: 1rem;
+          font-size: 0.75rem;
+          line-height: 1rem;
+          color: #666;
+        }
+
+        .package-combo-line--placeholder {
+          visibility: hidden;
         }
 
         .package-description {
@@ -877,9 +889,6 @@
       background: #ffffff !important;
     }
 
-    .swiper-slide {
-      width: auto !important;
-    }
   }
 
   .weekly-products-static {

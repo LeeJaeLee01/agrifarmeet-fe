@@ -25,11 +25,13 @@ import type { TBoxProductRow } from '../../types/TBox';
 import {
   getSubscriptionComboAmount,
   isSubscriptionComboSlug,
+  type SubscriptionWeeks,
 } from './subscriptionCombo';
 import {
   isStandardBoxBySlug,
   BOX_SLUG_EXPERIENCE,
   isExperienceBox,
+  isExperienceBoxBySlug,
   isSubscriptionComboBoxBySlug,
 } from '../../utils/boxType';
 
@@ -132,7 +134,7 @@ const PurchasePage: React.FC = () => {
   const [addOns, setAddOns] = useState<TAddOnProduct[]>([]);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [subscriptionWeeks, setSubscriptionWeeks] = useState<4 | 6 | 8>(6);
+  const [subscriptionWeeks, setSubscriptionWeeks] = useState<SubscriptionWeeks>(1);
   const [experienceWeeklyRows, setExperienceWeeklyRows] = useState<TBoxProductRow[]>([]);
   const [experienceWeekStartFromApi, setExperienceWeekStartFromApi] = useState<string | null>(null);
   const [experienceWeeklyLoading, setExperienceWeeklyLoading] = useState(false);
@@ -201,9 +203,8 @@ const PurchasePage: React.FC = () => {
 
   /** Gói tiêu chuẩn / linh hoạt: combo tuần theo cấu hình. */
   const isSubscriptionComboPurchase = useMemo(() => {
-    if (isTrialBox) return false;
     return isSubscriptionComboSlug(boxInfo?.slug);
-  }, [boxInfo?.slug, isTrialBox]);
+  }, [boxInfo?.slug]);
 
   /** “Rau tuần này”: chỉ hiện rõ cho gói trải nghiệm (`goi-co-ban`) qua API riêng; tiêu chuẩn/linh hoạt thì ẩn */
   const showVeggiesThisWeek = useMemo(() => {
@@ -248,18 +249,18 @@ const PurchasePage: React.FC = () => {
 
   const payableAmount = useMemo(() => {
     if (boxInfo?.slug && isSubscriptionComboSlug(boxInfo.slug)) {
-      return getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks);
+      return getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks, Number(boxInfo.price || 0));
     }
     const price = Number(boxInfo?.price || 0);
     return price + addOnTotal;
   }, [boxInfo?.slug, boxInfo?.price, subscriptionWeeks, addOnTotal]);
 
   useEffect(() => {
-    if (isStandardBoxBySlug(boxInfo?.slug)) {
-      setSubscriptionWeeks(4);
-    } else {
-      setSubscriptionWeeks(6);
+    if (isExperienceBoxBySlug(boxInfo?.slug)) {
+      setSubscriptionWeeks(1);
+      return;
     }
+    setSubscriptionWeeks(6);
   }, [boxInfo?.id, boxInfo?.slug]);
 
   useEffect(() => {
@@ -881,37 +882,57 @@ const PurchasePage: React.FC = () => {
 
                   {isSubscriptionComboPurchase && boxInfo.slug ? (
                     <div className="p-4 mb-5 rounded-lg border border-border bg-stone-50/90">
-                      <h3 className="mb-1 text-sm font-semibold leading-snug text-text1">
-                        {isStandardBoxBySlug(boxInfo.slug)
+                      <h3 className="mb-0 text-sm font-semibold leading-snug text-text1">
+                        {isExperienceBoxBySlug(boxInfo.slug)
+                          ? t('purchase.comboSectionTitleTrial')
+                          : isStandardBoxBySlug(boxInfo.slug)
                           ? t('purchase.comboSectionTitleBasic')
                           : t('purchase.comboSectionTitleFlexible')}
                       </h3>
-                      <p className="mb-3 text-xs text-text3">
-                        {isStandardBoxBySlug(boxInfo.slug)
+                      <p className="mb-2 text-xs text-text3">
+                        {isExperienceBoxBySlug(boxInfo.slug)
+                          ? t('purchase.comboPerWeekLineTrial')
+                          : isStandardBoxBySlug(boxInfo.slug)
                           ? t('purchase.comboPerWeekLineBasic')
                           : t('purchase.comboPerWeekLineFlexible')}
                       </p>
                       <Radio.Group
                         className="flex flex-col gap-2"
                         value={subscriptionWeeks}
-                        onChange={(e) => setSubscriptionWeeks(e.target.value as 4 | 6 | 8)}
+                        onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
                       >
-                        {isStandardBoxBySlug(boxInfo.slug) ? (
+                        {isExperienceBoxBySlug(boxInfo.slug) ? (
                           <>
-                            <Radio value={4} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">{t('purchase.comboWeeks4Basic')}</span>
+                            <Radio value={1} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">
+                                {t('purchase.comboWeeks1Trial', {
+                                  amount: formatVND(Number(boxInfo.price || 0)),
+                                })}
+                              </span>
                             </Radio>
-                            <Radio value={6} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">{t('purchase.comboWeeks6Basic')}</span>
+                            <Radio value={4} className="!items-start [&_span]:!leading-snug">
+                              <span className="text-sm text-text1">
+                                {t('purchase.comboWeeks4Trial', {
+                                  amount: formatVND(Number(boxInfo.price || 0) * 4),
+                                })}
+                              </span>
                             </Radio>
                           </>
                         ) : (
                           <>
                             <Radio value={6} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">{t('purchase.comboWeeks6Flexible')}</span>
+                              <span className="text-sm text-text1">
+                                {isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboWeeks6Basic')
+                                  : t('purchase.comboWeeks6Flexible')}
+                              </span>
                             </Radio>
                             <Radio value={8} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">{t('purchase.comboWeeks8Flexible')}</span>
+                              <span className="text-sm text-text1">
+                                {isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboWeeks8Basic')
+                                  : t('purchase.comboWeeks8Flexible')}
+                              </span>
                             </Radio>
                           </>
                         )}
@@ -939,8 +960,7 @@ const PurchasePage: React.FC = () => {
                             2
                           </span>
                           <span>
-                            Ngay khi khách hàng đặt mua gói cơ bản/gói linh hoạt, khách hàng sẽ được add vào group
-                            Zalo để cập nhật danh sách rau theo tuần.
+                          Ngay khi hoàn tất đặt hàng, khách hàng sẽ được add vào group Zalo để cập nhật danh sách rau theo mùa, sản phẩm và ưu đãi mới nhất của Farme
                           </span>
                         </li>
                         <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">

@@ -10,12 +10,14 @@ const SwiperList: React.FC<TSwiperList> = ({
   slidesPerViewConfig,
   spaceBetween = 20,
   className = '',
+  loop = false,
 }) => {
   return (
     <Swiper
       modules={[Navigation, Autoplay]}
       navigation
       autoplay={{ delay: 3000, disableOnInteraction: false }}
+      loop={loop}
       spaceBetween={spaceBetween}
       className={className}
       breakpoints={
