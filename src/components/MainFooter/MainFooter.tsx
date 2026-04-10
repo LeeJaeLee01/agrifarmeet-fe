@@ -20,7 +20,7 @@ const MainFooter: React.FC = () => {
                 <div className="flex flex-col gap-1 text-sm text-green-100 leading-relaxed">
                   <p className="m-0">Công ty TNHH Agrifarmeet</p>
                   <p className="m-0">MST: 0111166829</p>
-                  <p className="m-0">DC: 20 Võ Chí Công, phường Tây Hồ, Hà Nội</p>
+                  <p className="m-0">Địa chỉ: 20 Võ Chí Công, phường Tây Hồ, Hà Nội</p>
                   <p className="m-0">
                     Email:{' '}
                     <a className="hover:text-white transition-colors" href="mailto:contact@agrifarmeet.vn">
@@ -76,7 +76,7 @@ const MainFooter: React.FC = () => {
                   <p className="mb-3 font-semibold">{t('common.followUs')}</p>
                   <div className="flex flex-col gap-2 text-sm text-green-100">
                     <a
-                      href="https://facebook.com"
+                      href="https://www.facebook.com/profile.php?id=61582201066240"
                       target="_blank"
                       rel="noreferrer"
                       className="hover:text-white transition-colors"

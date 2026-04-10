@@ -68,6 +68,7 @@ const UserBoxes: React.FC = () => {
 
   const [items, setItems] = useState<AdminUserBoxRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [phoneFilter, setPhoneFilter] = useState('');
@@ -161,6 +162,45 @@ const UserBoxes: React.FC = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true);
+      const q = new URLSearchParams({
+        page: String(pagination.current),
+        limit: String(pagination.pageSize),
+      });
+      if (phoneFilter.trim()) q.set('phone', phoneFilter.trim());
+      if (statusFilter) q.set('status', statusFilter);
+
+      const res = await api.get(`/admin/user-boxes/export/excel?${q.toString()}`, {
+        withAuth: true,
+        responseType: 'blob',
+      });
+
+      const disposition = String(res.headers?.['content-disposition'] || '');
+      const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^\";]+)/i);
+      const filename = match?.[1] ? decodeURIComponent(match[1].replace(/"/g, '')) : 'user-boxes.xlsx';
+
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Xuất Excel thành công');
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Xuất Excel thất bại');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const statusColor = (s: string) => {
     if (s === 'active') return 'green';
     if (s === 'pending') return 'gold';
@@ -179,6 +219,23 @@ const UserBoxes: React.FC = () => {
       title: 'Khách (SĐT)',
       width: 140,
       render: (_, r) => r.user?.phone ?? '—',
+    },
+    {
+      title: 'Tên',
+      width: 160,
+      render: (_, r) => r.user?.account ?? '—',
+    },
+    {
+      title: 'Email',
+      width: 220,
+      ellipsis: true,
+      render: (_, r) => r.user?.email ?? '—',
+    },
+    {
+      title: 'Tên box mua',
+      width: 180,
+      ellipsis: true,
+      render: (_, r) => r.box?.name ?? '—',
     },
     {
       title: 'Gói',
@@ -275,6 +332,9 @@ const UserBoxes: React.FC = () => {
         <Button icon={<ReloadOutlined />} onClick={() => fetchList(pagination.current, pagination.pageSize)}>
           Làm mới
         </Button>
+        <Button onClick={handleExportExcel} loading={exporting}>
+          Xuất Excel
+        </Button>
       </div>
 
       <Spin spinning={loading}>
@@ -310,6 +370,7 @@ const UserBoxes: React.FC = () => {
             </Descriptions>
             <Typography.Title level={5}>User</Typography.Title>
             <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item label="Account">{detailRow.user?.account || '—'}</Descriptions.Item>
               <Descriptions.Item label="Phone">{detailRow.user?.phone}</Descriptions.Item>
               <Descriptions.Item label="Email">{detailRow.user?.email}</Descriptions.Item>
               <Descriptions.Item label="Địa chỉ">{detailRow.user?.address}</Descriptions.Item>

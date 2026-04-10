@@ -24,6 +24,8 @@ const OrderLookup = lazy(() => import('./pages/OrderLookup/OrderLookup'));
 const BoxDetails = lazy(() => import('./pages/BoxDetails/BoxDetails'));
 const Boxes = lazy(() => import('./pages/Boxes/Boxes'));
 const Introduce = lazy(() => import('./pages/Introduce/Introduce'));
+const OrderingProcess = lazy(() => import('./pages/OrderingProcess/OrderingProcess'));
+const FarmePolicy = lazy(() => import('./pages/FarmePolicy/FarmePolicy'));
 const Shipping = lazy(() => import('./pages/Shipping/Shipping'));
 const News = lazy(() => import('./pages/News/News'));
 
@@ -85,6 +87,8 @@ function App() {
               <Route path="/order" element={<Order />} />
               <Route path="/order-lookup" element={<OrderLookup />} />
               <Route path="/introduce" element={<Introduce />} />
+              <Route path="/quy-trinh-dat-hang" element={<OrderingProcess />} />
+              <Route path="/chinh-sach" element={<FarmePolicy />} />
               <Route path="/news" element={<News />} />
               <Route path="/boxes" element={<Boxes />} />
               <Route path="/boxes/:id" element={<BoxDetails />} />

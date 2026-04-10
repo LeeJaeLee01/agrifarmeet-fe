@@ -494,10 +494,16 @@
         justify-content: flex-start; // Text stays at top
 
         h3 {
-          font-size: 1.25rem;
+          font-size: 1.5rem;
           font-weight: 700;
-          color: black;
-          margin: 0 0 4px !important;
+          color: #2e7d32;
+          margin: 0 0 6px !important;
+          line-height: 1.25;
+          letter-spacing: -0.02em;
+
+          @media (min-width: 768px) {
+            font-size: 1.75rem;
+          }
         }
 
         .package-combo-line {
@@ -970,7 +976,7 @@
 
 // Partners Section
 .partners-section {
-  padding: 80px 0;
+  padding: 56px 0 72px;
   background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
   border-top: 1px solid #f3f4f6;
 
@@ -984,7 +990,7 @@
     font-weight: 800;
     text-align: center;
     color: #111827;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     letter-spacing: -0.02em;
 
     @media (max-width: 768px) {
@@ -996,7 +1002,7 @@
     font-size: 1.1rem;
     text-align: center;
     color: #6b7280;
-    margin: 0 auto 48px;
+    margin: 0 auto 24px;
     max-width: 600px;
     line-height: 1.6;
   }
@@ -1007,7 +1013,7 @@
     align-items: stretch;
     justify-content: flex-start;
     overflow-x: auto;
-    padding: 10px 16px 20px 16px;
+    padding: 4px 16px 20px 16px;
     scroll-snap-type: x mandatory;
 
     // Ẩn scrollbar
@@ -1088,7 +1094,6 @@
     max-width: 900px;
     text-align: center;
     padding-top: 24px;
-    border-top: 1px solid #e0e0e0;
   }
 
   .section-label {

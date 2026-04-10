@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { CheckCircleOutlined, CloseCircleOutlined, DownOutlined } from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import api from '../../utils/api';
@@ -13,34 +13,11 @@ import 'swiper/css/navigation';
 import './Landing.scss';
 import { useTranslation } from 'react-i18next';
 import { Modal, Button } from 'antd';
-import { formatVND, getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
-import { useNavigate } from 'react-router-dom';
-import { isExperienceBoxBySlug, isFlexibleBoxBySlug } from '../../utils/boxType';
-import { isStandardBoxBySlug } from '../../utils/boxType';
-
-/**
- * Mapping mới từ BE:
- * - goi-co-ban   => Gói Cơ Bản (đổi từ gói trải nghiệm)
- * - goi-linh-hoat   => Gói Linh Hoạt
- *
- * Chữ "chỉ" trên Landing áp dụng cho Cơ Bản + Linh Hoạt.
- */
-function isBasicOrFlexibleBox(box: TBox): boolean {
-  const slug = box.slug;
-  return isExperienceBoxBySlug(slug) || isFlexibleBoxBySlug(slug);
-}
-
-/** Tách "1.234.567" và " VND" từ chuỗi formatVND để tô màu giống nhau */
-function splitFormattedVnd(formatted: string): { amount: string; vndSuffix: string } {
-  if (formatted.endsWith(' VND')) {
-    return { amount: formatted.slice(0, -4), vndSuffix: ' VND' };
-  }
-  return { amount: formatted, vndSuffix: '' };
-}
+import { getFirstCooperativeImageUrl, unwrapApiList } from '../../utils/helper';
+import PackagesSection from '../../components/PackagesSection/PackagesSection';
 
 const Landing: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const farmerImageUrl =
     'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg';
   const [boxes, setBoxes] = useState<TBox[]>([]);
@@ -322,328 +299,12 @@ const Landing: React.FC = () => {
         </button>
 
         {/* How FARME Solves It Section */}
-        <section id="landing-packages" ref={solutionsRef} className="solutions-section">
-          <div className="container">
-            <h2
-              ref={titleRef}
-              className={`section-title ${isTitleVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-            >
-              {t('landing.packagesTitle').toUpperCase()}
-            </h2>
-            <p
-              className={`section-subtitle ${isTitleVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-              style={{ animationDelay: '0.2s' }}
-            >
-              {t('landing.packagesSubtitle')}
-            </p>
-
-            <Swiper
-              modules={[Navigation, Autoplay]}
-              className="packages-swiper-mobile"
-              navigation
-              autoplay={{ delay: 3200, disableOnInteraction: false }}
-              loop={boxes.length > 1}
-              slidesPerView={1}
-              spaceBetween={16}
-            >
-              {boxes.map((box, index) => {
-                const includes = box.includes as Record<string, string | number | undefined>;
-                const audience =
-                  (includes.audience as string | undefined) || box.includes.serving_size;
-                const meal_suggestion_per_week = includes.meal_suggestion_per_week as string | undefined;
-                const isTrialBox = isExperienceBoxBySlug(box.slug);
-                const descriptionText = box.description || t('landing.packageDescriptionFallback');
-                const descriptionLines = descriptionText
-                  .split('.')
-                  .map(s => s.trim())
-                  .filter(Boolean);
-                const descriptionItems = [
-                  ...descriptionLines.map(line => ({ line, negative: false })),
-                  ...(isTrialBox
-                    ? [
-                        { line: t('landing.farmHelp'), negative: true },
-                        // { line: t('landing.trialNoExtraVegetables'), negative: true },
-                      ]
-                    : []),
-                ];
-                const comboLabel = isExperienceBoxBySlug(box.slug)
-                  ? '(Combo 1/4 tuần)'
-                  : isStandardBoxBySlug(box.slug) || isFlexibleBoxBySlug(box.slug)
-                    ? '(Combo 6/8 tuần)'
-                    : '';
-                const total = `${includes.total} (${includes.box_weight})`;
-
-                return (
-                  <SwiperSlide key={`mobile-${box.id}`}>
-                    <div className="package-card" style={{ animationDelay: `${0.2 * index}s` }}>
-                      <div className="package-header-badge">
-                        <img
-                          src="https://cdn-icons-png.flaticon.com/512/2917/2917995.png"
-                          alt="icon"
-                        />
-                      </div>
-
-                      <div className="package-title-section">
-                        <h3>{box.name}</h3>
-                        <p
-                          className={`package-combo-line ${
-                            isExperienceBoxBySlug(box.slug) ||
-                            isStandardBoxBySlug(box.slug) ||
-                            isFlexibleBoxBySlug(box.slug)
-                              ? ''
-                              : 'package-combo-line--placeholder'
-                          }`}
-                        >
-                          {comboLabel}
-                        </p>
-                        <ul className="package-description package-description--checklist">
-                          {descriptionItems.map((item, i) => (
-                            <li key={`${box.id}-desc-mobile-${i}`}>
-                              <span className="package-description__check" aria-hidden="true">
-                                ✓
-                              </span>
-                              <span className="package-description__text">{item.line}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="package-price-section">
-                        <h2 className="price-text">
-                          {(() => {
-                            const { amount, vndSuffix } = splitFormattedVnd(
-                              box.price ? formatVND(box.price) : formatVND(360000)
-                            );
-                            return (
-                              <>
-                                {isBasicOrFlexibleBox(box) ? (
-                                  <span className="price-text__only">{t('landing.priceOnlyPrefix')}</span>
-                                ) : null}
-                                <span className="price-text__figures">
-                                  <span className="price-text__amount">{amount}</span>
-                                  <span className="price-text__vnd-suffix">
-                                    {vndSuffix ? (
-                                      <span className="price-text__vnd">{vndSuffix}</span>
-                                    ) : null}
-                                    <span className="price-text__suffix">{t('landing.pricePerWeekSuffix')}</span>
-                                  </span>
-                                </span>
-                              </>
-                            );
-                          })()}
-                        </h2>
-                        <div className="price-meta-badges" role="note">
-                          <span
-                            className="price-meta-badge price-meta-badge--vat"
-                            title={t('landing.vatIncludedTitle')}
-                          >
-                            <span className="price-meta-badge__glyph" aria-hidden="true">
-                              ✓
-                            </span>
-                            <span className="price-meta-badge__text">{t('landing.vatIncluded')}</span>
-                          </span>
-                          <span
-                            className="price-meta-badge price-meta-badge--ship"
-                            title={t('landing.shippingByArea')}
-                          >
-                            <span className="price-meta-badge__glyph" aria-hidden="true">
-                              🚚
-                            </span>
-                            <span className="price-meta-badge__text price-meta-badge__text--ship">
-                              <span className="price-meta-badge__strong">{t('landing.freeShip')}</span>
-                              <span className="price-meta-badge__sep" aria-hidden="true">
-                                ·
-                              </span>
-                              <span className="price-meta-badge__sub">{t('landing.freeDelivery')}</span>
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="package-action">
-                        <button
-                          type="button"
-                          className="select-button"
-                          onClick={() => {
-                            if (box.slug) {
-                              navigate(`/purchase/${box.slug}`);
-                            } else {
-                              navigate('/boxes');
-                            }
-                          }}
-                        >
-                          {t('landing.selectProduct')}
-                        </button>
-                      </div>
-
-                      <div className="package-features-list">
-                        <h4>{t('landing.packageIncludes')}:</h4>
-                        <ul>
-                          <li>
-                            <span className="icon">👥</span> {audience}
-                          </li>
-                          <li>
-                            <span className="icon">🕐</span> {meal_suggestion_per_week}
-                          </li>
-                          <li>
-                            <span className="icon">🥬</span> {total}
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                );
-              })}
-            </Swiper>
-
-            <div className="packages-grid">
-              {boxes.map((box, index) => {
-                const includes = box.includes as Record<string, string | number | undefined>;
-                const audience =
-                  (includes.audience as string | undefined) || box.includes.serving_size;
-                const meal_suggestion_per_week = includes.meal_suggestion_per_week as string | undefined;
-                const isTrialBox = isExperienceBoxBySlug(box.slug);
-                const descriptionText = box.description || t('landing.packageDescriptionFallback');
-                const descriptionLines = descriptionText
-                  .split('.')
-                  .map(s => s.trim())
-                  .filter(Boolean);
-                const descriptionItems = [
-                  ...descriptionLines.map(line => ({ line, negative: false })),
-                  ...(isTrialBox
-                    ? [
-                        { line: t('landing.farmHelp'), negative: true },
-                        // { line: t('landing.trialNoExtraVegetables'), negative: true },
-                      ]
-                    : []),
-                ];
-                const comboLabel = isExperienceBoxBySlug(box.slug)
-                  ? '(Combo 1/4 tuần)'
-                  : isStandardBoxBySlug(box.slug) || isFlexibleBoxBySlug(box.slug)
-                    ? '(Combo 6/8 tuần)'
-                    : '';
-                const total = `${includes.total} (${includes.box_weight})`;
-
-                return (
-                  <div key={box.id} className="package-card" style={{ animationDelay: `${0.2 * index}s` }}>
-                    <div className="package-header-badge">
-                      <img
-                        src="https://cdn-icons-png.flaticon.com/512/2917/2917995.png"
-                        alt="icon"
-                      />
-                    </div>
-
-                    <div className="package-title-section">
-                      <h3>{box.name}</h3>
-                      <p
-                        className={`package-combo-line ${
-                          isExperienceBoxBySlug(box.slug) ||
-                          isStandardBoxBySlug(box.slug) ||
-                          isFlexibleBoxBySlug(box.slug)
-                            ? ''
-                            : 'package-combo-line--placeholder'
-                        }`}
-                      >
-                        {comboLabel}
-                      </p>
-                      <ul className="package-description package-description--checklist">
-                        {descriptionItems.map((item, i) => (
-                          <li key={`${box.id}-desc-${i}`}>
-                            <span className="package-description__check" aria-hidden="true">
-                              ✓
-                            </span>
-                            <span className="package-description__text">{item.line}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="package-price-section">
-                      <h2 className="price-text">
-                        {(() => {
-                          const { amount, vndSuffix } = splitFormattedVnd(
-                            box.price ? formatVND(box.price) : formatVND(360000)
-                          );
-                          return (
-                            <>
-                              {isBasicOrFlexibleBox(box) ? (
-                                <span className="price-text__only">{t('landing.priceOnlyPrefix')}</span>
-                              ) : null}
-                              <span className="price-text__figures">
-                                <span className="price-text__amount">{amount}</span>
-                                <span className="price-text__vnd-suffix">
-                                  {vndSuffix ? (
-                                    <span className="price-text__vnd">{vndSuffix}</span>
-                                  ) : null}
-                                  <span className="price-text__suffix">{t('landing.pricePerWeekSuffix')}</span>
-                                </span>
-                              </span>
-                            </>
-                          );
-                        })()}
-                      </h2>
-                      <div className="price-meta-badges" role="note">
-                        <span
-                          className="price-meta-badge price-meta-badge--vat"
-                          title={t('landing.vatIncludedTitle')}
-                        >
-                          <span className="price-meta-badge__glyph" aria-hidden="true">
-                            ✓
-                          </span>
-                          <span className="price-meta-badge__text">{t('landing.vatIncluded')}</span>
-                        </span>
-                        <span
-                          className="price-meta-badge price-meta-badge--ship"
-                          title={t('landing.shippingByArea')}
-                        >
-                          <span className="price-meta-badge__glyph" aria-hidden="true">
-                            🚚
-                          </span>
-                          <span className="price-meta-badge__text price-meta-badge__text--ship">
-                            <span className="price-meta-badge__strong">{t('landing.freeShip')}</span>
-                            <span className="price-meta-badge__sep" aria-hidden="true">
-                              ·
-                            </span>
-                            <span className="price-meta-badge__sub">{t('landing.freeDelivery')}</span>
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="package-action">
-                      <button
-                        type="button"
-                        className="select-button"
-                        onClick={() => {
-                          if (box.slug) {
-                            navigate(`/purchase/${box.slug}`);
-                          } else {
-                            navigate('/boxes');
-                          }
-                        }}
-                      >
-                        {t('landing.selectProduct')}
-                      </button>
-                    </div>
-
-                    <div className="package-features-list">
-                      <h4>{t('landing.packageIncludes')}:</h4>
-                      <ul>
-                        <li>
-                          <span className="icon">👥</span> {audience}
-                        </li>
-                        <li>
-                          <span className="icon">🕐</span> {meal_suggestion_per_week}
-                        </li>
-                        <li>
-                          <span className="icon">🥬</span> {total}
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <PackagesSection
+          boxes={boxes}
+          sectionRef={solutionsRef}
+          titleRef={titleRef}
+          titleVisible={isTitleVisible}
+        />
 
         {/* Weekly Products Section */}
         <section ref={weeklyRef} className="weekly-products-section">
@@ -651,12 +312,6 @@ const Landing: React.FC = () => {
             <h2 className={`section-title ${isWeeklyVisible ? 'animate-fade-in-up' : 'opacity-0'}`}>
               {t('landing.weeklyTitle')}
             </h2>
-            <p
-              className={`section-subtitle ${isWeeklyVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-              style={{ animationDelay: '0.2s' }}
-            >
-              {t('landing.weeklySubtitle')}
-            </p>
 
             {products.length === 0 ? (
               <p className="text-center text-text3">{t('common.noData')}</p>
@@ -738,44 +393,6 @@ const Landing: React.FC = () => {
                 })}
               </SwiperList>
             )}
-          </div>
-        </section>
-
-        {/* Partners Section */}
-        <section ref={partnersRef} className="partners-section">
-          <div className="container">
-            <h2
-              className={`section-title ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-            >
-              {t('landing.partnersTitle')}
-            </h2>
-            <p
-              className={`section-subtitle ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-              style={{ animationDelay: '0.2s' }}
-            >
-              {t('landing.partnersSubtitle')}
-            </p>
-
-            <div className="partners-grid" ref={partnersGridRef}>
-              {partners.map((partner, index) => {
-                const logo = getFirstCooperativeImageUrl(
-                  partner.images,
-                  'https://via.placeholder.com/150x100?text=Partner',
-                );
-                return (
-                  <div
-                    key={partner.id}
-                    className={`partner-item ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
-                    style={{ animationDelay: `${0.1 * index}s` }}
-                  >
-                    <img src={logo} alt={partner.name} />
-                    <p className="partner-htx-name" title={partner.name}>
-                      {partner.name}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </section>
 
@@ -968,7 +585,46 @@ const Landing: React.FC = () => {
           </div>
         </section>
 
-       
+        {/* Partners Section */}
+        <section ref={partnersRef} className="partners-section">
+          <div className="container">
+            <h2
+              className={`section-title ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+            >
+              {t('landing.partnersTitle')}
+            </h2>
+            {String(t('landing.partnersSubtitle') || '').trim() ? (
+              <p
+                className={`section-subtitle ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                style={{ animationDelay: '0.2s' }}
+              >
+                {t('landing.partnersSubtitle')}
+              </p>
+            ) : null}
+
+            <div className="partners-grid" ref={partnersGridRef}>
+              {partners.map((partner, index) => {
+                const logo = getFirstCooperativeImageUrl(
+                  partner.images,
+                  'https://via.placeholder.com/150x100?text=Partner',
+                );
+                return (
+                  <div
+                    key={partner.id}
+                    className={`partner-item ${isPartnersVisible ? 'animate-fade-in-up' : 'opacity-0'}`}
+                    style={{ animationDelay: `${0.1 * index}s` }}
+                  >
+                    <img src={logo} alt={partner.name} />
+                    <p className="partner-htx-name" title={partner.name}>
+                      {partner.name}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
 
         {/* Comparison Section */}
         {/* <section className="comparison-section">

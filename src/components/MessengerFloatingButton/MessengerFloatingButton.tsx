@@ -29,7 +29,7 @@ export default function MessengerFloatingButton({
         <div className="chat-fab-contact-tab" role="note" aria-label="Thông tin liên hệ">
           <p><strong>Công ty TNHH Agrifarmeet</strong></p>
           <p>MST: 0111166829</p>
-          <p>DC: 20 Vo Chi Cong, phuong Tay Ho, Ha Noi</p>
+          <p>Địa chỉ: 20 Vo Chi Cong, phuong Tay Ho, Ha Noi</p>
           <p>Email: contact@agrifarmeet.vn</p>
           <p>SDT: 0981817189</p>
         </div>

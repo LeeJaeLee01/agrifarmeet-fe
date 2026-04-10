@@ -29,6 +29,7 @@ import {
 } from './subscriptionCombo';
 import {
   isStandardBoxBySlug,
+  isFlexibleBoxBySlug,
   BOX_SLUG_EXPERIENCE,
   isExperienceBox,
   isExperienceBoxBySlug,
@@ -537,6 +538,69 @@ const PurchasePage: React.FC = () => {
     }
   };
 
+  const weekVeggiesSection = useMemo(() => {
+    if (!showVeggiesThisWeek) return null;
+    return (
+      <div className="w-full purchase-week-veggies mb-5">
+        <h2 className="mb-2 pb-2 border-b border-border text-base font-semibold lg:text-lg text-text1 leading-tight">
+          {t('purchase.veggiesThisWeek')}
+        </h2>
+        {weekRangeLabel ? (
+          <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
+        ) : null}
+        {isExperiencePurchaseRoute && experienceWeeklyLoading ? (
+          <div className="py-6 flex justify-center">
+            <Spin />
+          </div>
+        ) : !boxInfo && !isExperiencePurchaseRoute ? (
+          <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
+        ) : weekProductRows.length === 0 ? (
+          <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
+        ) : (
+          <div className="purchase-week-veggies__scroll">
+            <ul className="p-0 m-0 list-none space-y-3">
+              {weekProductRows.map((bp) => (
+                <li key={bp.id} className="flex gap-2">
+                  <img
+                    src={productImageSrc(bp.product.images) || 'https://via.placeholder.com/80'}
+                    alt=""
+                    className="object-cover flex-none w-10 h-10 rounded-md"
+                  />
+                  <div className="min-w-0 flex-1">
+                    {bp.category?.name ? (
+                      <p className="mb-0.5 text-[10px] font-medium leading-tight text-green-700">
+                        {bp.category.name}
+                      </p>
+                    ) : null}
+                    <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
+                    <p className="m-0 text-[10px] leading-snug text-text3">
+                      {t('purchase.netWeight')}:{' '}
+                      <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
+                    </p>
+                    <p className="m-0 text-[10px] leading-snug text-text3">
+                      {t('purchase.quantity')}:{' '}
+                      <span>
+                        {bp.quantity} {bp.unit}
+                      </span>
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  }, [
+    showVeggiesThisWeek,
+    t,
+    weekRangeLabel,
+    isExperiencePurchaseRoute,
+    experienceWeeklyLoading,
+    boxInfo,
+    weekProductRows,
+  ]);
+
   return (
     <Fragment>
       <MainHeader sticky />
@@ -880,111 +944,336 @@ const PurchasePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {isSubscriptionComboPurchase && boxInfo.slug ? (
-                    <div className="p-4 mb-5 rounded-lg border border-border bg-stone-50/90">
-                      <h3 className="mb-0 text-sm font-semibold leading-snug text-text1">
-                        {isExperienceBoxBySlug(boxInfo.slug)
-                          ? t('purchase.comboSectionTitleTrial')
-                          : isStandardBoxBySlug(boxInfo.slug)
-                          ? t('purchase.comboSectionTitleBasic')
-                          : t('purchase.comboSectionTitleFlexible')}
-                      </h3>
-                      <p className="mb-2 text-xs text-text3">
-                        {isExperienceBoxBySlug(boxInfo.slug)
-                          ? t('purchase.comboPerWeekLineTrial')
-                          : isStandardBoxBySlug(boxInfo.slug)
-                          ? t('purchase.comboPerWeekLineBasic')
-                          : t('purchase.comboPerWeekLineFlexible')}
-                      </p>
-                      <Radio.Group
-                        className="flex flex-col gap-2"
-                        value={subscriptionWeeks}
-                        onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
-                      >
-                        {isExperienceBoxBySlug(boxInfo.slug) ? (
-                          <>
-                            <Radio value={1} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">
-                                {t('purchase.comboWeeks1Trial', {
-                                  amount: formatVND(Number(boxInfo.price || 0)),
-                                })}
+                  {isExperiencePurchaseRoute ? (
+                    <>
+                      {weekVeggiesSection}
+                      {visibleAddOns.length > 0 ? (
+                        <div className="hidden pb-5 mb-5 border-b border-border lg:block">
+                          <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                            {t('purchase.addOn')}
+                          </h3>
+                          {renderAddOnOptions()}
+                        </div>
+                      ) : null}
+                      {isSubscriptionComboPurchase && boxInfo.slug ? (
+                        <div className="purchase-combo-picker mb-5">
+                          <div className="purchase-combo-picker__head">
+                            <h3 className="purchase-combo-picker__title">
+                              {isExperienceBoxBySlug(boxInfo.slug)
+                                ? t('purchase.comboSectionTitleTrial')
+                                : isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboSectionTitleBasic')
+                                  : t('purchase.comboSectionTitleFlexible')}
+                            </h3>
+                            <p
+                              className={
+                                isExperienceBoxBySlug(boxInfo.slug)
+                                  ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
+                                  : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                              }
+                            >
+                              {isExperienceBoxBySlug(boxInfo.slug)
+                                ? t('purchase.comboPerWeekLineTrial')
+                                : isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboPerWeekLineBasic')
+                                  : t('purchase.comboPerWeekLineFlexible')}
+                            </p>
+                          </div>
+                          <Radio.Group
+                            className="purchase-combo-picker__group"
+                            value={subscriptionWeeks}
+                            onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
+                          >
+                            {isExperienceBoxBySlug(boxInfo.slug) ? (
+                              <>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={1}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {t('purchase.comboWeeks1Trial', {
+                                        amount: formatVND(Number(boxInfo.price || 0)),
+                                      })}
+                                    </span>
+                                  </Radio>
+                                </div>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={4}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {t('purchase.comboWeeks4Trial', {
+                                        amount: formatVND(Number(boxInfo.price || 0) * 4),
+                                      })}
+                                    </span>
+                                  </Radio>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={6}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {isStandardBoxBySlug(boxInfo.slug)
+                                        ? t('purchase.comboWeeks6Basic')
+                                        : t('purchase.comboWeeks6Flexible')}
+                                    </span>
+                                  </Radio>
+                                </div>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={8}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {isStandardBoxBySlug(boxInfo.slug)
+                                        ? t('purchase.comboWeeks8Basic')
+                                        : t('purchase.comboWeeks8Flexible')}
+                                    </span>
+                                  </Radio>
+                                </div>
+                              </>
+                            )}
+                          </Radio.Group>
+                        </div>
+                      ) : null}
+                      {isTrialBox || isSubscriptionComboPurchase ? (
+                        <div
+                          className="purchase-delivery-guide mb-5"
+                          role="region"
+                          aria-labelledby="purchase-delivery-guide-title"
+                        >
+                          <div className="purchase-delivery-guide__head">
+                            <h3
+                              id="purchase-delivery-guide-title"
+                              className="purchase-delivery-guide__title"
+                            >
+                              {t('purchase.deliveryGuideTitle')}
+                            </h3>
+                            <p className="purchase-delivery-guide__subtitle">
+                              {t('purchase.deliveryGuideSubtitle')}
+                            </p>
+                          </div>
+                          <ol className="purchase-delivery-guide__steps">
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                1
                               </span>
-                            </Radio>
-                            <Radio value={4} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">
-                                {t('purchase.comboWeeks4Trial', {
-                                  amount: formatVND(Number(boxInfo.price || 0) * 4),
-                                })}
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep1')}
+                                </p>
+                              </div>
+                            </li>
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                2
                               </span>
-                            </Radio>
-                          </>
-                        ) : (
-                          <>
-                            <Radio value={6} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">
-                                {isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboWeeks6Basic')
-                                  : t('purchase.comboWeeks6Flexible')}
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep2')}
+                                </p>
+                              </div>
+                            </li>
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                3
                               </span>
-                            </Radio>
-                            <Radio value={8} className="!items-start [&_span]:!leading-snug">
-                              <span className="text-sm text-text1">
-                                {isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboWeeks8Basic')
-                                  : t('purchase.comboWeeks8Flexible')}
-                              </span>
-                            </Radio>
-                          </>
-                        )}
-                      </Radio.Group>
-                    </div>
-                  ) : null}
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep3')}
+                                </p>
+                              </div>
+                            </li>
+                          </ol>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : (
+                    <>
+                      {isSubscriptionComboPurchase && boxInfo.slug ? (
+                        <div className="purchase-combo-picker mb-5">
+                          <div className="purchase-combo-picker__head">
+                            <h3 className="purchase-combo-picker__title">
+                              {isExperienceBoxBySlug(boxInfo.slug)
+                                ? t('purchase.comboSectionTitleTrial')
+                                : isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboSectionTitleBasic')
+                                  : t('purchase.comboSectionTitleFlexible')}
+                            </h3>
+                            <p
+                              className={
+                                isExperienceBoxBySlug(boxInfo.slug)
+                                  ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
+                                  : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                              }
+                            >
+                              {isExperienceBoxBySlug(boxInfo.slug)
+                                ? t('purchase.comboPerWeekLineTrial')
+                                : isStandardBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboPerWeekLineBasic')
+                                  : t('purchase.comboPerWeekLineFlexible')}
+                            </p>
+                          </div>
+                          <Radio.Group
+                            className="purchase-combo-picker__group"
+                            value={subscriptionWeeks}
+                            onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
+                          >
+                            {isExperienceBoxBySlug(boxInfo.slug) ? (
+                              <>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={1}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {t('purchase.comboWeeks1Trial', {
+                                        amount: formatVND(Number(boxInfo.price || 0)),
+                                      })}
+                                    </span>
+                                  </Radio>
+                                </div>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={4}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {t('purchase.comboWeeks4Trial', {
+                                        amount: formatVND(Number(boxInfo.price || 0) * 4),
+                                      })}
+                                    </span>
+                                  </Radio>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={6}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {isStandardBoxBySlug(boxInfo.slug)
+                                        ? t('purchase.comboWeeks6Basic')
+                                        : t('purchase.comboWeeks6Flexible')}
+                                    </span>
+                                  </Radio>
+                                </div>
+                                <div className="purchase-combo-picker__option">
+                                  <Radio value={8}>
+                                    <span className="purchase-combo-picker__option-text">
+                                      {isStandardBoxBySlug(boxInfo.slug)
+                                        ? t('purchase.comboWeeks8Basic')
+                                        : t('purchase.comboWeeks8Flexible')}
+                                    </span>
+                                  </Radio>
+                                </div>
+                              </>
+                            )}
+                          </Radio.Group>
+                        </div>
+                      ) : null}
 
-                  {isTrialBox || isSubscriptionComboPurchase ? (
-                    <div className="p-4 mb-5 border border-green-100 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50">
-                      <h3 className="mb-1 text-sm font-semibold text-green-800 lg:text-base">
-                        Hướng dẫn đặt hàng và giao hàng
-                      </h3>
-                      <p className="mb-3 text-xs leading-relaxed text-green-700 lg:text-sm">
-                        Áp dụng cho gói cơ bản, gói tiêu chuẩn và gói linh hoạt.
-                      </p>
-                      <ul className="m-0 space-y-2 list-none p-0">
-                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
-                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
-                            1
-                          </span>
-                          <span>Các gói rau sẽ được giao 1 tuần/lần vào sáng Chủ Nhật.</span>
-                        </li>
-                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
-                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
-                            2
-                          </span>
-                          <span>
-                          Ngay khi hoàn tất đặt hàng, khách hàng sẽ được add vào group Zalo để cập nhật danh sách rau theo mùa, sản phẩm và ưu đãi mới nhất của Farme
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2 text-xs leading-relaxed lg:text-sm text-text1">
-                          <span className="inline-flex items-center justify-center flex-none w-5 h-5 text-[11px] font-bold text-green-700 rounded-full bg-green-100">
-                            3
-                          </span>
-                          <span>
-                            Hàng tuần Farme sẽ gửi danh sách rau kèm link chọn rau. Khách hàng có thể đặt qua link
-                            hoặc liên hệ trực tiếp bộ phận CSKH để chọn theo ý thích. Nếu khách hàng không chọn rau,
-                            Farme sẽ thay khách hàng lựa chọn những loại rau tươi ngon nhất theo mùa.
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  ) : null}
+                      {isStandardBoxBySlug(boxInfo.slug) ? (
+                        <div
+                          className="purchase-standard-benefits mb-5"
+                          role="region"
+                          aria-labelledby="purchase-standard-benefits-heading"
+                        >
+                          <h3
+                            id="purchase-standard-benefits-heading"
+                            className="purchase-standard-benefits__title"
+                          >
+                            {t('purchase.standardBenefitsTitle')}
+                          </h3>
+                          <div className="purchase-standard-benefits__body">
+                            <p className="purchase-standard-benefits__point">
+                              {t('purchase.standardBenefitsLine1')}
+                            </p>
+                            <p className="purchase-standard-benefits__note">
+                              {t('purchase.standardBenefitsNote')}
+                            </p>
+                            <p className="purchase-standard-benefits__point">
+                              {t('purchase.standardBenefitsLine2')}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
 
-                  {visibleAddOns.length > 0 ? (
-                    <div className="hidden pb-5 mb-5 border-b border-border lg:block">
-                      <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
-                        {t('purchase.addOn')}
-                      </h3>
-                      {renderAddOnOptions()}
-                    </div>
-                  ) : null}
+                      {isFlexibleBoxBySlug(boxInfo.slug) ? (
+                        <div
+                          className="purchase-flexible-benefits mb-5"
+                          role="region"
+                          aria-labelledby="purchase-flexible-benefits-heading"
+                        >
+                          <h3
+                            id="purchase-flexible-benefits-heading"
+                            className="purchase-flexible-benefits__title"
+                          >
+                            {t('purchase.flexibleBenefitsTitle')}
+                          </h3>
+                          <div className="purchase-flexible-benefits__body">
+                            <p className="purchase-flexible-benefits__point">
+                              {t('purchase.flexibleBenefitsLine1')}
+                            </p>
+                            <p className="purchase-flexible-benefits__note">
+                              {t('purchase.standardBenefitsNote')}
+                            </p>
+                            <p className="purchase-flexible-benefits__point">
+                              {t('purchase.flexibleBenefitsLine2')}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {isTrialBox || isSubscriptionComboPurchase ? (
+                        <div
+                          className="purchase-delivery-guide mb-5"
+                          role="region"
+                          aria-labelledby="purchase-delivery-guide-title"
+                        >
+                          <div className="purchase-delivery-guide__head">
+                            <h3
+                              id="purchase-delivery-guide-title"
+                              className="purchase-delivery-guide__title"
+                            >
+                              {t('purchase.deliveryGuideTitle')}
+                            </h3>
+                            <p className="purchase-delivery-guide__subtitle">
+                              {t('purchase.deliveryGuideSubtitle')}
+                            </p>
+                          </div>
+                          <ol className="purchase-delivery-guide__steps">
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                1
+                              </span>
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep1')}
+                                </p>
+                              </div>
+                            </li>
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                2
+                              </span>
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep2')}
+                                </p>
+                              </div>
+                            </li>
+                            <li className="purchase-delivery-guide__step">
+                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
+                                3
+                              </span>
+                              <div className="purchase-delivery-guide__card">
+                                <p className="purchase-delivery-guide__text">
+                                  {t('purchase.deliveryGuideStep3')}
+                                </p>
+                              </div>
+                            </li>
+                          </ol>
+                        </div>
+                      ) : null}
+
+                      {visibleAddOns.length > 0 ? (
+                        <div className="hidden pb-5 mb-5 border-b border-border lg:block">
+                          <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                            {t('purchase.addOn')}
+                          </h3>
+                          {renderAddOnOptions()}
+                        </div>
+                      ) : null}
+                    </>
+                  )}
 
                   {/* <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
                   {purchaseProductRows.map((bp) => {
@@ -1031,57 +1320,7 @@ const PurchasePage: React.FC = () => {
 
               </div>
 
-            {showVeggiesThisWeek ? (
-              <div className="w-full purchase-week-veggies">
-                <h2 className="mb-2 pb-2 border-b border-border text-base font-semibold lg:text-lg text-text1 leading-tight">
-                  {t('purchase.veggiesThisWeek')}
-                </h2>
-                {weekRangeLabel ? (
-                  <p className="mb-3 text-[11px] leading-snug text-text3">{weekRangeLabel}</p>
-                ) : null}
-                {isExperiencePurchaseRoute && experienceWeeklyLoading ? (
-                  <div className="py-6 flex justify-center">
-                    <Spin />
-                  </div>
-                ) : !boxInfo && !isExperiencePurchaseRoute ? (
-                  <p className="m-0 text-xs text-text3">{t('purchase.loadingBoxInfo')}</p>
-                ) : weekProductRows.length === 0 ? (
-                  <p className="m-0 text-xs text-text3">{t('purchase.veggiesThisWeekEmpty')}</p>
-                ) : (
-                  <div className="purchase-week-veggies__scroll">
-                    <ul className="p-0 m-0 list-none space-y-3">
-                      {weekProductRows.map((bp) => (
-                        <li key={bp.id} className="flex gap-2">
-                          <img
-                            src={productImageSrc(bp.product.images) || 'https://via.placeholder.com/80'}
-                            alt=""
-                            className="object-cover flex-none w-10 h-10 rounded-md"
-                          />
-                          <div className="min-w-0 flex-1">
-                            {bp.category?.name ? (
-                              <p className="mb-0.5 text-[10px] font-medium leading-tight text-green-700">
-                                {bp.category.name}
-                              </p>
-                            ) : null}
-                            <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
-                            <p className="m-0 text-[10px] leading-snug text-text3">
-                              {t('purchase.netWeight')}:{' '}
-                              <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
-                            </p>
-                            <p className="m-0 text-[10px] leading-snug text-text3">
-                              {t('purchase.quantity')}:{' '}
-                              <span>
-                                {bp.quantity} {bp.unit}
-                              </span>
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ) : null}
+            {!isExperiencePurchaseRoute ? weekVeggiesSection : null}
             </div>
           </div>
         </div>

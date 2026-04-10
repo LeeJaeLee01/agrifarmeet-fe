@@ -1,6 +1,6 @@
 import { MenuProps, Dropdown } from 'antd';
 import { MenuOutlined, CloseOutlined, BellOutlined } from '@ant-design/icons';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import './MainHeader.scss';
 import { RootState } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +20,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
   const username = useSelector((state: RootState) => state.auth.username);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [isFixed, setIsFixed] = useState(false);
   const headerRef = useRef<HTMLDivElement | null>(null);
@@ -69,6 +70,28 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
       isActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
+  const isIntroducePath = location.pathname === '/introduce';
+  const introduceHash = location.hash || '';
+
+  /** NavLink bỏ qua hash khi tính isActive — tự xét hash cho /introduce */
+  const introduceMainClass = () =>
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
+      isIntroducePath && !introduceHash ? 'text-green2 font-semibold' : 'text-gray-700'
+    }`;
+
+  const introducePolicyClass = () =>
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
+      farmePolicyActive ? 'text-green2 font-semibold' : 'text-gray-700'
+    }`;
+
+  const orderingProcessActive = location.pathname === '/quy-trinh-dat-hang';
+  const farmePolicyActive = location.pathname === '/chinh-sach';
+
+  const introduceProcessClass = () =>
+    `block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 ${
+      orderingProcessActive ? 'text-green2 font-semibold' : 'text-gray-700'
+    }`;
+
   const headerClass = simple
     ? 'header header-simple'
     : `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${open ? 'header-drop' : ''}`;
@@ -108,18 +131,19 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/" className={navLinkClass}>
                 {t('common.home')}
               </NavLink>
-              <NavLink to="/introduce" className={navLinkClass}>
+              <NavLink to="/introduce" className={introduceMainClass}>
                 {t('common.aboutUs')}
               </NavLink>
               <NavLink to="/boxes" className={navLinkClass}>
                 {t('common.allBoxes')}
               </NavLink>
-              <NavLink to="/introduce#cam-ket" className={navLinkClass}>
-                {t('common.policy')}
-              </NavLink>
-              <NavLink to="/introduce#hanh-trinh" className={navLinkClass}>
+              <NavLink to="/quy-trinh-dat-hang" className={introduceProcessClass}>
                 {t('common.process')}
               </NavLink>
+              <NavLink to="/chinh-sach" className={introducePolicyClass}>
+                {t('common.policy')}
+              </NavLink>
+      
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}
               </NavLink>
@@ -180,16 +204,16 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/" className={navLinkClass}>
               {t('common.home')}
             </NavLink>
-            <NavLink to="/introduce" className={navLinkClass} onClick={() => setOpen(false)}>
+            <NavLink to="/introduce" className={introduceMainClass} onClick={() => setOpen(false)}>
               {t('common.introduce')}
             </NavLink>
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.allBoxes')}
             </NavLink>
-            <NavLink to="/introduce#cam-ket" className={navLinkClass} onClick={() => setOpen(false)}>
+            <NavLink to="/chinh-sach" className={introducePolicyClass} onClick={() => setOpen(false)}>
               {t('common.policy')}
             </NavLink>
-            <NavLink to="/introduce#hanh-trinh" className={navLinkClass} onClick={() => setOpen(false)}>
+            <NavLink to="/quy-trinh-dat-hang" className={introduceProcessClass} onClick={() => setOpen(false)}>
               {t('common.process')}
             </NavLink>
             <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
