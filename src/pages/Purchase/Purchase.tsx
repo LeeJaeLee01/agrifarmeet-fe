@@ -250,7 +250,10 @@ const PurchasePage: React.FC = () => {
 
   const payableAmount = useMemo(() => {
     if (boxInfo?.slug && isSubscriptionComboSlug(boxInfo.slug)) {
-      return getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks, Number(boxInfo.price || 0));
+      return (
+        getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks, Number(boxInfo.price || 0)) +
+        addOnTotal
+      );
     }
     const price = Number(boxInfo?.price || 0);
     return price + addOnTotal;

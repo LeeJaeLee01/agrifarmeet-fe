@@ -26,18 +26,18 @@ const Introduce: React.FC = () => {
 
       <div className="bg-bg-secondary text-text1 font-sans leading-relaxed">
         {/* HERO SECTION — ảnh trái, nội dung phải */}
-        <section className="relative pt-6 pb-16 px-6 lg:pt-6 lg:pb-20 lg:px-20 bg-white overflow-hidden border-b border-[#d8f3dc]">
-          <div className="absolute inset-0 bg-[#f0f8f4] opacity-80 z-0 pointer-events-none" />
+        <section className="relative pt-6 pb-16 px-6 lg:pt-6 lg:pb-20 lg:px-20 bg-white overflow-hidden border-b border-[#32753A]/25">
+          <div className="absolute inset-0 bg-[#32753A]/10 z-0 pointer-events-none" />
           <div className="container relative z-10 mx-auto max-w-6xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1b4332] mb-2 tracking-tight text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#32753A] mb-2 tracking-tight text-center">
               Giới thiệu về Farme
             </h1>
-            <p className="text-center text-sm md:text-base text-[#40916c] mb-8 lg:mb-10">
+            <p className="text-center text-sm md:text-base text-[#32753A]/90 mb-8 lg:mb-10">
               Câu chuyện phía sau mỗi hộp rau tươi ngon
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-14 items-start lg:items-stretch">
               <div className="order-2 lg:order-1 w-full lg:col-span-1 lg:h-full">
-                <div className="rounded-2xl overflow-hidden shadow-md border border-[#d8f3dc] bg-[#f0f8f4] aspect-[4/3] lg:aspect-auto lg:h-full">
+                <div className="rounded-2xl overflow-hidden shadow-md border border-[#32753A]/25 bg-[#32753A]/10 aspect-[4/3] lg:aspect-auto lg:h-full">
                   <img
                     src="/DSC06501.jpg"
                     alt="Farme — nông sản tươi ngon"
@@ -55,7 +55,7 @@ const Introduce: React.FC = () => {
                 <p className="text-lg text-text2 leading-relaxed">
                 Farme ra đời để thu hẹp khoảng cách đó – kết nối trực tiếp với hợp tác xã uy tín, nông trại với căn bếp của mỗi gia đình. Giải pháp của Farme là thông qua những hộp rau tươi theo tuần, được lựa chọn theo mùa và giao tận nhà, Farme giúp việc chuẩn bị bữa ăn của mọi gia đình trở nên đơn giản và nhẹ nhàng hơn.
                 </p>
-                <p className="text-lg font-medium text-[#2d6a4f] leading-relaxed border-l-4 border-[#40916c] pl-5">
+                <p className="text-lg font-medium text-[#32753A] leading-relaxed border-l-4 border-[#32753A] pl-5">
                 Tại Farme, chúng tôi tin rằng thực phẩm tốt không chỉ tươi ngon mà còn cần minh bạch về nguồn gốc để mỗi bữa ăn của gia đình đều đi kèm sự an tâm và tin tưởng.
                 </p>
               </div>
@@ -68,9 +68,9 @@ const Introduce: React.FC = () => {
           <div className="container mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
             
             <div id="cau-chuyen" className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-border hover:shadow-md transition-shadow">
-              <h2 className="text-3xl font-bold text-[#1b4332] mb-6 relative pb-4">
+              <h2 className="text-3xl font-bold text-[#32753A] mb-6 relative pb-4">
                 Câu chuyện của Farme
-                <span className="absolute bottom-0 left-0 w-16 h-1 bg-green rounded-full"></span>
+                <span className="absolute bottom-0 left-0 w-16 h-1 bg-[#32753A] rounded-full"></span>
               </h2>
               <div className="space-y-4">
                 <p className="text-text2 text-justify leading-relaxed">
@@ -88,10 +88,10 @@ const Introduce: React.FC = () => {
               </div>
             </div>
             
-            <div id="su-menh" className="flex flex-col bg-[#1b4332] text-white p-8 md:p-12 rounded-3xl shadow-lg border border-[#0d2818]">
+            <div id="su-menh" className="flex flex-col bg-[#32753A] text-white p-8 md:p-12 rounded-3xl shadow-lg border border-[#1a4226]">
               <h2 className="text-3xl font-bold text-white mb-6 relative pb-4">
                 Sứ mệnh của Farme
-                <span className="absolute bottom-0 left-0 w-16 h-1 bg-[#52b788] rounded-full"></span>
+                <span className="absolute bottom-0 left-0 w-16 h-1 bg-white/35 rounded-full"></span>
               </h2>
               <div className="space-y-5">
                 <p className="text-[#e9f5ef] leading-relaxed text-justify">
@@ -110,9 +110,9 @@ const Introduce: React.FC = () => {
         </section>
 
         {/* GIÁ TRỊ CỐT LÕI */}
-        <section id="gia-tri" className="py-20 px-6 lg:px-20 bg-[#f0f8f4]">
+        <section id="gia-tri" className="py-20 px-6 lg:px-20 bg-[#32753A]/10">
           <div className="container mx-auto max-w-6xl text-center">
-            <h2 className="text-3xl font-bold text-[#1b4332] mb-6">Giá trị Farme theo đuổi</h2>
+            <h2 className="text-3xl font-bold text-[#32753A] mb-6">Giá trị Farme theo đuổi</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-border flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-[#E3F2FD] text-[#1E88E5] rounded-full flex items-center justify-center mb-6 text-2xl shadow-inner">🔍</div>
@@ -122,7 +122,7 @@ const Introduce: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-border flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-secondary-green text-green rounded-full flex items-center justify-center mb-6 text-2xl shadow-inner">🛡️</div>
+                <div className="w-16 h-16 bg-[#32753A]/15 text-[#32753A] rounded-full flex items-center justify-center mb-6 text-2xl shadow-inner">🛡️</div>
                 <h3 className="text-xl font-bold text-text1 mb-4">An Toàn</h3>
                 <p className="text-text2 text-base leading-relaxed">
                 Farme hợp tác với các nông trại và hợp tác xã có quy trình canh tác được kiểm soát, nhằm đảm bảo chất lượng rau mỗi ngày.
@@ -155,14 +155,14 @@ const Introduce: React.FC = () => {
                     Rau được thu hoạch trực tiếp tại nông trại, đóng gói trong ngày và hạn chế tối đa việc lưu kho dài ngày. Nhờ quy trình vận chuyển nhanh và rút gọn các khâu trung gian, sản phẩm có thể được giao đến khách hàng trong thời gian sớm nhất.
                   </p>
                 </div>
-                <div className="mt-10 p-8 bg-[#1b4332] rounded-2xl shadow-xl">
+                <div className="mt-10 p-8 bg-[#32753A] rounded-2xl shadow-xl">
                   <h3 className="text-xl md:text-2xl font-medium text-white italic leading-relaxed text-left">
                     &quot;Với Farme, mỗi hộp rau không chỉ đơn thuần là thực phẩm cho bữa ăn, mà còn là sự an tâm mà chúng tôi mong muốn gửi gắm đến từng gia đình.&quot;
                   </h3>
                 </div>
               </div>
               <div className="lg:col-span-1 lg:h-full min-h-[220px]">
-                <div className="rounded-2xl overflow-hidden border border-[#d8f3dc] shadow-md bg-[#f0f8f4] h-full min-h-[220px] lg:min-h-0">
+                <div className="rounded-2xl overflow-hidden border border-[#32753A]/25 shadow-md bg-[#32753A]/10 h-full min-h-[220px] lg:min-h-0">
                   <img
                     src="/_DSC0070.png"
                     alt="Cam kết chất lượng Farme"
