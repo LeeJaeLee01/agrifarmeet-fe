@@ -11,6 +11,7 @@ import { formatDate } from '../../utils/helper';
 
 type NewsRow = {
   id: string;
+  name?: string | null;
   images?: string[] | string | null;
   description?: string | null;
   createdAt?: string | Date;
@@ -131,7 +132,7 @@ const News: React.FC = () => {
                               {img0 ? (
                                 <img
                                   src={img0}
-                                  alt=""
+                                  alt={n.name?.trim() || ''}
                                   className="block w-full h-full object-cover object-center"
                                 />
                               ) : (
@@ -142,11 +143,14 @@ const News: React.FC = () => {
                             </div>
                             <div className="p-5 md:col-span-2">
                               <div className="text-xs text-text3">{dateStr || '—'}</div>
+                              <h3 className="mt-2 mb-2 text-xl font-bold leading-snug text-text1 sm:text-2xl">
+                                {n.name?.trim() || '—'}
+                              </h3>
                               <Typography.Paragraph
-                                className="mt-3 mb-0"
+                                className="mb-0 text-text2"
                                 ellipsis={{ rows: 3, expandable: false }}
                               >
-                                {n.description || '—'}
+                                {n.description?.trim() || '—'}
                               </Typography.Paragraph>
                             </div>
                           </div>
@@ -194,7 +198,7 @@ const News: React.FC = () => {
                               {img0 ? (
                                 <img
                                   src={img0}
-                                  alt=""
+                                  alt={n.name?.trim() || ''}
                                   className="block object-cover object-center w-full h-full"
                                 />
                               ) : (
@@ -205,11 +209,14 @@ const News: React.FC = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="mb-1 text-[11px] text-text3">{dateStr || '—'}</p>
+                              <p className="mb-1 text-sm font-semibold leading-snug text-text1 line-clamp-2">
+                                {n.name?.trim() || '—'}
+                              </p>
                               <Typography.Paragraph
-                                className="mb-0 text-sm"
+                                className="mb-0 text-xs text-text2"
                                 ellipsis={{ rows: 2, expandable: false }}
                               >
-                                {n.description || '—'}
+                                {n.description?.trim() || '—'}
                               </Typography.Paragraph>
                             </div>
                           </div>

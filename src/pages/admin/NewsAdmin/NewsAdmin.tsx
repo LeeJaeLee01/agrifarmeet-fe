@@ -22,6 +22,7 @@ import { useTitle } from '../../../hooks/useTitle';
 
 type NewsRow = {
   id: string;
+  name?: string | null;
   images?: string[] | null;
   description?: string | null;
   createdAt?: string | Date;
@@ -108,6 +109,7 @@ const NewsAdmin: React.FC = () => {
     setExistingImages(Array.isArray(row.images) ? row.images : []);
     setFileList([]);
     form.setFieldsValue({
+      name: row.name ?? '',
       description: row.description ?? '',
       clearImages: false,
     });
@@ -164,6 +166,7 @@ const NewsAdmin: React.FC = () => {
       }
 
       const payload: Partial<NewsRow> = {
+        name: values.name?.trim() ? values.name.trim() : null,
         description: values.description?.trim() ? values.description : null,
         images: imagesToSend,
       };
@@ -215,8 +218,15 @@ const NewsAdmin: React.FC = () => {
         render: (_: unknown, record: NewsRow) => imageThumb(record),
       },
       {
+        title: 'Tên bài viết',
+        width: 200,
+        dataIndex: 'name',
+        ellipsis: true,
+        render: (n: string | null | undefined) => n?.trim() || '—',
+      },
+      {
         title: 'Mô tả',
-        width: 360,
+        width: 300,
         dataIndex: 'description',
         ellipsis: true,
         render: (d: string | null | undefined) => d || '—',
@@ -259,7 +269,7 @@ const NewsAdmin: React.FC = () => {
           columns={columns}
           dataSource={items}
           bordered
-          scroll={{ x: 1100 }}
+          scroll={{ x: 1280 }}
           pagination={{
             ...pagination,
             showSizeChanger: true,
@@ -287,6 +297,14 @@ const NewsAdmin: React.FC = () => {
               <Checkbox>Xóa ảnh hiện có (nếu không chọn ảnh mới)</Checkbox>
             </Form.Item>
           )}
+
+          <Form.Item
+            name="name"
+            label="Tên bài viết"
+            rules={[{ required: true, message: 'Vui lòng nhập tên bài viết' }]}
+          >
+            <Input placeholder="Tiêu đề hiển thị trên trang tin tức" maxLength={200} showCount />
+          </Form.Item>
 
           <Form.Item
             name="description"
