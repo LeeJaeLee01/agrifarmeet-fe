@@ -28,7 +28,9 @@ const Categories: React.FC = () => {
   const fetchCategories = async (page = 1, limit = 20, keyword = '') => {
     try {
       setLoading(true);
-      const res = await api.get(`/categories?page=${page}&limit=${limit}&search=${keyword}`);
+      const res = await api.get(`/categories?page=${page}&limit=${limit}&search=${keyword}`, {
+        withAuth: true,
+      });
 
       setData(res.data.data);
       setPagination({

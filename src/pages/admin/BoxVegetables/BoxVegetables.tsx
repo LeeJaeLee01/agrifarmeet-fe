@@ -91,7 +91,7 @@ const BoxVegetables: React.FC = () => {
 
   const fetchBoxes = useCallback(async () => {
     try {
-      const res = await api.get('/boxes');
+      const res = await api.get('/boxes', { withAuth: true });
       const list = getPayloadData(res);
       const arr = Array.isArray(list) ? list : [];
       setBoxes(arr.map((b: any) => ({ id: b.id, name: b.name, slug: b.slug })));
@@ -104,7 +104,7 @@ const BoxVegetables: React.FC = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await api.get('/categories');
+      const res = await api.get('/categories', { withAuth: true });
       setCategories(getPayloadData(res) ?? []);
     } catch (e) {
       console.error(e);
@@ -113,13 +113,15 @@ const BoxVegetables: React.FC = () => {
 
   const loadProductOptions = useCallback(async () => {
     try {
-      const res = await api.get('/categories');
+      const res = await api.get('/categories', { withAuth: true });
       const cats: { slug: string; name: string }[] = getPayloadData(res) ?? [];
       const opts: { value: string; label: string }[] = [];
       const seen = new Set<string>();
       for (const c of cats) {
         try {
-          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=20`);
+          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=20`, {
+            withAuth: true,
+          });
           const payload = getPayloadData(pr);
           const items = payload?.items ?? [];
           for (const p of items) {
@@ -194,7 +196,9 @@ const BoxVegetables: React.FC = () => {
       quantity: record.quantity,
       boxUnit: record.unit,
       isOptional: record.isOptional,
-      weekStartDate: record.weekStartDate ? dayjs(record.weekStartDate) : dayjs().startOf('isoWeek'),
+      weekStartDate: record.weekStartDate
+        ? dayjs(record.weekStartDate)
+        : dayjs().startOf('isoWeek'),
     });
     setOpen(true);
   };
@@ -225,8 +229,10 @@ const BoxVegetables: React.FC = () => {
       if (values.unit !== undefined) fd.append('unit', values.unit ?? '');
       if (values.quantity != null) fd.append('quantity', String(values.quantity));
       if (values.boxUnit) fd.append('boxUnit', values.boxUnit);
-      if (values.isOptional !== undefined) fd.append('isOptional', values.isOptional ? 'true' : 'false');
-      if (values.weekStartDate) fd.append('weekStartDate', values.weekStartDate.format('YYYY-MM-DD'));
+      if (values.isOptional !== undefined)
+        fd.append('isOptional', values.isOptional ? 'true' : 'false');
+      if (values.weekStartDate)
+        fd.append('weekStartDate', values.weekStartDate.format('YYYY-MM-DD'));
     }
     files.forEach((f) => fd.append('files', f));
     return fd;
@@ -295,7 +301,9 @@ const BoxVegetables: React.FC = () => {
           <Typography.Text type="secondary" className="text-xs">
             {r.product?.category?.name ?? '—'}
           </Typography.Text>
-          <div className="mt-0.5 font-mono text-[11px] text-gray-400">SP: {r.productId?.slice(0, 8)}…</div>
+          <div className="mt-0.5 font-mono text-[11px] text-gray-400">
+            SP: {r.productId?.slice(0, 8)}…
+          </div>
         </div>
       ),
     },
@@ -305,7 +313,12 @@ const BoxVegetables: React.FC = () => {
       render: (_, r) => {
         const u = thumb(r.product);
         return u ? (
-          <Image src={u} width={52} height={52} className="object-cover rounded border border-gray-100" />
+          <Image
+            src={u}
+            width={52}
+            height={52}
+            className="object-cover rounded border border-gray-100"
+          />
         ) : (
           '—'
         );
@@ -332,10 +345,21 @@ const BoxVegetables: React.FC = () => {
       fixed: 'right',
       render: (_, r) => (
         <Space>
-          <Button type="primary" ghost size="small" icon={<EditOutlined />} onClick={() => openEdit(r)}>
+          <Button
+            type="primary"
+            ghost
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => openEdit(r)}
+          >
             Sửa
           </Button>
-          <Popconfirm title="Xóa dòng này khỏi gói?" okText="Xóa" cancelText="Hủy" onConfirm={() => handleDelete(r)}>
+          <Popconfirm
+            title="Xóa dòng này khỏi gói?"
+            okText="Xóa"
+            cancelText="Hủy"
+            onConfirm={() => handleDelete(r)}
+          >
             <Button size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
@@ -347,10 +371,14 @@ const BoxVegetables: React.FC = () => {
     <Fragment>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
-          <h1 className="mb-1 text-xl font-bold text-gray-900 lg:text-2xl">Cập nhật sản phẩm trong gói</h1>
+          <h1 className="mb-1 text-xl font-bold text-gray-900 lg:text-2xl">
+            Cập nhật sản phẩm trong gói
+          </h1>
           <p className="mb-0 text-sm text-gray-500">
             Chọn gói → xem danh sách rau theo <strong>box_products</strong>. Sửa để gọi{' '}
-            <code className="rounded bg-gray-100 px-1 text-xs">PATCH /admin/boxes/&#123;boxId&#125;/box-products/&#123;id&#125;</code>
+            <code className="rounded bg-gray-100 px-1 text-xs">
+              PATCH /admin/boxes/&#123;boxId&#125;/box-products/&#123;id&#125;
+            </code>
             .
           </p>
         </div>
@@ -366,8 +394,8 @@ const BoxVegetables: React.FC = () => {
                 <strong>GET</strong> <code>/admin/boxes/:boxId/box-products</code> — danh sách
               </li>
               <li>
-                <strong>PATCH</strong> — cập nhật thông tin sản phẩm + số lượng trong gói; upload ảnh mới sẽ{' '}
-                <strong>thay ảnh</strong> (mode replace).
+                <strong>PATCH</strong> — cập nhật thông tin sản phẩm + số lượng trong gói; upload
+                ảnh mới sẽ <strong>thay ảnh</strong> (mode replace).
               </li>
               <li>
                 <strong>POST</strong> thêm dòng, <strong>DELETE</strong> xóa liên kết khỏi gói.
@@ -389,11 +417,21 @@ const BoxVegetables: React.FC = () => {
                 showSearch
                 optionFilterProp="label"
               />
-              <Button icon={<ReloadOutlined />} onClick={() => boxId && fetchBoxProducts(boxId)} disabled={!boxId}>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => boxId && fetchBoxProducts(boxId)}
+                disabled={!boxId}
+              >
                 Làm mới
               </Button>
             </div>
-            <Button type="primary" icon={<PlusOutlined />} disabled={!boxId} onClick={openCreate} size="large">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={!boxId}
+              onClick={openCreate}
+              size="large"
+            >
               Thêm sản phẩm vào gói
             </Button>
           </div>
@@ -408,7 +446,10 @@ const BoxVegetables: React.FC = () => {
             {!boxId ? (
               <Empty description="Không có gói nào" />
             ) : rows.length === 0 && !loading ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Chưa có sản phẩm nào trong gói này" />
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="Chưa có sản phẩm nào trong gói này"
+              />
             ) : (
               <Table
                 rowKey="id"
@@ -425,11 +466,7 @@ const BoxVegetables: React.FC = () => {
 
       <Modal
         title={
-          isEdit ? (
-            <span>Cập nhật sản phẩm trong gói</span>
-          ) : (
-            <span>Thêm sản phẩm vào gói</span>
-          )
+          isEdit ? <span>Cập nhật sản phẩm trong gói</span> : <span>Thêm sản phẩm vào gói</span>
         }
         open={open}
         onCancel={() => {
@@ -505,14 +542,21 @@ const BoxVegetables: React.FC = () => {
               <Divider orientation="left" plain>
                 Thông tin sản phẩm
               </Divider>
-              <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true, message: 'Nhập tên' }]}>
+              <Form.Item
+                name="name"
+                label="Tên sản phẩm"
+                rules={[{ required: true, message: 'Nhập tên' }]}
+              >
                 <Input />
               </Form.Item>
               <Form.Item name="slug" label="Slug">
                 <Input />
               </Form.Item>
               <Form.Item name="categoryId" label="Danh mục">
-                <Select allowClear options={categories.map((c) => ({ value: c.id, label: c.name }))} />
+                <Select
+                  allowClear
+                  options={categories.map((c) => ({ value: c.id, label: c.name }))}
+                />
               </Form.Item>
               <Form.Item name="description" label="Mô tả">
                 <Input.TextArea rows={3} />
@@ -555,8 +599,8 @@ const BoxVegetables: React.FC = () => {
           </Divider>
           {isEdit && (
             <p className="mb-3 text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded px-3 py-2">
-              Khi chọn ảnh mới, hệ thống <strong>thay toàn bộ ảnh</strong> của sản phẩm (chỉ nên chọn{' '}
-              <strong>một ảnh</strong> đại diện).
+              Khi chọn ảnh mới, hệ thống <strong>thay toàn bộ ảnh</strong> của sản phẩm (chỉ nên
+              chọn <strong>một ảnh</strong> đại diện).
             </p>
           )}
           <Form.Item label={isEdit ? 'Ảnh mới (tuỳ chọn, tối đa 1)' : 'Ảnh (có thể nhiều file)'}>
@@ -578,7 +622,8 @@ const BoxVegetables: React.FC = () => {
           </Form.Item>
           {!isEdit && (
             <p className="text-xs text-gray-500">
-              <InboxOutlined /> Thêm mới: có thể nhiều ảnh. Gắn SP có sẵn: ảnh upload sẽ nối thêm vào sản phẩm.
+              <InboxOutlined /> Thêm mới: có thể nhiều ảnh. Gắn SP có sẵn: ảnh upload sẽ nối thêm
+              vào sản phẩm.
             </p>
           )}
         </Form>

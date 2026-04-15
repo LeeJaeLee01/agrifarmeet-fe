@@ -79,13 +79,15 @@ const ExperienceWeekly: React.FC = () => {
   const loadProducts = useCallback(async () => {
     try {
       setLoadingProducts(true);
-      const res = await api.get('/categories');
+      const res = await api.get('/categories', { withAuth: true });
       const cats: { id: string; slug: string; name: string }[] = getPayloadData(res) ?? [];
       const list: ProductRow[] = [];
       const seen = new Set<string>();
       for (const c of cats) {
         try {
-          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=20`);
+          const pr = await api.get(`/categories/${c.slug}/products?page=1&limit=20`, {
+            withAuth: true,
+          });
           const payload = getPayloadData(pr);
           const items = payload?.items ?? [];
           for (const p of items) {
@@ -272,8 +274,9 @@ const ExperienceWeekly: React.FC = () => {
             {t('admin.experienceWeekly')}
           </h1>
           <p className="mb-0 text-sm text-gray-500">
-            Chỉ áp cho gói <strong>trải nghiệm</strong> (slug <code className="text-xs">goi-co-ban</code>). Mỗi
-            lần lưu sẽ <strong>thay toàn bộ</strong> danh sách rau của tuần đã chọn.
+            Chỉ áp cho gói <strong>trải nghiệm</strong> (slug{' '}
+            <code className="text-xs">goi-co-ban</code>). Mỗi lần lưu sẽ{' '}
+            <strong>thay toàn bộ</strong> danh sách rau của tuần đã chọn.
           </p>
         </div>
 
@@ -285,7 +288,8 @@ const ExperienceWeekly: React.FC = () => {
           description={
             <ul className="mb-0 pl-4 text-sm list-disc">
               <li>
-                <strong>GET</strong> <code>/admin/experience-weekly/box-products?weekStartDate=YYYY-MM-DD</code>
+                <strong>GET</strong>{' '}
+                <code>/admin/experience-weekly/box-products?weekStartDate=YYYY-MM-DD</code>
               </li>
               <li>
                 <strong>PUT</strong> <code>/admin/experience-weekly/box-products</code> — JSON{' '}
@@ -326,7 +330,8 @@ const ExperienceWeekly: React.FC = () => {
 
           {boxInfo && (
             <Typography.Paragraph className="text-sm text-gray-600">
-              Box: <strong>{boxInfo.name}</strong> — <span className="font-mono text-xs">{boxInfo.id}</span>
+              Box: <strong>{boxInfo.name}</strong> —{' '}
+              <span className="font-mono text-xs">{boxInfo.id}</span>
             </Typography.Paragraph>
           )}
 

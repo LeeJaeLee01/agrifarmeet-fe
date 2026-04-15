@@ -15,7 +15,7 @@ import {
   Tag,
   Upload,
   Image,
-  Checkbox
+  Checkbox,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -82,8 +82,8 @@ const Boxes: React.FC = () => {
       productIds: Array.isArray(raw.productIds)
         ? raw.productIds
         : raw.products
-        ? raw.products.map((p: any) => p.id)
-        : [],
+          ? raw.products.map((p: any) => p.id)
+          : [],
     };
   };
 
@@ -91,7 +91,9 @@ const Boxes: React.FC = () => {
   const fetchBoxes = async (page = 1, limit = 20, keyword = '') => {
     try {
       setLoading(true);
-      const res = await api.get(`/boxes?page=${page}&limit=${limit}&search=${keyword}`);
+      const res = await api.get(`/boxes?page=${page}&limit=${limit}&search=${keyword}`, {
+        withAuth: true,
+      });
       const normalized = res.data.data.map((b: any) => normalizeBox(b));
       setData(normalized);
       setPagination({
@@ -116,7 +118,7 @@ const Boxes: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-      
+
       const formData = new FormData();
       Object.keys(values).forEach((key) => {
         if (key === 'clearImages' || key === 'image' || key === 'images') return;
@@ -129,9 +131,7 @@ const Boxes: React.FC = () => {
         }
       });
 
-      const selectedFiles = fileList
-        .map((f) => f.originFileObj)
-        .filter(Boolean) as File[];
+      const selectedFiles = fileList.map((f) => f.originFileObj).filter(Boolean) as File[];
 
       selectedFiles.forEach((f) => {
         formData.append('images', f);
@@ -185,7 +185,7 @@ const Boxes: React.FC = () => {
       ...box,
       clearImages: false,
     });
-    
+
     let imgs: string[] = [];
     if (Array.isArray(box.images)) {
       imgs = box.images;
@@ -218,7 +218,11 @@ const Boxes: React.FC = () => {
         } else if (!finalUrl && typeof record.images === 'string') {
           finalUrl = record.images;
         }
-        return finalUrl ? <img src={finalUrl} alt="box" className="object-cover w-16 h-16" /> : <span className="text-gray-400">—</span>;
+        return finalUrl ? (
+          <img src={finalUrl} alt="box" className="object-cover w-16 h-16" />
+        ) : (
+          <span className="text-gray-400">—</span>
+        );
       },
     },
     {
@@ -441,7 +445,13 @@ const Boxes: React.FC = () => {
               <div className="mb-2 text-sm font-medium text-gray-700">Ảnh hiện có</div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {existingImages.slice(0, 8).map((src, i) => (
-                  <Image key={`existing-${i}`} src={src} width={72} height={48} className="object-cover rounded" />
+                  <Image
+                    key={`existing-${i}`}
+                    src={src}
+                    width={72}
+                    height={48}
+                    className="object-cover rounded"
+                  />
                 ))}
               </div>
             </div>

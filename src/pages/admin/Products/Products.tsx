@@ -1,5 +1,20 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Button, Modal, Form, Input, Space, Popconfirm, Select, Upload, Image, Checkbox, Switch, Tabs } from 'antd';
+import {
+  Table,
+  Spin,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  Popconfirm,
+  Select,
+  Upload,
+  Image,
+  Checkbox,
+  Switch,
+  Tabs,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
@@ -48,7 +63,7 @@ const Products: React.FC = () => {
     limit = 20,
     keyword = '',
     slug = categorySlug,
-    tab: 'all' | 'week' = productTab
+    tab: 'all' | 'week' = productTab,
   ) => {
     if (!slug) return;
     try {
@@ -61,6 +76,7 @@ const Products: React.FC = () => {
       if (tab === 'week') q.set('isWeek', 'true');
       const res = await api.get(`/categories/${slug}/products?${q.toString()}`, {
         headers: jsonHeaders,
+        withAuth: true,
       });
       const payload = res.data.data;
       const items = payload?.items ?? [];
@@ -82,7 +98,7 @@ const Products: React.FC = () => {
   // Lấy danh sách categories — response { status, data: [...] }
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/categories', { headers: jsonHeaders });
+      const res = await api.get('/categories', { headers: jsonHeaders, withAuth: true });
       const list: TCategory[] = res.data.data ?? [];
       setCategories(list);
       return list;
@@ -108,7 +124,7 @@ const Products: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-      
+
       const formData = new FormData();
       formData.append('categoryId', values.categoryId);
       formData.append('name', values.name);
@@ -117,9 +133,7 @@ const Products: React.FC = () => {
         formData.append('description', values.description);
       }
 
-      const selectedFiles = fileList
-        .map((f) => f.originFileObj)
-        .filter(Boolean) as File[];
+      const selectedFiles = fileList.map((f) => f.originFileObj).filter(Boolean) as File[];
 
       selectedFiles.forEach((f) => {
         formData.append('images', f);
@@ -174,11 +188,17 @@ const Products: React.FC = () => {
     const productId = record.id;
     try {
       setUpdatingWeekIds((prev) => ({ ...prev, [productId]: true }));
-      await api.patch(`/admin/products/${productId}/is-week`, { isWeek: checked }, { withAuth: true });
+      await api.patch(
+        `/admin/products/${productId}/is-week`,
+        { isWeek: checked },
+        { withAuth: true },
+      );
       setData((prev) =>
         prev.map((item) =>
-          item.id === productId ? ({ ...item, isWeek: checked } as TProduct & { isWeek?: boolean }) : item
-        )
+          item.id === productId
+            ? ({ ...item, isWeek: checked } as TProduct & { isWeek?: boolean })
+            : item,
+        ),
       );
       toast.success(checked ? 'Đã bật sản phẩm tuần' : 'Đã tắt sản phẩm tuần');
     } catch (error) {
@@ -289,7 +309,7 @@ const Products: React.FC = () => {
                 weight: record.weight,
                 clearImages: false,
               });
-              
+
               let imgs: string[] = [];
               if (Array.isArray(record.images)) {
                 imgs = record.images;
@@ -379,7 +399,8 @@ const Products: React.FC = () => {
             ...pagination,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
-            onChange: (page, pageSize) => fetchProducts(page, pageSize, search, categorySlug, productTab),
+            onChange: (page, pageSize) =>
+              fetchProducts(page, pageSize, search, categorySlug, productTab),
             onShowSizeChange: (current, size) =>
               fetchProducts(current, size, search, categorySlug, productTab),
           }}
@@ -451,7 +472,13 @@ const Products: React.FC = () => {
               <div className="mb-2 text-sm font-medium text-gray-700">Ảnh hiện có</div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {existingImages.slice(0, 8).map((src, i) => (
-                  <Image key={`existing-${i}`} src={src} width={72} height={48} className="object-cover rounded" />
+                  <Image
+                    key={`existing-${i}`}
+                    src={src}
+                    width={72}
+                    height={48}
+                    className="object-cover rounded"
+                  />
                 ))}
               </div>
             </div>
