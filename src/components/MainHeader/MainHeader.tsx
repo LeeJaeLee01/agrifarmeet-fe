@@ -92,6 +92,17 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
       orderingProcessActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOpen(false);
+    const el = document.getElementById('footer-contact');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/#footer-contact');
+    }
+  };
+
   const headerClass = simple
     ? 'header header-simple'
     : `header ${sticky ? 'header-sticky' : isFixed ? 'header-fixed' : ''} ${open ? 'header-drop' : ''}`;
@@ -123,8 +134,6 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
           </div>
 
-
-
           {/* Menu desktop + mobile toggle */}
           <div className="flex items-center gap-5 shrink-0">
             <div className="items-center hidden gap-5 md:flex">
@@ -143,12 +152,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/chinh-sach" className={introducePolicyClass}>
                 {t('common.policy')}
               </NavLink>
-      
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}
               </NavLink>
               <a
                 href="/#footer-contact"
+                onClick={handleContactClick}
                 className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
               >
                 {t('common.contact')}
@@ -192,8 +201,6 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
           </div>
         </div>
 
-
-
         {/* Mobile menu dropdown */}
         <div
           className={`absolute max-h-fit -z-10 left-0 w-full shadow-sm transition-all overflow-hidden bg-white top-20 md:hidden bg-gray-50 ${
@@ -210,10 +217,18 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/boxes" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.allBoxes')}
             </NavLink>
-            <NavLink to="/chinh-sach" className={introducePolicyClass} onClick={() => setOpen(false)}>
+            <NavLink
+              to="/chinh-sach"
+              className={introducePolicyClass}
+              onClick={() => setOpen(false)}
+            >
               {t('common.policy')}
             </NavLink>
-            <NavLink to="/quy-trinh-dat-hang" className={introduceProcessClass} onClick={() => setOpen(false)}>
+            <NavLink
+              to="/quy-trinh-dat-hang"
+              className={introduceProcessClass}
+              onClick={() => setOpen(false)}
+            >
               {t('common.process')}
             </NavLink>
             <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
@@ -221,8 +236,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
             <a
               href="/#footer-contact"
+              onClick={handleContactClick}
               className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
-              onClick={() => setOpen(false)}
             >
               {t('common.contact')}
             </a>

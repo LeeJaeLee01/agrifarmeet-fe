@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
+import { useTitle } from '../../hooks/useTitle';
 import api from '../../utils/api';
 import { TBox } from '../../types/TBox';
 import { TProduct } from '../../types/TProduct';
@@ -18,6 +19,7 @@ import PackagesSection from '../../components/PackagesSection/PackagesSection';
 
 const Landing: React.FC = () => {
   const { t, i18n } = useTranslation();
+  useTitle('Farme - Nông sản sạch, minh bạch, an toàn, bền vững');
   const farmerImageUrl =
     'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg';
   const [boxes, setBoxes] = useState<TBox[]>([]);
@@ -104,12 +106,12 @@ const Landing: React.FC = () => {
         const productsData = Array.isArray(rawData?.data?.items)
           ? rawData.data.items
           : Array.isArray(rawData)
-          ? rawData
-          : Array.isArray(rawData.data)
-            ? rawData.data
-            : rawData.data
-              ? [rawData.data]
-              : [];
+            ? rawData
+            : Array.isArray(rawData.data)
+              ? rawData.data
+              : rawData.data
+                ? [rawData.data]
+                : [];
         setProducts(productsData);
       } catch (err) {
         console.error('Error fetching weekly products:', err);
@@ -247,7 +249,6 @@ const Landing: React.FC = () => {
             modules={[Autoplay, Navigation]}
             navigation
             autoplay={{ delay: 5000, disableOnInteraction: false }}
-            loop={true}
             className="hero-swiper"
           >
             {[
@@ -325,7 +326,9 @@ const Landing: React.FC = () => {
                         ? (() => {
                             try {
                               const parsed = JSON.parse(product.images || '[]');
-                              return Array.isArray(parsed) && parsed[0] ? parsed[0] : product.images;
+                              return Array.isArray(parsed) && parsed[0]
+                                ? parsed[0]
+                                : product.images;
                             } catch {
                               return product.images;
                             }
@@ -367,7 +370,9 @@ const Landing: React.FC = () => {
                         ? (() => {
                             try {
                               const parsed = JSON.parse(product.images || '[]');
-                              return Array.isArray(parsed) && parsed[0] ? parsed[0] : product.images;
+                              return Array.isArray(parsed) && parsed[0]
+                                ? parsed[0]
+                                : product.images;
                             } catch {
                               return product.images;
                             }
@@ -438,7 +443,9 @@ const Landing: React.FC = () => {
                           draggable={false}
                         />
                       ) : (
-                        <div className="review-photo-placeholder">{t('landing.noFeedbackImage')}</div>
+                        <div className="review-photo-placeholder">
+                          {t('landing.noFeedbackImage')}
+                        </div>
                       )}
                     </div>
                     <div className="review-author">
@@ -489,7 +496,7 @@ const Landing: React.FC = () => {
               width={760}
               title={null}
               className="feedback-detail-modal"
-              destroyOnClose
+              destroyOnHidden
             >
               <div className="feedback-modal">
                 <div className="feedback-modal-top">
@@ -523,7 +530,9 @@ const Landing: React.FC = () => {
                         <span
                           key={i}
                           className={
-                            i < Number(selectedFeedback?.__rating ?? 0) ? 'star star-filled' : 'star'
+                            i < Number(selectedFeedback?.__rating ?? 0)
+                              ? 'star star-filled'
+                              : 'star'
                           }
                         >
                           ★
@@ -541,7 +550,7 @@ const Landing: React.FC = () => {
                           {t('landing.date')}:{' '}
                           <b>
                             {new Date(selectedFeedback.createdAt).toLocaleDateString(
-                              i18n.language === 'vi' ? 'vi-VN' : 'en-US'
+                              i18n.language === 'vi' ? 'vi-VN' : 'en-US',
                             )}
                           </b>
                         </span>
@@ -624,7 +633,6 @@ const Landing: React.FC = () => {
             </div>
           </div>
         </section>
-
 
         {/* Comparison Section */}
         {/* <section className="comparison-section">

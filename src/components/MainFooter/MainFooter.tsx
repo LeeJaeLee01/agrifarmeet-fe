@@ -11,7 +11,7 @@ const MainFooter: React.FC = () => {
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3 items-center">
           <div className="w-full lg:col-span-1">
             <img src="/logo-footer.png" alt="" className="w-80" />
-            <p className="mt-4 text-xs text-green-100">&copy; Bản quyền Farme 2026</p>
+            <p className="mt-4 text-xs text-white">&copy; Bản quyền Farme 2026</p>
           </div>
           <div className="text-white lg:col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -23,7 +23,10 @@ const MainFooter: React.FC = () => {
                   <p className="m-0">Địa chỉ: 20 Võ Chí Công, phường Tây Hồ, Hà Nội</p>
                   <p className="m-0">
                     Email:{' '}
-                    <a className="hover:text-white transition-colors" href="mailto:contact@agrifarmeet.vn">
+                    <a
+                      className="hover:text-white transition-colors"
+                      href="mailto:contact@agrifarmeet.vn"
+                    >
                       contact@agrifarmeet.vn
                     </a>
                   </p>
@@ -41,19 +44,29 @@ const MainFooter: React.FC = () => {
                 </p>
                 <ul className="flex flex-col gap-2 text-sm text-green-100">
                   <li>
-                    <a href="/introduce#cau-chuyen" className="hover:text-white transition-colors">{t('introduce.story')}</a>
+                    <Link to="/introduce#cau-chuyen" className="hover:text-white transition-colors">
+                      {t('introduce.story')}
+                    </Link>
                   </li>
                   <li>
-                    <a href="/introduce#su-menh" className="hover:text-white transition-colors">{t('introduce.mission')}</a>
+                    <Link to="/introduce#su-menh" className="hover:text-white transition-colors">
+                      {t('introduce.mission')}
+                    </Link>
                   </li>
                   <li>
-                    <a href="/introduce#gia-tri" className="hover:text-white transition-colors">{t('introduce.values')}</a>
+                    <Link to="/introduce#gia-tri" className="hover:text-white transition-colors">
+                      {t('introduce.values')}
+                    </Link>
                   </li>
                   <li>
-                    <a href="/introduce#hanh-trinh" className="hover:text-white transition-colors">{t('introduce.journey')}</a>
+                    <Link to="/introduce#hanh-trinh" className="hover:text-white transition-colors">
+                      {t('introduce.journey')}
+                    </Link>
                   </li>
                   <li>
-                    <a href="/introduce#cam-ket" className="hover:text-white transition-colors">{t('introduce.commitment')}</a>
+                    <Link to="/introduce#cam-ket" className="hover:text-white transition-colors">
+                      {t('introduce.commitment')}
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -61,13 +74,19 @@ const MainFooter: React.FC = () => {
                 <p className="mb-3 font-semibold">{t('common.menu')}</p>
                 <ul>
                   <li className="mb-2">
-                    <Link to="/">{t('common.home')}</Link>
+                    <Link to="/" className="hover:text-white transition-colors">
+                      {t('common.home')}
+                    </Link>
                   </li>
                   <li className="mb-2">
-                    <Link to="/boxes">{t('common.allBoxes')}</Link>
+                    <Link to="/boxes" className="hover:text-white transition-colors">
+                      {t('common.allBoxes')}
+                    </Link>
                   </li>
                   <li className="mb-2">
-                    <Link to="/news">{t('common.news')}</Link>
+                    <Link to="/news" className="hover:text-white transition-colors">
+                      {t('common.news')}
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -87,10 +106,10 @@ const MainFooter: React.FC = () => {
                 </div>
                 <div>
                   <p className="mb-3 font-semibold">Chứng nhận</p>
-                  <img 
-                    src="/op-da-thong-bao-bo-cong-thuong-183x60.png" 
-                    alt="Đã thông báo Bộ Công Thương" 
-                    className="h-10 object-contain" 
+                  <img
+                    src="/op-da-thong-bao-bo-cong-thuong-183x60.png"
+                    alt="Đã thông báo Bộ Công Thương"
+                    className="h-10 object-contain"
                   />
                 </div>
               </div>

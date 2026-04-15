@@ -4,8 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
-  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Roboto',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 #root {
@@ -186,14 +196,14 @@ body {
 @keyframes chat-fab-ring {
   0% {
     transform: scale(0.75);
-    opacity: 0.0;
+    opacity: 0;
   }
   20% {
     opacity: 0.65;
   }
   100% {
     transform: scale(1.15);
-    opacity: 0.0;
+    opacity: 0;
   }
 }
 
