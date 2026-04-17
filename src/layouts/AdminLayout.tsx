@@ -39,11 +39,11 @@ const AdminLayout: React.FC = () => {
   const dispatch = useDispatch();
 
   const menuItems = [
-    {
-      key: 'dashboard',
-      icon: <HomeOutlined />,
-      label: <Link to="/admin">{t('admin.dashboard')}</Link>,
-    },
+    // {
+    //   key: 'dashboard',
+    //   icon: <HomeOutlined />,
+    //   label: <Link to="/admin">{t('admin.dashboard')}</Link>,
+    // },
     {
       key: 'users',
       icon: <UserOutlined />,
@@ -64,16 +64,16 @@ const AdminLayout: React.FC = () => {
       icon: <CodeSandboxOutlined />,
       label: <Link to="/admin/boxes">{t('admin.boxes')}</Link>,
     },
-    {
-      key: 'box-vegetables',
-      icon: <UnorderedListOutlined />,
-      label: <Link to="/admin/box-vegetables">{t('admin.boxVegetables')}</Link>,
-    },
     // {
-    //   key: 'experience-weekly',
-    //   icon: <CarryOutOutlined />,
-    //   label: <Link to="/admin/experience-weekly">{t('admin.experienceWeekly')}</Link>,
+    //   key: 'box-vegetables',
+    //   icon: <UnorderedListOutlined />,
+    //   label: <Link to="/admin/box-vegetables">{t('admin.boxVegetables')}</Link>,
     // },
+    {
+      key: 'experience-weekly',
+      icon: <CarryOutOutlined />,
+      label: <Link to="/admin/experience-weekly">{t('admin.experienceWeekly')}</Link>,
+    },
     {
       key: 'feedbacks',
       icon: <CommentOutlined />,

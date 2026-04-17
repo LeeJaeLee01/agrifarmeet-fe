@@ -1,160 +1,221 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Tag, Input } from 'antd';
+import { Table, Spin, Tag, Select, Button, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
+import { ReloadOutlined } from '@ant-design/icons';
 import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
-import { TShipping } from '../../../types/TShipping';
+import { useTitle } from '../../../hooks/useTitle';
+
+const getPayload = (res: any) => res?.data?.data ?? res?.data;
+
+type ShipperOption = {
+  id: string;
+  account: string | null;
+  phone: string | null;
+  email: string | null;
+};
+
+type Delivery = {
+  id: string;
+  status: string;
+  scheduledDeliveryDate: string;
+  shipperId: string | null;
+  userBox?: {
+    user?: { account: string | null; phone: string | null };
+    box?: { name: string };
+  };
+};
+
+const statusColor = (s: string) => {
+  if (s === 'delivered' || s === 'completed') return 'green';
+  if (s === 'delivering') return 'blue';
+  if (s === 'pending') return 'gold';
+  if (s === 'cancelled') return 'red';
+  return 'default';
+};
 
 const AdminShippers: React.FC = () => {
-  const { t } = useTranslation();
-  const [data, setData] = useState<TShipping[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [search, setSearch] = useState<string>('');
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  useTitle('Quản lý shipper — Admin');
 
-  const fetchShippings = async (page = 1, limit = 10, keyword = '') => {
+  const [shippers, setShippers] = useState<ShipperOption[]>([]);
+  const [selectedShipperId, setSelectedShipperId] = useState<string | undefined>();
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+  const [loadingShippers, setLoadingShippers] = useState(false);
+  const [loadingDeliveries, setLoadingDeliveries] = useState(false);
+  const [updatingIds, setUpdatingIds] = useState<Record<string, boolean>>({});
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+
+  const fetchShippers = async () => {
     try {
-      setLoading(true);
-      const res = await api.get(`/shipping/all?search=${keyword}&limit=${limit}&page=${page}`, {
-        withAuth: true,
-      });
-      setData(res.data.data || []);
-      setPagination({
-        current: page,
-        pageSize: limit,
-        total: res.data.total || 0,
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error(t('messages.loadShippingListFailed'));
+      setLoadingShippers(true);
+      const res = await api.get('/admin/users?role=shipper&limit=100', { withAuth: true });
+      const payload = getPayload(res);
+      setShippers(payload?.items ?? payload ?? []);
+    } catch (e) {
+      console.error(e);
+      toast.error('Không tải được danh sách shipper');
     } finally {
-      setLoading(false);
+      setLoadingShippers(false);
+    }
+  };
+
+  const fetchDeliveries = async (shipperId: string, page = 1, limit = 20) => {
+    try {
+      setLoadingDeliveries(true);
+      const q = new URLSearchParams({ shipperId, page: String(page), limit: String(limit) });
+      const res = await api.get(`/deliveries?${q.toString()}`, { withAuth: true });
+      const payload = getPayload(res);
+      const items = payload?.items ?? payload ?? [];
+      const meta = payload?.meta;
+      setDeliveries(Array.isArray(items) ? items : []);
+      setPagination({
+        current: meta?.page ?? page,
+        pageSize: meta?.limit ?? limit,
+        total: meta?.total ?? items.length,
+      });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.response?.data?.message || 'Không tải được danh sách giao hàng');
+    } finally {
+      setLoadingDeliveries(false);
     }
   };
 
   useEffect(() => {
-    fetchShippings();
+    fetchShippers();
   }, []);
 
-  const renderStatus = (status: TShipping['status']) => {
-    let color: string = 'default';
-    let label = '';
-
-    switch (status) {
-      case 'pending':
-        color = 'default';
-        label = t('status.pending');
-        break;
-      case 'preparing':
-        color = 'orange';
-        label = t('status.preparing');
-        break;
-      case 'delivering':
-        color = 'blue';
-        label = t('status.delivering');
-        break;
-      case 'delivered':
-        color = 'green';
-        label = t('status.delivered');
-        break;
-      case 'cancelled':
-        color = 'red';
-        label = t('status.cancelled');
-        break;
-      default:
-        label = status;
-    }
-
-    return <Tag color={color}>{label}</Tag>;
+  const handleSelectShipper = (id: string) => {
+    setSelectedShipperId(id);
+    setDeliveries([]);
+    fetchDeliveries(id, 1, pagination.pageSize);
   };
 
-  const columns: ColumnsType<TShipping> = [
+  const handleUpdateStatus = async (deliveryId: string, status: string) => {
+    try {
+      setUpdatingIds((prev) => ({ ...prev, [deliveryId]: true }));
+      await api.patch(`/deliveries/${deliveryId}/status`, { status }, { withAuth: true });
+      toast.success('Đã cập nhật trạng thái');
+      setDeliveries((prev) => prev.map((d) => (d.id === deliveryId ? { ...d, status } : d)));
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Cập nhật thất bại');
+    } finally {
+      setUpdatingIds((prev) => ({ ...prev, [deliveryId]: false }));
+    }
+  };
+
+  const STATUS_OPTIONS = [
+    { value: 'picking_up', label: 'Lên đơn' },
+    { value: 'delivering', label: 'Đang vận chuyển' },
+    { value: 'completed', label: 'Hoàn thành' },
+  ];
+
+  const columns: ColumnsType<Delivery> = [
     {
-      title: 'ID',
+      title: 'STT',
+      width: 56,
+      align: 'center',
+      render: (_a, _b, i) => (pagination.current - 1) * pagination.pageSize + i + 1,
+    },
+    {
+      title: 'ID giao hàng',
       dataIndex: 'id',
-      key: 'id',
-      width: 220,
+      width: 300,
       ellipsis: true,
-      // ID không cần dịch vì là mã định danh
     },
     {
-      title: t('admin.scheduledDate'),
-      dataIndex: 'scheduledAt',
-      key: 'scheduledAt',
-      width: 180,
-      render: (date: string) => formatDate(date),
+      title: 'Trạng thái',
+      width: 120,
+      render: (_, r) => <Tag color={statusColor(r.status)}>{r.status}</Tag>,
     },
     {
-      title: t('admin.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: 'Ngày giao',
       width: 140,
-      render: (status: TShipping['status']) => renderStatus(status),
+      render: (_, r) => formatDate(r.scheduledDeliveryDate),
     },
     {
-      title: t('admin.deliveryAddress'),
-      dataIndex: 'deliveryAddress',
-      key: 'deliveryAddress',
-      width: 260,
+      title: 'Khách hàng',
+      width: 150,
+      render: (_, r) => r.userBox?.user?.account || r.userBox?.user?.phone || '—',
+    },
+    {
+      title: 'Gói',
+      width: 160,
       ellipsis: true,
+      render: (_, r) => r.userBox?.box?.name || '—',
     },
     {
-      title: t('admin.assignedShipper'),
-      dataIndex: ['shipper', 'username'],
-      key: 'shipper',
+      title: 'Cập nhật trạng thái',
       width: 180,
-      render: (_: unknown, record: TShipping) =>
-        record.shipper ? record.shipper.username : <span className="text-text3">{t('admin.notAssigned')}</span>,
+      fixed: 'right' as const,
+      render: (_, r) => (
+        <Select
+          size="small"
+          style={{ width: '100%' }}
+          value={r.status}
+          loading={!!updatingIds[r.id]}
+          options={STATUS_OPTIONS}
+          onChange={(val) => handleUpdateStatus(r.id, val)}
+        />
+      ),
     },
   ];
 
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">{t('admin.shippingList')}</h1>
+      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý shipper</h1>
 
-      <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
-        <Input.Search
-          placeholder={t('admin.searchByShipper')}
-          allowClear
-          enterButton
-          style={{ maxWidth: 350 }}
-          onSearch={(value) => {
-            setSearch(value);
-            fetchShippings(1, pagination.pageSize, value);
-          }}
-          onChange={(e) => {
-            if (!e.target.value) {
-              setSearch('');
-              fetchShippings(1, pagination.pageSize, '');
+      <div className="flex flex-wrap items-end gap-3 mb-6">
+        <div>
+          <div className="mb-1 text-xs text-gray-500">Chọn shipper</div>
+          <Select
+            style={{ width: 240 }}
+            placeholder="Chọn shipper để xem đơn"
+            loading={loadingShippers}
+            value={selectedShipperId}
+            onChange={handleSelectShipper}
+            options={shippers.map((s) => ({
+              value: s.id,
+              label: s.account || s.phone || s.id,
+            }))}
+          />
+        </div>
+        {selectedShipperId && (
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() =>
+              fetchDeliveries(selectedShipperId, pagination.current, pagination.pageSize)
             }
-          }}
-        />
+          >
+            Làm mới
+          </Button>
+        )}
       </div>
 
-      <Spin spinning={loading}>
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={data}
-          bordered
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            onChange: (page, pageSize) => fetchShippings(page, pageSize, search),
-            onShowSizeChange: (current, size) => fetchShippings(current, size, search),
-          }}
-          scroll={{ x: 1100 }}
-        />
-      </Spin>
+      {selectedShipperId ? (
+        <Spin spinning={loadingDeliveries}>
+          <Table
+            rowKey="id"
+            columns={columns}
+            dataSource={deliveries}
+            bordered
+            scroll={{ x: 900 }}
+            pagination={{
+              ...pagination,
+              showSizeChanger: true,
+              onChange: (page, pageSize) =>
+                fetchDeliveries(selectedShipperId, page, pageSize ?? 20),
+            }}
+          />
+        </Spin>
+      ) : (
+        <div className="py-16 text-center text-gray-400">
+          Chọn một shipper để xem danh sách giao hàng
+        </div>
+      )}
     </Fragment>
   );
 };
 
 export default AdminShippers;
-
-

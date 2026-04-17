@@ -19,10 +19,13 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Interceptor cho request — ưu tiên token Redux; fallback adminToken (đăng nhập /admin)
+// Interceptor cho request — ưu tiên adminToken cho route /admin; fallback Redux token
 api.interceptors.request.use((config: InternalAxiosRequestConfig & { withAuth?: boolean }) => {
+  const isAdminRoute =
+    config.url?.startsWith('/admin') || config.url?.startsWith('/users/shippers');
+  const adminToken = localStorage.getItem('adminToken');
   const stateToken = (store.getState() as RootState).auth.token;
-  const token = stateToken || localStorage.getItem('adminToken');
+  const token = isAdminRoute ? adminToken || stateToken : stateToken || adminToken;
 
   if (token && config.withAuth) {
     if (!config.headers) {

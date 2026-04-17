@@ -162,6 +162,10 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               >
                 {t('common.contact')}
               </a>
+              <NavLink to="/order-lookup" className={navLinkClass}>
+                {/* {t('common.news')} */}
+                Đơn hàng
+              </NavLink>
 
               {/* {simple ? (
               <LanguageSwitcher />

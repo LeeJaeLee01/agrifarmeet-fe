@@ -4,12 +4,32 @@
   background: #ffffff;
 
   /* Nút nổi theo khung nhìn — đặt ở đây, không trong .hero-section (có transform → fixed lệch) */
-  .hero-scroll-hint {
+  .hero-scroll-hint-group {
     position: fixed;
-    left: 50%;
+    left: 0;
     bottom: 18px;
-    transform: translateX(-50%);
+    width: 100%;
     z-index: 1200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+
+    &.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+    }
+
+    @media (min-width: 768px) {
+      bottom: 22px;
+    }
+  }
+
+  .hero-scroll-hint {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -31,7 +51,6 @@
       opacity: 0;
       pointer-events: none;
       animation: none;
-      transform: translateX(-50%) translateY(8px);
     }
 
     &__text {
@@ -46,7 +65,6 @@
     }
 
     @media (min-width: 768px) {
-      bottom: 22px;
       padding: 12px 16px;
 
       &__text {
@@ -77,10 +95,10 @@
 @keyframes heroScrollHintBounce {
   0%,
   100% {
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
   50% {
-    transform: translate(-50%, -8px);
+    transform: translateY(-8px);
   }
 }
 
@@ -400,8 +418,8 @@
     }
 
     @media (min-width: 1200px) {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px; // Reduce gap to fit 3 items comfortably
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
     }
   }
 

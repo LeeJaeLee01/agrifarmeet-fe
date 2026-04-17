@@ -44,8 +44,8 @@ export type PackagesSectionProps = {
 };
 
 function getBoxDisplay(box: TBox, t: (k: string) => string) {
-  const includes = box.includes as Record<string, string | number | undefined>;
-  const audience = (includes.audience as string | undefined) || box.includes.serving_size;
+  const includes = (box.includes ?? {}) as Record<string, string | number | undefined>;
+  const audience = (includes.audience as string | undefined) || includes.serving_size;
   const meal_suggestion_per_week = includes.meal_suggestion_per_week as string | undefined;
   const isTrialBox = isExperienceBoxBySlug(box.slug);
   const descriptionText = box.description || t('landing.packageDescriptionFallback');
@@ -60,7 +60,7 @@ function getBoxDisplay(box: TBox, t: (k: string) => string) {
   const comboLabel = isExperienceBoxBySlug(box.slug)
     ? '(Combo 1/4 tuần)'
     : isStandardBoxBySlug(box.slug) || isFlexibleBoxBySlug(box.slug)
-      ? '(Combo 6/8 tuần)'
+      ? '(Combo 1/6/8 tuần)'
       : '';
   const total = `${includes.total} (${includes.box_weight})`;
   return { includes, audience, meal_suggestion_per_week, descriptionItems, comboLabel, total };
@@ -84,7 +84,7 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
 
   const renderPriceBlock = (box: TBox) => {
     const { amount, vndSuffix } = splitFormattedVnd(
-      box.price ? formatVND(box.price) : formatVND(360000)
+      box.price ? formatVND(box.price) : formatVND(360000),
     );
     return (
       <h2 className="price-text">
@@ -104,7 +104,10 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
 
   const renderMetaBadges = () => (
     <div className="price-meta-badges" role="note">
-      <span className="price-meta-badge price-meta-badge--vat" title={t('landing.vatIncludedTitle')}>
+      <span
+        className="price-meta-badge price-meta-badge--vat"
+        title={t('landing.vatIncludedTitle')}
+      >
         <span className="price-meta-badge__glyph" aria-hidden="true">
           ✓
         </span>
@@ -126,10 +129,8 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
   );
 
   const renderPackageCard = (box: TBox, index: number) => {
-    const { audience, meal_suggestion_per_week, descriptionItems, comboLabel, total } = getBoxDisplay(
-      box,
-      t
-    );
+    const { audience, meal_suggestion_per_week, descriptionItems, comboLabel, total } =
+      getBoxDisplay(box, t);
     const showComboLine =
       isExperienceBoxBySlug(box.slug) ||
       isStandardBoxBySlug(box.slug) ||
@@ -165,19 +166,31 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
         </div>
 
         <div className="package-action">
-          <button
-            type="button"
-            className="select-button"
-            onClick={() => {
-              if (box.slug) {
-                navigate(`/purchase/${box.slug}`);
-              } else {
-                navigate('/boxes');
-              }
-            }}
-          >
-            {t('landing.selectProduct')}
-          </button>
+          {box.slug === 'goi-qua-tang' ? (
+            <a
+              href="https://zalo.me/2768914139305378370"
+              target="_blank"
+              rel="noreferrer"
+              className="select-button"
+              style={{ display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
+            >
+              {t('landing.contactUs')}
+            </a>
+          ) : (
+            <button
+              type="button"
+              className="select-button"
+              onClick={() => {
+                if (box.slug) {
+                  navigate(`/purchase/${box.slug}`);
+                } else {
+                  navigate('/boxes');
+                }
+              }}
+            >
+              {t('landing.selectProduct')}
+            </button>
+          )}
         </div>
 
         <div className="package-features-list">
@@ -224,9 +237,7 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
               spaceBetween={16}
             >
               {boxes.map((box, index) => (
-                <SwiperSlide key={`mobile-${box.id}`}>
-                  {renderPackageCard(box, index)}
-                </SwiperSlide>
+                <SwiperSlide key={`mobile-${box.id}`}>{renderPackageCard(box, index)}</SwiperSlide>
               ))}
             </Swiper>
 

@@ -147,7 +147,7 @@ const PurchasePage: React.FC = () => {
 
   const purchaseProductRows = useMemo(
     () => (boxInfo ? getBoxProductRows(boxInfo as TBox) : []),
-    [boxInfo]
+    [boxInfo],
   );
 
   const isTrialBox = useMemo(() => {
@@ -199,7 +199,7 @@ const PurchasePage: React.FC = () => {
       visibleAddOns
         .filter((item) => selectedAddOnIds.includes(item.id))
         .reduce((sum, item) => sum + Number(item.priceAddOn || 0), 0),
-    [visibleAddOns, selectedAddOnIds]
+    [visibleAddOns, selectedAddOnIds],
   );
 
   /** Gói tiêu chuẩn / linh hoạt: combo tuần theo cấu hình. */
@@ -414,7 +414,7 @@ const PurchasePage: React.FC = () => {
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -454,9 +454,7 @@ const PurchasePage: React.FC = () => {
               className="object-cover w-11 h-11 rounded-md shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <p className="m-0 text-sm font-medium text-text1 line-clamp-2">
-                {item.name}
-              </p>
+              <p className="m-0 text-sm font-medium text-text1 line-clamp-2">{item.name}</p>
             </div>
             <p className="m-0 text-sm font-semibold text-text1 whitespace-nowrap">
               +{formatVND(Number(item.priceAddOn || 0))}
@@ -575,7 +573,9 @@ const PurchasePage: React.FC = () => {
                         {bp.category.name}
                       </p>
                     ) : null}
-                    <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">{bp.product.name}</p>
+                    <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">
+                      {bp.product.name}
+                    </p>
                     <p className="m-0 text-[10px] leading-snug text-text3">
                       {t('purchase.netWeight')}:{' '}
                       <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
@@ -618,11 +618,14 @@ const PurchasePage: React.FC = () => {
           navigate('/order-lookup');
         }}
         footer={
-          <Button type="primary" onClick={() => {
-            setShowSuccessModal(false);
-            setSuccessPayDate(null);
-            navigate('/order-lookup');
-          }}>
+          <Button
+            type="primary"
+            onClick={() => {
+              setShowSuccessModal(false);
+              setSuccessPayDate(null);
+              navigate('/order-lookup');
+            }}
+          >
             {t('purchase.ok')}
           </Button>
         }
@@ -641,7 +644,9 @@ const PurchasePage: React.FC = () => {
 
       <Section spaceBottom>
         <div className="container mx-auto">
-          <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">{t('purchase.title')}</h1>
+          <h1 className="mb-10 text-2xl font-bold md:text-3xl lg:text-4xl text-text1">
+            {t('purchase.title')}
+          </h1>
           <div className="flex flex-col justify-between w-full gap-10 lg:flex-row lg:items-start lg:gap-8 xl:gap-10">
             {/* FORM — trái 2/3 */}
             <form
@@ -653,38 +658,55 @@ const PurchasePage: React.FC = () => {
                 {t('purchase.receiverInfo')}
               </h2>
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.fullname')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.fullname')}
+                </label>
                 <Controller
                   name="fullname"
                   control={control}
                   rules={{ required: 'purchase.fullnameRequired' }}
                   render={({ field }) => (
-                    <Input {...field} placeholder={t('purchase.enterFullname')} className="h-[52px]" />
+                    <Input
+                      {...field}
+                      placeholder={t('purchase.enterFullname')}
+                      className="h-[52px]"
+                    />
                   )}
                 />
-                {errors.fullname && <p className="text-xs text-red">{t(errors.fullname.message || '')}</p>}
+                {errors.fullname && (
+                  <p className="text-xs text-red">{t(errors.fullname.message || '')}</p>
+                )}
               </div>
 
               {/* Email */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.email')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.email')}
+                </label>
                 <Controller
                   name="email"
                   control={control}
                   rules={{
                     required: 'purchase.emailRequired',
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'purchase.emailInvalid' },
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'purchase.emailInvalid',
+                    },
                   }}
                   render={({ field }) => (
                     <Input {...field} placeholder={t('purchase.enterEmail')} className="h-[52px]" />
                   )}
                 />
-                {errors.email && <p className="text-xs text-red">{t(errors.email.message || '')}</p>}
+                {errors.email && (
+                  <p className="text-xs text-red">{t(errors.email.message || '')}</p>
+                )}
               </div>
 
               {/* Phone */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.phone')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.phone')}
+                </label>
                 <Controller
                   name="phone"
                   control={control}
@@ -697,12 +719,16 @@ const PurchasePage: React.FC = () => {
                     <Input {...field} placeholder={t('purchase.enterPhone')} className="h-[52px]" />
                   )}
                 />
-                {errors.phone && <p className="text-xs text-red">{t(errors.phone.message || '')}</p>}
+                {errors.phone && (
+                  <p className="text-xs text-red">{t(errors.phone.message || '')}</p>
+                )}
               </div>
 
               {/* Province */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.province')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.province')}
+                </label>
                 <Controller
                   name="province"
                   control={control}
@@ -732,12 +758,16 @@ const PurchasePage: React.FC = () => {
                     </Select>
                   )}
                 />
-                {errors.province && <p className="text-xs text-red">{t(errors.province.message || '')}</p>}
+                {errors.province && (
+                  <p className="text-xs text-red">{t(errors.province.message || '')}</p>
+                )}
               </div>
 
               {/* District */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.district')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.district')}
+                </label>
                 <Controller
                   name="district"
                   control={control}
@@ -765,12 +795,16 @@ const PurchasePage: React.FC = () => {
                     </Select>
                   )}
                 />
-                {errors.district && <p className="text-xs text-red">{t(errors.district.message || '')}</p>}
+                {errors.district && (
+                  <p className="text-xs text-red">{t(errors.district.message || '')}</p>
+                )}
               </div>
 
               {/* Ward */}
               <div className="mb-4">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.ward')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.ward')}
+                </label>
                 <Controller
                   name="ward"
                   control={control}
@@ -800,13 +834,19 @@ const PurchasePage: React.FC = () => {
 
               {/* Address detail */}
               <div className="mb-6">
-                <label className="inline-block mb-1 text-sm font-medium">{t('purchase.addressDetail')}</label>
+                <label className="inline-block mb-1 text-sm font-medium">
+                  {t('purchase.addressDetail')}
+                </label>
                 <Controller
                   name="addressDetail"
                   control={control}
                   rules={{ required: 'purchase.addressDetailRequired' }}
                   render={({ field }) => (
-                    <Input {...field} placeholder={t('purchase.enterAddressDetail')} className="h-[52px]" />
+                    <Input
+                      {...field}
+                      placeholder={t('purchase.enterAddressDetail')}
+                      className="h-[52px]"
+                    />
                   )}
                 />
                 {errors.addressDetail && (
@@ -895,390 +935,427 @@ const PurchasePage: React.FC = () => {
             {/* Phải 1/3: thông tin gói + Rau tuần này (nếu có) */}
             <div className="order-1 flex flex-col w-full min-w-0 gap-10 lg:order-2 lg:w-4/12">
               <div className="w-full">
-              <h2 className="mb-5 pb-2 border-b border-border text-lg font-semibold lg:text-xl text-text1">
-                {t('purchase.orderInfo')}
-              </h2>
+                <h2 className="mb-5 pb-2 border-b border-border text-lg font-semibold lg:text-xl text-text1">
+                  {t('purchase.orderInfo')}
+                </h2>
 
-              {boxInfo ? (
-                <>
-                  <div className="flex w-full gap-5 pb-5 mb-5 border-b border-border">
-                    <img
-                      src={
-                        boxInfo.images?.[0] || 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'
-                      }
-                      alt=""
-                      className="block object-cover rounded-lg w-28 h-28"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start mb-1 lg:mb-2 gap-2">
-                        <p className="m-0 text-sm font-medium lg:text-lg text-text1 leading-tight break-words">
-                          {boxInfo.name}
-                        </p>
-                        <Button 
-                          type="primary" 
-                          size="small" 
-                          className="bg-green"
-                          icon={<ShareAltOutlined />} 
-                          onClick={() => setShowShareModal(true)}
-                        >
-                          {t('common.share') || 'Chia sẻ'}
-                        </Button>
-                      </div>
-                      <ul className="mb-1 lg:mb-2">
-                        {(boxInfo.description || '')
-                          .split('.')
-                          .map((item: string) => item.trim())
-                          .filter(Boolean)
-                          .map((item: string, idx: number) => (
-                            <li
-                              key={`${boxInfo.id}-desc-${idx}`}
-                              className="flex items-start gap-2 text-xs lg:text-sm text-text2"
-                            >
-                              <span
-                                className="inline-flex items-center justify-center flex-none w-5 h-5 font-bold text-green-700 rounded-full bg-green-100"
-                                aria-hidden="true"
+                {boxInfo ? (
+                  <>
+                    <div className="flex w-full gap-5 pb-5 mb-5 border-b border-border">
+                      <img
+                        src={
+                          boxInfo.images?.[0] ||
+                          'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'
+                        }
+                        alt=""
+                        className="block object-cover rounded-lg w-28 h-28"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1 lg:mb-2 gap-2">
+                          <p className="m-0 text-sm font-medium lg:text-lg text-text1 leading-tight break-words">
+                            {boxInfo.name}
+                          </p>
+                          <Button
+                            type="primary"
+                            size="small"
+                            className="bg-green"
+                            icon={<ShareAltOutlined />}
+                            onClick={() => setShowShareModal(true)}
+                          >
+                            {t('common.share') || 'Chia sẻ'}
+                          </Button>
+                        </div>
+                        <ul className="mb-1 lg:mb-2">
+                          {(boxInfo.description || '')
+                            .split('.')
+                            .map((item: string) => item.trim())
+                            .filter(Boolean)
+                            .map((item: string, idx: number) => (
+                              <li
+                                key={`${boxInfo.id}-desc-${idx}`}
+                                className="flex items-start gap-2 text-xs lg:text-sm text-text2"
                               >
-                                ✓
-                              </span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                      </ul>
+                                <span
+                                  className="inline-flex items-center justify-center flex-none w-5 h-5 font-bold text-green-700 rounded-full bg-green-100"
+                                  aria-hidden="true"
+                                >
+                                  ✓
+                                </span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
 
-                  {isExperiencePurchaseRoute ? (
-                    <>
-                      {weekVeggiesSection}
-                      {visibleAddOns.length > 0 ? (
-                        <div className="hidden pb-5 mb-5 border-b border-border lg:block">
-                          <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
-                            {t('purchase.addOn')}
-                          </h3>
-                          {renderAddOnOptions()}
-                        </div>
-                      ) : null}
-                      {isSubscriptionComboPurchase && boxInfo.slug ? (
-                        <div className="purchase-combo-picker mb-5">
-                          <div className="purchase-combo-picker__head">
-                            <h3 className="purchase-combo-picker__title">
-                              {isExperienceBoxBySlug(boxInfo.slug)
-                                ? t('purchase.comboSectionTitleTrial')
-                                : isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboSectionTitleBasic')
-                                  : t('purchase.comboSectionTitleFlexible')}
+                    {isExperiencePurchaseRoute ? (
+                      <>
+                        {weekVeggiesSection}
+                        {visibleAddOns.length > 0 ? (
+                          <div className="hidden pb-5 mb-5 border-b border-border lg:block">
+                            <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                              {t('purchase.addOn')}
                             </h3>
-                            <p
-                              className={
-                                isExperienceBoxBySlug(boxInfo.slug)
-                                  ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
-                                  : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                            {renderAddOnOptions()}
+                          </div>
+                        ) : null}
+                        {isSubscriptionComboPurchase && boxInfo.slug ? (
+                          <div className="purchase-combo-picker mb-5">
+                            <div className="purchase-combo-picker__head">
+                              <h3 className="purchase-combo-picker__title">
+                                {isExperienceBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboSectionTitleTrial')
+                                  : isStandardBoxBySlug(boxInfo.slug)
+                                    ? t('purchase.comboSectionTitleBasic')
+                                    : t('purchase.comboSectionTitleFlexible')}
+                              </h3>
+                              <p
+                                className={
+                                  isExperienceBoxBySlug(boxInfo.slug)
+                                    ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
+                                    : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                                }
+                              >
+                                {isExperienceBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboPerWeekLineTrial')
+                                  : isStandardBoxBySlug(boxInfo.slug)
+                                    ? t('purchase.comboPerWeekLineBasic')
+                                    : t('purchase.comboPerWeekLineFlexible')}
+                              </p>
+                            </div>
+                            <Radio.Group
+                              className="purchase-combo-picker__group"
+                              value={subscriptionWeeks}
+                              onChange={(e) =>
+                                setSubscriptionWeeks(e.target.value as SubscriptionWeeks)
                               }
                             >
-                              {isExperienceBoxBySlug(boxInfo.slug)
-                                ? t('purchase.comboPerWeekLineTrial')
-                                : isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboPerWeekLineBasic')
-                                  : t('purchase.comboPerWeekLineFlexible')}
-                            </p>
+                              {isExperienceBoxBySlug(boxInfo.slug) ? (
+                                <>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={1}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks1Trial', {
+                                          amount: formatVND(Number(boxInfo.price || 0)),
+                                        })}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={4}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks4Trial', {
+                                          amount: formatVND(Number(boxInfo.price || 0) * 4),
+                                        })}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={1}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks1')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={6}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks6Basic')
+                                          : t('purchase.comboWeeks6Flexible')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={8}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks8Basic')
+                                          : t('purchase.comboWeeks8Flexible')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                </>
+                              )}
+                            </Radio.Group>
                           </div>
-                          <Radio.Group
-                            className="purchase-combo-picker__group"
-                            value={subscriptionWeeks}
-                            onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
+                        ) : null}
+                        {isTrialBox || isSubscriptionComboPurchase ? (
+                          <div
+                            className="purchase-delivery-guide mb-5"
+                            role="region"
+                            aria-labelledby="purchase-delivery-guide-title"
                           >
-                            {isExperienceBoxBySlug(boxInfo.slug) ? (
-                              <>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={1}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {t('purchase.comboWeeks1Trial', {
-                                        amount: formatVND(Number(boxInfo.price || 0)),
-                                      })}
-                                    </span>
-                                  </Radio>
+                            <div className="purchase-delivery-guide__head">
+                              <h3
+                                id="purchase-delivery-guide-title"
+                                className="purchase-delivery-guide__title"
+                              >
+                                {t('purchase.deliveryGuideTitle')}
+                              </h3>
+                              <p className="purchase-delivery-guide__subtitle">
+                                {t('purchase.deliveryGuideSubtitle')}
+                              </p>
+                            </div>
+                            <ol className="purchase-delivery-guide__steps">
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  1
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep1')}
+                                  </p>
                                 </div>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={4}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {t('purchase.comboWeeks4Trial', {
-                                        amount: formatVND(Number(boxInfo.price || 0) * 4),
-                                      })}
-                                    </span>
-                                  </Radio>
+                              </li>
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  2
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep2')}
+                                  </p>
                                 </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={6}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {isStandardBoxBySlug(boxInfo.slug)
-                                        ? t('purchase.comboWeeks6Basic')
-                                        : t('purchase.comboWeeks6Flexible')}
-                                    </span>
-                                  </Radio>
+                              </li>
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  3
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep3')}
+                                  </p>
                                 </div>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={8}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {isStandardBoxBySlug(boxInfo.slug)
-                                        ? t('purchase.comboWeeks8Basic')
-                                        : t('purchase.comboWeeks8Flexible')}
-                                    </span>
-                                  </Radio>
-                                </div>
-                              </>
-                            )}
-                          </Radio.Group>
-                        </div>
-                      ) : null}
-                      {isTrialBox || isSubscriptionComboPurchase ? (
-                        <div
-                          className="purchase-delivery-guide mb-5"
-                          role="region"
-                          aria-labelledby="purchase-delivery-guide-title"
-                        >
-                          <div className="purchase-delivery-guide__head">
-                            <h3
-                              id="purchase-delivery-guide-title"
-                              className="purchase-delivery-guide__title"
-                            >
-                              {t('purchase.deliveryGuideTitle')}
-                            </h3>
-                            <p className="purchase-delivery-guide__subtitle">
-                              {t('purchase.deliveryGuideSubtitle')}
-                            </p>
+                              </li>
+                            </ol>
                           </div>
-                          <ol className="purchase-delivery-guide__steps">
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                1
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep1')}
-                                </p>
-                              </div>
-                            </li>
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                2
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep2')}
-                                </p>
-                              </div>
-                            </li>
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                3
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep3')}
-                                </p>
-                              </div>
-                            </li>
-                          </ol>
-                        </div>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      {isSubscriptionComboPurchase && boxInfo.slug ? (
-                        <div className="purchase-combo-picker mb-5">
-                          <div className="purchase-combo-picker__head">
-                            <h3 className="purchase-combo-picker__title">
-                              {isExperienceBoxBySlug(boxInfo.slug)
-                                ? t('purchase.comboSectionTitleTrial')
-                                : isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboSectionTitleBasic')
-                                  : t('purchase.comboSectionTitleFlexible')}
-                            </h3>
-                            <p
-                              className={
-                                isExperienceBoxBySlug(boxInfo.slug)
-                                  ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
-                                  : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                        ) : null}
+                      </>
+                    ) : (
+                      <>
+                        {isSubscriptionComboPurchase && boxInfo.slug ? (
+                          <div className="purchase-combo-picker mb-5">
+                            <div className="purchase-combo-picker__head">
+                              <h3 className="purchase-combo-picker__title">
+                                {isExperienceBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboSectionTitleTrial')
+                                  : isStandardBoxBySlug(boxInfo.slug)
+                                    ? t('purchase.comboSectionTitleBasic')
+                                    : t('purchase.comboSectionTitleFlexible')}
+                              </h3>
+                              <p
+                                className={
+                                  isExperienceBoxBySlug(boxInfo.slug)
+                                    ? 'purchase-combo-picker__lead purchase-combo-picker__lead--note'
+                                    : 'purchase-combo-picker__lead purchase-combo-picker__lead--price'
+                                }
+                              >
+                                {isExperienceBoxBySlug(boxInfo.slug)
+                                  ? t('purchase.comboPerWeekLineTrial')
+                                  : isStandardBoxBySlug(boxInfo.slug)
+                                    ? t('purchase.comboPerWeekLineBasic')
+                                    : t('purchase.comboPerWeekLineFlexible')}
+                              </p>
+                            </div>
+                            <Radio.Group
+                              className="purchase-combo-picker__group"
+                              value={subscriptionWeeks}
+                              onChange={(e) =>
+                                setSubscriptionWeeks(e.target.value as SubscriptionWeeks)
                               }
                             >
-                              {isExperienceBoxBySlug(boxInfo.slug)
-                                ? t('purchase.comboPerWeekLineTrial')
-                                : isStandardBoxBySlug(boxInfo.slug)
-                                  ? t('purchase.comboPerWeekLineBasic')
-                                  : t('purchase.comboPerWeekLineFlexible')}
-                            </p>
+                              {isExperienceBoxBySlug(boxInfo.slug) ? (
+                                <>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={1}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks1Trial', {
+                                          amount: formatVND(Number(boxInfo.price || 0)),
+                                        })}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={4}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks4Trial', {
+                                          amount: formatVND(Number(boxInfo.price || 0) * 4),
+                                        })}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={1}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {t('purchase.comboWeeks1')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={6}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks6Basic')
+                                          : t('purchase.comboWeeks6Flexible')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                  <div className="purchase-combo-picker__option">
+                                    <Radio value={8}>
+                                      <span className="purchase-combo-picker__option-text">
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks8Basic')
+                                          : t('purchase.comboWeeks8Flexible')}
+                                      </span>
+                                    </Radio>
+                                  </div>
+                                </>
+                              )}
+                            </Radio.Group>
                           </div>
-                          <Radio.Group
-                            className="purchase-combo-picker__group"
-                            value={subscriptionWeeks}
-                            onChange={(e) => setSubscriptionWeeks(e.target.value as SubscriptionWeeks)}
-                          >
-                            {isExperienceBoxBySlug(boxInfo.slug) ? (
-                              <>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={1}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {t('purchase.comboWeeks1Trial', {
-                                        amount: formatVND(Number(boxInfo.price || 0)),
-                                      })}
-                                    </span>
-                                  </Radio>
-                                </div>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={4}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {t('purchase.comboWeeks4Trial', {
-                                        amount: formatVND(Number(boxInfo.price || 0) * 4),
-                                      })}
-                                    </span>
-                                  </Radio>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={6}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {isStandardBoxBySlug(boxInfo.slug)
-                                        ? t('purchase.comboWeeks6Basic')
-                                        : t('purchase.comboWeeks6Flexible')}
-                                    </span>
-                                  </Radio>
-                                </div>
-                                <div className="purchase-combo-picker__option">
-                                  <Radio value={8}>
-                                    <span className="purchase-combo-picker__option-text">
-                                      {isStandardBoxBySlug(boxInfo.slug)
-                                        ? t('purchase.comboWeeks8Basic')
-                                        : t('purchase.comboWeeks8Flexible')}
-                                    </span>
-                                  </Radio>
-                                </div>
-                              </>
-                            )}
-                          </Radio.Group>
-                        </div>
-                      ) : null}
+                        ) : null}
 
-                      {isStandardBoxBySlug(boxInfo.slug) ? (
-                        <div
-                          className="purchase-standard-benefits mb-5"
-                          role="region"
-                          aria-labelledby="purchase-standard-benefits-heading"
-                        >
-                          <h3
-                            id="purchase-standard-benefits-heading"
-                            className="purchase-standard-benefits__title"
+                        {isStandardBoxBySlug(boxInfo.slug) ? (
+                          <div
+                            className="purchase-standard-benefits mb-5"
+                            role="region"
+                            aria-labelledby="purchase-standard-benefits-heading"
                           >
-                            {t('purchase.standardBenefitsTitle')}
-                          </h3>
-                          <div className="purchase-standard-benefits__body">
-                            <p className="purchase-standard-benefits__point">
-                              {t('purchase.standardBenefitsLine1')}
-                            </p>
-                            <p className="purchase-standard-benefits__note">
-                              {t('purchase.standardBenefitsNote')}
-                            </p>
-                            <p className="purchase-standard-benefits__point">
-                              {t('purchase.standardBenefitsLine2')}
-                            </p>
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {isFlexibleBoxBySlug(boxInfo.slug) ? (
-                        <div
-                          className="purchase-flexible-benefits mb-5"
-                          role="region"
-                          aria-labelledby="purchase-flexible-benefits-heading"
-                        >
-                          <h3
-                            id="purchase-flexible-benefits-heading"
-                            className="purchase-flexible-benefits__title"
-                          >
-                            {t('purchase.flexibleBenefitsTitle')}
-                          </h3>
-                          <div className="purchase-flexible-benefits__body">
-                            <p className="purchase-flexible-benefits__point">
-                              {t('purchase.flexibleBenefitsLine1')}
-                            </p>
-                            <p className="purchase-flexible-benefits__note">
-                              {t('purchase.standardBenefitsNote')}
-                            </p>
-                            <p className="purchase-flexible-benefits__point">
-                              {t('purchase.flexibleBenefitsLine2')}
-                            </p>
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {isTrialBox || isSubscriptionComboPurchase ? (
-                        <div
-                          className="purchase-delivery-guide mb-5"
-                          role="region"
-                          aria-labelledby="purchase-delivery-guide-title"
-                        >
-                          <div className="purchase-delivery-guide__head">
                             <h3
-                              id="purchase-delivery-guide-title"
-                              className="purchase-delivery-guide__title"
+                              id="purchase-standard-benefits-heading"
+                              className="purchase-standard-benefits__title"
                             >
-                              {t('purchase.deliveryGuideTitle')}
+                              {t('purchase.standardBenefitsTitle')}
                             </h3>
-                            <p className="purchase-delivery-guide__subtitle">
-                              {t('purchase.deliveryGuideSubtitle')}
-                            </p>
+                            <div className="purchase-standard-benefits__body">
+                              <p className="purchase-standard-benefits__point">
+                                {t('purchase.standardBenefitsLine1')}
+                              </p>
+                              <p className="purchase-standard-benefits__note">
+                                {t('purchase.standardBenefitsNote')}
+                              </p>
+                              <p className="purchase-standard-benefits__point">
+                                {t('purchase.standardBenefitsLine2')}
+                              </p>
+                            </div>
                           </div>
-                          <ol className="purchase-delivery-guide__steps">
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                1
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep1')}
-                                </p>
-                              </div>
-                            </li>
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                2
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep2')}
-                                </p>
-                              </div>
-                            </li>
-                            <li className="purchase-delivery-guide__step">
-                              <span className="purchase-delivery-guide__marker" aria-hidden="true">
-                                3
-                              </span>
-                              <div className="purchase-delivery-guide__card">
-                                <p className="purchase-delivery-guide__text">
-                                  {t('purchase.deliveryGuideStep3')}
-                                </p>
-                              </div>
-                            </li>
-                          </ol>
-                        </div>
-                      ) : null}
+                        ) : null}
 
-                      {visibleAddOns.length > 0 ? (
-                        <div className="hidden pb-5 mb-5 border-b border-border lg:block">
-                          <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
-                            {t('purchase.addOn')}
-                          </h3>
-                          {renderAddOnOptions()}
-                        </div>
-                      ) : null}
-                    </>
-                  )}
+                        {isFlexibleBoxBySlug(boxInfo.slug) ? (
+                          <div
+                            className="purchase-flexible-benefits mb-5"
+                            role="region"
+                            aria-labelledby="purchase-flexible-benefits-heading"
+                          >
+                            <h3
+                              id="purchase-flexible-benefits-heading"
+                              className="purchase-flexible-benefits__title"
+                            >
+                              {t('purchase.flexibleBenefitsTitle')}
+                            </h3>
+                            <div className="purchase-flexible-benefits__body">
+                              <p className="purchase-flexible-benefits__point">
+                                {t('purchase.flexibleBenefitsLine1')}
+                              </p>
+                              <p className="purchase-flexible-benefits__note">
+                                {t('purchase.standardBenefitsNote')}
+                              </p>
+                              <p className="purchase-flexible-benefits__point">
+                                {t('purchase.flexibleBenefitsLine2')}
+                              </p>
+                            </div>
+                          </div>
+                        ) : null}
 
-                  {/* <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
+                        {isTrialBox || isSubscriptionComboPurchase ? (
+                          <div
+                            className="purchase-delivery-guide mb-5"
+                            role="region"
+                            aria-labelledby="purchase-delivery-guide-title"
+                          >
+                            <div className="purchase-delivery-guide__head">
+                              <h3
+                                id="purchase-delivery-guide-title"
+                                className="purchase-delivery-guide__title"
+                              >
+                                {t('purchase.deliveryGuideTitle')}
+                              </h3>
+                              <p className="purchase-delivery-guide__subtitle">
+                                {t('purchase.deliveryGuideSubtitle')}
+                              </p>
+                            </div>
+                            <ol className="purchase-delivery-guide__steps">
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  1
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep1')}
+                                  </p>
+                                </div>
+                              </li>
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  2
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep2')}
+                                  </p>
+                                </div>
+                              </li>
+                              <li className="purchase-delivery-guide__step">
+                                <span
+                                  className="purchase-delivery-guide__marker"
+                                  aria-hidden="true"
+                                >
+                                  3
+                                </span>
+                                <div className="purchase-delivery-guide__card">
+                                  <p className="purchase-delivery-guide__text">
+                                    {t('purchase.deliveryGuideStep3')}
+                                  </p>
+                                </div>
+                              </li>
+                            </ol>
+                          </div>
+                        ) : null}
+
+                        {visibleAddOns.length > 0 ? (
+                          <div className="hidden pb-5 mb-5 border-b border-border lg:block">
+                            <h3 className="mb-3 text-sm font-semibold lg:text-base text-text1">
+                              {t('purchase.addOn')}
+                            </h3>
+                            {renderAddOnOptions()}
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+
+                    {/* <h3 className="mb-5 text-sm lg:text-base">{t('purchase.productsInBox')}</h3>
                   {purchaseProductRows.map((bp) => {
                     const imgSrc = Array.isArray(bp.product.images)
                       ? bp.product.images[0]
@@ -1315,15 +1392,14 @@ const PurchasePage: React.FC = () => {
                     );
                   })} */}
 
-                  {/* Total and Button moved to form */}
-                </>
-              ) : (
-                <p>{t('purchase.loadingBoxInfo')}</p>
-              )}
-
+                    {/* Total and Button moved to form */}
+                  </>
+                ) : (
+                  <p>{t('purchase.loadingBoxInfo')}</p>
+                )}
               </div>
 
-            {!isExperiencePurchaseRoute ? weekVeggiesSection : null}
+              {!isExperiencePurchaseRoute ? weekVeggiesSection : null}
             </div>
           </div>
         </div>
@@ -1343,7 +1419,7 @@ const PurchasePage: React.FC = () => {
             borderRadius: '20px',
             padding: '0',
             overflow: 'hidden',
-          }
+          },
         }}
         closeIcon={null}
       >
@@ -1352,12 +1428,25 @@ const PurchasePage: React.FC = () => {
             onClick={handleCloseQrModal}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
 
-          <h3 className="text-2xl font-bold text-center text-text1 mb-2">{t('purchase.qrTitle')}</h3>
+          <h3 className="text-2xl font-bold text-center text-text1 mb-2">
+            {t('purchase.qrTitle')}
+          </h3>
           <p className="text-sm text-center text-text3 mb-6">{t('purchase.scanQr')}</p>
 
           <div className="purchase-qr-frame">
@@ -1376,11 +1465,7 @@ const PurchasePage: React.FC = () => {
                   className="purchase-qr-frame__canvas"
                 />
               ) : qrImageUrl ? (
-                <img
-                  src={qrImageUrl}
-                  alt="payment-qr"
-                  className="purchase-qr-frame__qr-image"
-                />
+                <img src={qrImageUrl} alt="payment-qr" className="purchase-qr-frame__qr-image" />
               ) : (
                 <div className="purchase-qr-frame__placeholder">{t('purchase.waiting')}</div>
               )}
@@ -1426,9 +1511,9 @@ const PurchasePage: React.FC = () => {
           <div className="p-2 border rounded-xl bg-white shadow-sm mb-5">
             <QRCodeCanvas value={window.location.href} size={200} level="H" />
           </div>
-          <Button 
-            type="primary" 
-            block 
+          <Button
+            type="primary"
+            block
             className="bg-green"
             onClick={() => {
               navigator.clipboard.writeText(window.location.href);

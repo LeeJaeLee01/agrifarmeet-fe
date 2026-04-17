@@ -1,286 +1,280 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Table, Spin, Tag, Select, DatePicker, Button, Modal, Tooltip } from 'antd';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import {
+  Table,
+  Spin,
+  Tag,
+  Select,
+  Button,
+  Modal,
+  Space,
+  Input,
+  Descriptions,
+  Typography,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { useTranslation } from 'react-i18next';
 import api from '../../../utils/api';
 import { formatDate } from '../../../utils/helper';
-import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
-import 'dayjs/locale/vi';
-import { SyncOutlined, EditOutlined } from '@ant-design/icons';
+import { useTitle } from '../../../hooks/useTitle';
 
-dayjs.extend(isoWeek);
-dayjs.extend(weekOfYear);
-dayjs.locale('vi');
+const getPayload = (res: any) => res?.data?.data ?? res?.data;
 
-interface Shipping {
+type ShipperOption = { id: string; account: string; phone: string | null };
+
+type Delivery = {
   id: string;
-  scheduledAt: string;
   status: string;
-  deliveryAddress: string;
-  deliveryNote: string;
-  deliveryDay: string;
-  deliveryWeek: string;
-  createdAt: string;
-  updatedAt: string;
-  shipperId?: string | null;
-  shipperName?: string | null;
-  shipperConfidence?: string | null;
-  trafficCondition?: string | null;
-  weatherCondition?: string | null;
-}
+  scheduledDeliveryDate: string;
+  shipperId: string | null;
+};
 
-interface ShipperOption {
+type AdminUserBoxRow = {
   id: string;
-  username: string;
-  role: string;
+  status: string;
+  expiredAt: string | null;
   createdAt: string;
   updatedAt: string;
-}
+  user: {
+    id: string;
+    phone: string | null;
+    email: string | null;
+    account: string | null;
+    address: string | null;
+    addressDetail: string | null;
+  };
+  box: { id: string; name: string; slug: string; price: string; duration: number };
+  addOns: Array<{
+    id: string;
+    productId: string;
+    quantity: number;
+    priceSnapshot: number;
+    product?: { id: string; name: string; slug: string } | null;
+  }>;
+  deliveries: Delivery[];
+  transactions: Array<{
+    id: string;
+    amount: string;
+    type: string;
+    status: string;
+    referenceId: string | null;
+    paymentMethod: string | null;
+    createdAt: string;
+  }>;
+};
+
+const statusColor = (s: string) => {
+  if (s === 'active') return 'green';
+  if (s === 'pending') return 'gold';
+  if (s === 'completed') return 'blue';
+  if (s === 'cancelled') return 'red';
+  return 'default';
+};
 
 const AdminShipping: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const [data, setData] = useState<Shipping[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [assigning, setAssigning] = useState<boolean>(false);
-  const [selectedShipping, setSelectedShipping] = useState<Shipping | null>(null);
-  const [selectedShipper, setSelectedShipper] = useState<string | undefined>(undefined);
+  useTitle('Quản lý vận chuyển — Admin');
+
+  const [items, setItems] = useState<AdminUserBoxRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+  const [phoneFilter, setPhoneFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | undefined>();
+
   const [shippers, setShippers] = useState<ShipperOption[]>([]);
-  const [loadingShippers, setLoadingShippers] = useState<boolean>(false);
+  // track loading state per delivery id
+  const [assigningIds, setAssigningIds] = useState<Record<string, boolean>>({});
 
-  const getInitialDelivery = () => {
-    const today = dayjs();
-    const todayISOWeek = today.format('YYYY-[W]WW');
-    const weekday = today.day();
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailRow, setDetailRow] = useState<AdminUserBoxRow | null>(null);
 
-    let deliveryDay = 'tuesday';
-    let deliveryWeek = todayISOWeek;
-
-    if (weekday < 2) {
-      // Trước thứ 3 (CN, T2)
-      deliveryDay = 'tuesday';
-      deliveryWeek = todayISOWeek;
-    } else if (weekday >= 2 && weekday < 5) {
-      // Sau thứ 3 nhưng trước thứ 6 (T3-T5)
-      deliveryDay = 'friday';
-      deliveryWeek = todayISOWeek;
-    } else if (weekday >= 5) {
-      // Sau thứ 6 (T6-T7)
-      deliveryDay = 'tuesday';
-      deliveryWeek = today.add(1, 'week').format('YYYY-[W]WW');
-    }
-
-    return { deliveryDay, deliveryWeek };
-  };
-
-  const { deliveryDay, deliveryWeek } = getInitialDelivery();
-
-  const [selectedDay, setSelectedDay] = useState<string>(deliveryDay);
-  const [selectedWeek, setSelectedWeek] = useState<string>(deliveryWeek);
-
-  // Gọi API lấy shipping theo ngày và tuần giao
-  const fetchShipping = async (day: string, week: string) => {
-    try {
-      setLoading(true);
-      const res = await api.get(`/shipping/delivery?day=${day}&week=${week}`, {
-        withAuth: true,
-      });
-      setData(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error(t('messages.loadShippingFailed'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Gọi API lấy danh sách shippers
   const fetchShippers = async () => {
     try {
-      setLoadingShippers(true);
-      const res = await api.get(`/users/shippers`, {
-        withAuth: true,
-      });
-      setShippers(res.data.data || []);
-    } catch (error) {
-      console.error(error);
-      toast.error(t('messages.loadShipperFailed'));
-    } finally {
-      setLoadingShippers(false);
+      const res = await api.get('/admin/users?role=shipper&limit=100', { withAuth: true });
+      const payload = getPayload(res);
+      const list = payload?.items ?? payload ?? [];
+      setShippers(list);
+    } catch (e) {
+      console.error('Không tải được danh sách shipper', e);
     }
   };
+
+  const fetchList = useCallback(
+    async (page = 1, limit = 20) => {
+      try {
+        setLoading(true);
+        const q = new URLSearchParams({ page: String(page), limit: String(limit) });
+        if (phoneFilter.trim()) q.set('phone', phoneFilter.trim());
+        if (statusFilter) q.set('status', statusFilter);
+        const res = await api.get(`/admin/user-boxes?${q.toString()}`, { withAuth: true });
+        const payload = getPayload(res);
+        setItems(payload?.items ?? []);
+        const meta = payload?.meta;
+        setPagination({
+          current: meta?.page ?? page,
+          pageSize: meta?.limit ?? limit,
+          total: meta?.total ?? 0,
+        });
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e?.response?.data?.message || 'Không tải được danh sách');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [phoneFilter, statusFilter],
+  );
 
   useEffect(() => {
-    fetchShipping(selectedDay, selectedWeek);
     fetchShippers();
-  }, []);
+    fetchList(1, pagination.pageSize);
+  }, [statusFilter]);
 
-  // Chuyển status sang ngôn ngữ hiện tại
-  const renderStatus = (status: string) => {
-    let color = 'default';
-    let label = '';
-
-    switch (status) {
-      case 'preparing':
-        color = 'orange';
-        label = t(`status.preparing`);
-        break;
-      case 'delivering':
-        color = 'blue';
-        label = t(`status.delivering`);
-        break;
-      case 'completed':
-        color = 'green';
-        label = t(`status.completed`);
-        break;
-      case 'canceled':
-        color = 'red';
-        label = t(`status.canceled`);
-        break;
-      default:
-        label = status;
+  const handleAssignShipper = async (deliveryId: string, shipperId: string) => {
+    try {
+      setAssigningIds((prev) => ({ ...prev, [deliveryId]: true }));
+      await api.patch(`/deliveries/${deliveryId}/shipper`, { shipperId }, { withAuth: true });
+      toast.success('Đã cập nhật shipper');
+      // cập nhật local state thay vì refetch toàn bộ
+      setItems((prev) =>
+        prev.map((row) => ({
+          ...row,
+          deliveries: row.deliveries.map((d) => (d.id === deliveryId ? { ...d, shipperId } : d)),
+        })),
+      );
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Cập nhật shipper thất bại');
+    } finally {
+      setAssigningIds((prev) => ({ ...prev, [deliveryId]: false }));
     }
-
-    return <Tag color={color}>{label}</Tag>;
   };
 
-  const columns: ColumnsType<Shipping> = [
+  const shipperOptions = shippers.map((s) => ({
+    value: s.id,
+    label: s.account || s.phone || s.id,
+  }));
+
+  const columns: ColumnsType<AdminUserBoxRow> = [
     {
-      title: t('common.index'),
-      key: 'index',
-      width: 70,
+      title: 'STT',
+      width: 56,
       align: 'center',
-      render: (_: any, __: any, index: number) => index + 1,
+      render: (_a, _b, i) => (pagination.current - 1) * pagination.pageSize + i + 1,
     },
     {
-      title: t('admin.scheduledDate'),
-      dataIndex: 'scheduledAt',
-      key: 'scheduledAt',
-      width: 180,
-      render: (date) => formatDate(date),
+      title: 'SĐT khách',
+      width: 130,
+      render: (_, r) => r.user?.phone ?? '—',
     },
     {
-      title: t('admin.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: 'Tên',
       width: 150,
-      render: (status) => renderStatus(status),
+      render: (_, r) => r.user?.account ?? '—',
     },
     {
-      title: t('common.deliveryDay'),
-      dataIndex: 'deliveryDay',
-      key: 'deliveryDay',
-      width: 120,
-    },
-    {
-      title: t('common.deliveryWeek'),
-      dataIndex: 'deliveryWeek',
-      key: 'deliveryWeek',
-      width: 150,
-    },
-    {
-      title: t('admin.deliveryAddress'),
-      dataIndex: 'deliveryAddress',
-      key: 'deliveryAddress',
-      width: 250,
+      title: 'Gói',
+      width: 160,
       ellipsis: true,
+      render: (_, r) => r.box?.name ?? '—',
     },
     {
-      title: t('common.note'),
-      dataIndex: 'deliveryNote',
-      key: 'deliveryNote',
-      width: 250,
-      ellipsis: true,
+      title: 'Trạng thái',
+      width: 110,
+      render: (_, r) => <Tag color={statusColor(r.status)}>{r.status}</Tag>,
     },
     {
-      title: t('common.shipper'),
-      dataIndex: 'shipperName',
-      key: 'shipperName',
-      width: 180,
-      render: (name: string | null | undefined) =>
-        name ? (
-          <span>{name}</span>
-        ) : (
-          <span className="text-text3">{t('admin.notAssigned')}</span>
-        ),
+      title: 'Shipper',
+      width: 100,
+      render: (_, r) => {
+        if (!r.deliveries?.length) return <span className="text-gray-400">—</span>;
+        return (
+          <div className="flex flex-col gap-1">
+            {r.deliveries.map((d) => (
+              <div key={d.id}>
+                <Select
+                  size="small"
+                  style={{ width: '100%' }}
+                  placeholder="Chọn shipper"
+                  value={d.shipperId ?? undefined}
+                  loading={!!assigningIds[d.id]}
+                  options={shipperOptions}
+                  onChange={(val) => handleAssignShipper(d.id, val)}
+                  allowClear={false}
+                />
+              </div>
+            ))}
+          </div>
+        );
+      },
     },
     {
-      title: t('common.update'),
-      key: 'update',
+      title: 'Hết hạn',
       width: 120,
-      align: 'center',
-      render: (_, record) => (
-        <Tooltip title={t('admin.updateShipper')}>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setSelectedShipping(record);
-              setSelectedShipper(record.shipperId || undefined);
-            }}
-          />
-        </Tooltip>
+      render: (_, r) => (r.expiredAt ? formatDate(r.expiredAt) : '—'),
+    },
+    {
+      title: 'Ngày tạo',
+      width: 120,
+      render: (_, r) => formatDate(r.createdAt),
+    },
+    {
+      title: 'Thao tác',
+      width: 90,
+      fixed: 'right',
+      render: (_, r) => (
+        <Button
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setDetailRow(r);
+            setDetailOpen(true);
+          }}
+        >
+          Chi tiết
+        </Button>
       ),
     },
   ];
 
-  const parseISOWeek = (weekStr: string) => {
-    if (!weekStr || !weekStr.includes('-W')) return dayjs();
-
-    const [yearStr, weekStrNum] = weekStr.split('-W');
-    const year = parseInt(yearStr, 10);
-    const week = parseInt(weekStrNum, 10);
-
-    const jan4 = dayjs(`${year}-01-04`);
-    const startOfISOWeek1 = jan4.startOf('week').add(1, 'day');
-
-    const targetDate = startOfISOWeek1.add(week - 1, 'week');
-
-    return targetDate;
-  };
-
-  const dayOptions = [
-    { label: t('days.monday'), value: 'monday' },
-    { label: t('days.tuesday'), value: 'tuesday' },
-    { label: t('days.wednesday'), value: 'wednesday' },
-    { label: t('days.thursday'), value: 'thursday' },
-    { label: t('days.friday'), value: 'friday' },
-    { label: t('days.saturday'), value: 'saturday' },
-    { label: t('days.sunday'), value: 'sunday' },
-  ];
-
   return (
     <Fragment>
-      <h1 className="mb-5 text-lg font-bold lg:text-2xl">{t('admin.shippingManagement')}</h1>
+      <h1 className="mb-5 text-lg font-bold lg:text-2xl">Quản lý vận chuyển</h1>
 
-      {/* Bộ lọc theo ngày và tuần */}
-      <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
-        <Select
-          value={selectedDay}
-          onChange={(val) => setSelectedDay(val)}
-          style={{ width: 160 }}
-          options={dayOptions}
-        />
-        <DatePicker
-          picker="week"
-          value={parseISOWeek(selectedWeek)}
-          onChange={(date) => {
-            if (date) {
-              const formattedWeek = date.format('GGGG-[W]WW');
-              setSelectedWeek(formattedWeek);
-            }
-          }}
-          allowClear={false}
-        />
+      <div className="flex flex-wrap items-end gap-3 mb-4">
+        <div>
+          <div className="mb-1 text-xs text-gray-500">SĐT</div>
+          <Input
+            placeholder="Lọc theo SĐT"
+            allowClear
+            style={{ width: 160 }}
+            value={phoneFilter}
+            onChange={(e) => setPhoneFilter(e.target.value)}
+            onPressEnter={() => fetchList(1, pagination.pageSize)}
+          />
+        </div>
+        <div>
+          <div className="mb-1 text-xs text-gray-500">Trạng thái</div>
+          <Select
+            allowClear
+            placeholder="Tất cả"
+            style={{ width: 140 }}
+            value={statusFilter}
+            onChange={(v) => setStatusFilter(v)}
+            options={[
+              { value: 'pending', label: 'Pending' },
+              { value: 'active', label: 'Active' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'cancelled', label: 'Cancelled' },
+            ]}
+          />
+        </div>
+        <Button type="primary" onClick={() => fetchList(1, pagination.pageSize)}>
+          Lọc
+        </Button>
         <Button
-          type="primary"
-          onClick={() => fetchShipping(selectedDay, selectedWeek)}
-          loading={loading}
-          icon={<SyncOutlined />}
+          icon={<ReloadOutlined />}
+          onClick={() => fetchList(pagination.current, pagination.pageSize)}
         >
-          {t('admin.refresh')}
+          Làm mới
         </Button>
       </div>
 
@@ -288,63 +282,94 @@ const AdminShipping: React.FC = () => {
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={data}
+          dataSource={items}
           bordered
-          pagination={{ pageSize: 20 }}
           scroll={{ x: 1200 }}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            onChange: (page, pageSize) => fetchList(page, pageSize ?? 20),
+          }}
         />
       </Spin>
 
       <Modal
-        title={t('admin.updateShipper')}
-        open={!!selectedShipping}
-        onCancel={() => {
-          setSelectedShipping(null);
-          setSelectedShipper(undefined);
-        }}
-        onOk={async () => {
-          if (!selectedShipping || !selectedShipper) {
-            return;
-          }
-          try {
-            setAssigning(true);
-            await api.put(
-              `/shipping/${selectedShipping.id}/assign-shipper`,
-              {
-                shipperId: selectedShipper,
-                note: 'Assigned by admin',
-              },
-              { withAuth: true }
-            );
-            
-            toast.success(t('messages.updateShipperSuccess'));
-            setSelectedShipping(null);
-            setSelectedShipper(undefined);
-            // Refresh lại danh sách shipping để lấy dữ liệu mới nhất
-            await fetchShipping(selectedDay, selectedWeek);
-          } catch (error) {
-            console.error(error);
-            toast.error(t('messages.updateShipperFailed'));
-          } finally {
-            setAssigning(false);
-          }
-        }}
-        confirmLoading={assigning}
-        okText={t('common.save')}
-        cancelText={t('common.cancel')}
-        centered
+        title="Chi tiết đơn hàng"
+        open={detailOpen}
+        onCancel={() => setDetailOpen(false)}
+        footer={null}
+        width={720}
+        destroyOnClose
       >
-        <p className="mb-2 text-sm text-text2">
-          {t('admin.selectShipperForOrder')} <strong>{selectedShipping?.id}</strong>
-        </p>
-        <Select
-          value={selectedShipper}
-          onChange={(value) => setSelectedShipper(value)}
-          placeholder={t('admin.selectShipper')}
-          style={{ width: '100%' }}
-          loading={loadingShippers}
-          options={shippers.map((s) => ({ label: s.username, value: s.id }))}
-        />
+        {detailRow && (
+          <div className="max-h-[70vh] overflow-y-auto">
+            <Descriptions bordered size="small" column={1} className="mb-4">
+              <Descriptions.Item label="ID">{detailRow.id}</Descriptions.Item>
+              <Descriptions.Item label="Trạng thái">
+                <Tag color={statusColor(detailRow.status)}>{detailRow.status}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Hết hạn">
+                {detailRow.expiredAt ? formatDate(detailRow.expiredAt) : '—'}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Typography.Title level={5}>Khách hàng</Typography.Title>
+            <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item label="Tên">{detailRow.user?.account || '—'}</Descriptions.Item>
+              <Descriptions.Item label="SĐT">{detailRow.user?.phone}</Descriptions.Item>
+              <Descriptions.Item label="Email">{detailRow.user?.email}</Descriptions.Item>
+              <Descriptions.Item label="Địa chỉ">{detailRow.user?.address}</Descriptions.Item>
+              <Descriptions.Item label="Chi tiết địa chỉ">
+                {detailRow.user?.addressDetail}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Typography.Title level={5} className="mt-4">
+              Gói đã mua
+            </Typography.Title>
+            <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item label="Tên">{detailRow.box?.name}</Descriptions.Item>
+              <Descriptions.Item label="Slug">{detailRow.box?.slug}</Descriptions.Item>
+              <Descriptions.Item label="Giá">{detailRow.box?.price} VND</Descriptions.Item>
+            </Descriptions>
+
+            <Typography.Title level={5} className="mt-4">
+              Giao hàng
+            </Typography.Title>
+            <ul className="pl-5 text-sm list-disc">
+              {(detailRow.deliveries ?? []).map((d) => (
+                <li key={d.id}>
+                  {d.status} — {formatDate(d.scheduledDeliveryDate)} — shipper: {d.shipperId ?? '—'}
+                </li>
+              ))}
+              {(detailRow.deliveries ?? []).length === 0 && <li>—</li>}
+            </ul>
+
+            <Typography.Title level={5} className="mt-4">
+              Add-on
+            </Typography.Title>
+            <ul className="pl-5 text-sm list-disc">
+              {(detailRow.addOns ?? []).map((a) => (
+                <li key={a.id}>
+                  {a.product?.name ?? a.productId} × {a.quantity} ({a.priceSnapshot}đ)
+                </li>
+              ))}
+              {(detailRow.addOns ?? []).length === 0 && <li>—</li>}
+            </ul>
+
+            <Typography.Title level={5} className="mt-4">
+              Giao dịch
+            </Typography.Title>
+            <ul className="pl-5 text-sm list-disc">
+              {(detailRow.transactions ?? []).map((t) => (
+                <li key={t.id}>
+                  {t.type} {t.amount}đ — {t.status} — {t.referenceId ?? '—'}
+                </li>
+              ))}
+              {(detailRow.transactions ?? []).length === 0 && <li>—</li>}
+            </ul>
+          </div>
+        )}
       </Modal>
     </Fragment>
   );

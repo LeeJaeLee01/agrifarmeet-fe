@@ -43,8 +43,29 @@ const Landing: React.FC = () => {
   const heroRef = useRef<HTMLElement | null>(null);
   const [showHeroScrollHint, setShowHeroScrollHint] = useState(true);
 
+  const [isWeeklyModalOpen, setIsWeeklyModalOpen] = useState(false);
+  const [weeklyModalData, setWeeklyModalData] = useState<{
+    box: { name: string };
+    weekStartDate: string;
+    items: any[];
+  } | null>(null);
+  const [weeklyModalLoading, setWeeklyModalLoading] = useState(false);
+
+  const handleShowWeekly = async () => {
+    setIsWeeklyModalOpen(true);
+    if (weeklyModalData) return; // đã load rồi thì không load lại
+    try {
+      setWeeklyModalLoading(true);
+      const res = await api.get('/boxes/goi-co-ban/weekly-products');
+      setWeeklyModalData(res.data?.data ?? res.data);
+    } catch (err) {
+      console.error('Error fetching weekly products modal:', err);
+    } finally {
+      setWeeklyModalLoading(false);
+    }
+  };
   const scrollToPackagesSection = () => {
-    solutionsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    weeklyRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -289,15 +310,27 @@ const Landing: React.FC = () => {
         </section>
 
         {/* fixed theo viewport: không đặt trong .hero-section (transform làm fixed bám đáy ảnh) */}
-        <button
-          type="button"
-          className={`hero-scroll-hint ${showHeroScrollHint ? '' : 'is-hidden'}`}
-          onClick={scrollToPackagesSection}
-          aria-label={t('landing.details')}
-        >
-          <span className="hero-scroll-hint__text">{t('landing.details')}</span>
-          <DownOutlined className="hero-scroll-hint__icon" />
-        </button>
+        <div className={`hero-scroll-hint-group ${showHeroScrollHint ? '' : 'is-hidden'}`}>
+          <button
+            type="button"
+            id="show-weekly"
+            className="hero-scroll-hint hero-scroll-hint--weekly"
+            onClick={handleShowWeekly}
+            aria-label={t('landing.weeklyDetails')}
+          >
+            <span className="hero-scroll-hint__text">{t('landing.weeklyDetails')}</span>
+            <DownOutlined className="hero-scroll-hint__icon" />
+          </button>
+          <button
+            type="button"
+            className="hero-scroll-hint"
+            onClick={scrollToPackagesSection}
+            aria-label={t('landing.details')}
+          >
+            <span className="hero-scroll-hint__text">{t('landing.details')}</span>
+            <DownOutlined className="hero-scroll-hint__icon" />
+          </button>
+        </div>
 
         {/* How FARME Solves It Section */}
         <PackagesSection
@@ -681,6 +714,53 @@ const Landing: React.FC = () => {
           </div>
         </section> */}
       </div>
+      <Modal
+        open={isWeeklyModalOpen}
+        onCancel={() => setIsWeeklyModalOpen(false)}
+        footer={null}
+        centered
+        width={680}
+        title={
+          weeklyModalData
+            ? `${weeklyModalData.box?.name ?? ''} — Rau tuần ${new Date(weeklyModalData.weekStartDate).toLocaleDateString('vi-VN')}`
+            : t('landing.weeklyDetails')
+        }
+        destroyOnClose
+      >
+        {weeklyModalLoading ? (
+          <div className="flex justify-center py-10">
+            <span>{t('common.loading') || 'Đang tải...'}</span>
+          </div>
+        ) : weeklyModalData ? (
+          <div className="flex flex-col gap-3 mt-2 overflow-y-auto" style={{ maxHeight: '60vh' }}>
+            {weeklyModalData.items.map((item: any) => {
+              const p = item.product;
+              const img = Array.isArray(p.images) ? p.images[0] : p.images;
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 p-3 rounded-lg border border-gray-100"
+                >
+                  {img && (
+                    <img
+                      src={img}
+                      alt={p.name}
+                      className="w-16 h-16 object-cover rounded-md shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 m-0">{p.name}</p>
+                    <p className="text-sm text-gray-500 m-0">{p.category?.name}</p>
+                    <p className="text-sm text-gray-400 m-0">
+                      {item.quantity} {item.unit} · {p.weight}g
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </Modal>
       <MainFooter />
     </Fragment>
   );
