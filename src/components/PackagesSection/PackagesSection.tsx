@@ -142,10 +142,7 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
           <img src={PACKAGE_BADGE_ICON} alt="" />
         </div>
 
-        <div
-          className="package-title-section"
-          style={box.slug === 'goi-qua-tang' ? { marginBottom: 20, flexGrow: 0 } : undefined}
-        >
+        <div className="package-title-section">
           <h3>{box.name}</h3>
           <p
             className={`package-combo-line ${showComboLine ? '' : 'package-combo-line--placeholder'}`}
@@ -186,12 +183,11 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
             )}
           </ul>
         </div>
-        {box.slug !== 'goi-qua-tang' && (
-          <div className="package-price-section">
-            {renderPriceBlock(box)}
-            {renderMetaBadges()}
-          </div>
-        )}
+
+        <div className="package-price-section">
+          {box.slug !== 'goi-qua-tang' && renderPriceBlock(box)}
+          {box.slug !== 'goi-qua-tang' && renderMetaBadges()}
+        </div>
 
         <div className="package-action">
           {box.slug === 'goi-qua-tang' ? (

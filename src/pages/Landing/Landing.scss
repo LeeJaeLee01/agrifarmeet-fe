@@ -510,12 +510,10 @@
 
     .package-title-section {
       text-align: center;
-      // margin-bottom: 20px;
-      // margin-top: 10px;
-      flex-grow: 1; // Content fills available space
+      min-height: 220px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; // Text stays at top
+      justify-content: flex-start;
 
       h3 {
         font-size: 1.5rem;
@@ -587,6 +585,7 @@
     }
 
     .package-price-section {
+      min-height: 120px;
       align-self: stretch;
       width: 100%;
       margin-top: 10px;
