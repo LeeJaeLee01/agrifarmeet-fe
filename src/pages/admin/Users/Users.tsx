@@ -19,23 +19,25 @@ const Users: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<TUser | null>(null);
 
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [search, setSearch] = useState<string>('');
 
   const [form] = Form.useForm();
 
   // Lấy danh sách users
-  const fetchUsers = async (page = 1, limit = 20, keyword = '') => {
+  const fetchUsers = async (page = 1, limit = 10, keyword = '') => {
     try {
       setLoading(true);
-      const res = await api.get(`/users?page=${page}&limit=${limit}&search=${keyword}`, {
-        withAuth: true,
-      });
-      setData(res.data.data);
+      const q = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (keyword) q.set('search', keyword);
+      const res = await api.get(`/admin/users?${q.toString()}`, { withAuth: true });
+      const payload = res.data?.data ?? res.data;
+      setData(payload?.items ?? payload ?? []);
+      const meta = payload?.meta;
       setPagination({
-        current: page,
-        pageSize: limit,
-        total: res.data.total,
+        current: meta?.page ?? page,
+        pageSize: meta?.limit ?? limit,
+        total: meta?.total ?? 0,
       });
     } catch (error) {
       console.error(error);
@@ -52,16 +54,23 @@ const Users: React.FC = () => {
   // Thêm / sửa user
   const handleAddOrEditUser = async () => {
     try {
-      console.log(123);
-
       setSubmitting(true);
       const values = await form.validateFields();
 
       if (isEdit && currentUser) {
-        await api.put(`/users/${currentUser.id}`, values, { withAuth: true });
+        await api.patch(`/admin/users/${currentUser.id}`, values, { withAuth: true });
         toast.success('Cập nhật user thành công!');
       } else {
-        await api.post('/users', values, { withAuth: true });
+        await api.post(
+          '/users/register',
+          {
+            account: values.account,
+            password: values.password,
+            ...(values.phone ? { phone: values.phone } : {}),
+            ...(values.email ? { email: values.email } : {}),
+          },
+          { withAuth: true },
+        );
         toast.success('Thêm user thành công!');
       }
 
@@ -89,9 +98,9 @@ const Users: React.FC = () => {
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: 'Tên đăng nhập',
-      dataIndex: 'username',
-      key: 'username',
+      title: 'Tên người dùng',
+      dataIndex: 'account',
+      key: 'account',
       width: 200,
       ellipsis: true,
     },
@@ -130,7 +139,11 @@ const Users: React.FC = () => {
               setCurrentUser(record);
               setOpen(true);
               form.setFieldsValue({
-                username: record.username,
+                account: record.account,
+                phone: record.phone,
+                email: record.email,
+                address: record.address,
+                addressDetail: record.addressDetail,
                 role: record.role,
               });
             }}
@@ -204,11 +217,11 @@ const Users: React.FC = () => {
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            name="username"
+            name="account"
             label="Tên đăng nhập"
-            rules={[{ required: true, message: 'Vui lòng nhập username' }]}
+            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
           >
-            <Input placeholder="Nhập username" />
+            <Input placeholder="Nhập tên đăng nhập" />
           </Form.Item>
 
           {!isEdit && (
@@ -244,6 +257,31 @@ const Users: React.FC = () => {
               >
                 <Input.Password placeholder="Nhập lại mật khẩu" />
               </Form.Item>
+
+              <Form.Item name="phone" label="Số điện thoại">
+                <Input placeholder="Nhập số điện thoại" />
+              </Form.Item>
+
+              <Form.Item name="email" label="Email">
+                <Input placeholder="Nhập email" />
+              </Form.Item>
+            </>
+          )}
+
+          {isEdit && (
+            <>
+              <Form.Item name="phone" label="Số điện thoại">
+                <Input placeholder="Nhập số điện thoại" />
+              </Form.Item>
+              <Form.Item name="email" label="Email">
+                <Input placeholder="Nhập email" />
+              </Form.Item>
+              <Form.Item name="address" label="Địa chỉ">
+                <Input placeholder="Nhập địa chỉ" />
+              </Form.Item>
+              <Form.Item name="addressDetail" label="Chi tiết địa chỉ">
+                <Input placeholder="Nhập chi tiết địa chỉ" />
+              </Form.Item>
             </>
           )}
 
@@ -255,7 +293,7 @@ const Users: React.FC = () => {
             <Select placeholder="Chọn quyền">
               <Select.Option value="admin">Admin</Select.Option>
               <Select.Option value="customer">Customer</Select.Option>
-              <Select.Option value="farmer">Farmer</Select.Option>
+              <Select.Option value="shipper">Shipper</Select.Option>
             </Select>
           </Form.Item>
         </Form>

@@ -142,7 +142,10 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
           <img src={PACKAGE_BADGE_ICON} alt="" />
         </div>
 
-        <div className="package-title-section">
+        <div
+          className="package-title-section"
+          style={box.slug === 'goi-qua-tang' ? { marginBottom: 20, flexGrow: 0 } : undefined}
+        >
           <h3>{box.name}</h3>
           <p
             className={`package-combo-line ${showComboLine ? '' : 'package-combo-line--placeholder'}`}
@@ -150,20 +153,45 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
             {comboLabel}
           </p>
           <ul className="package-description package-description--checklist">
-            {descriptionItems.map((item, i) => (
-              <li key={`${box.id}-desc-${i}`}>
-                <span className="package-description__check" aria-hidden="true">
-                  ✓
-                </span>
-                <span className="package-description__text">{item.line}</span>
-              </li>
-            ))}
+            {box.slug === 'goi-qua-tang' ? (
+              <>
+                <li key={`${box.id}-gift-0`}>
+                  <span className="package-description__check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span className="package-description__text">
+                    Hộp rau của chúng tôi là một món quà ý nghĩa và khác biệt dành tặng cho người
+                    thân, bạn bè, đối tác hoặc phúc lợi cho nhân viên vào những dịp đặc biệt. Hộp
+                    rau được đóng gói đẹp mắt, chỉn chu, mang nhiều ý nghĩa về sức khoẻ
+                  </span>
+                </li>
+                <li key={`${box.id}-gift-1`}>
+                  <span className="package-description__check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span className="package-description__text">
+                    Liên hệ với Farme để biết thêm chi tiết cũng như ưu đãi cho gói quà tặng
+                  </span>
+                </li>
+              </>
+            ) : (
+              descriptionItems.map((item, i) => (
+                <li key={`${box.id}-desc-${i}`}>
+                  <span className="package-description__check" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span className="package-description__text">{item.line}</span>
+                </li>
+              ))
+            )}
           </ul>
         </div>
-        <div className="package-price-section">
-          {renderPriceBlock(box)}
-          {renderMetaBadges()}
-        </div>
+        {box.slug !== 'goi-qua-tang' && (
+          <div className="package-price-section">
+            {renderPriceBlock(box)}
+            {renderMetaBadges()}
+          </div>
+        )}
 
         <div className="package-action">
           {box.slug === 'goi-qua-tang' ? (
@@ -193,20 +221,22 @@ const PackagesSection: React.FC<PackagesSectionProps> = ({
           )}
         </div>
 
-        <div className="package-features-list">
-          <h4>{t('landing.packageIncludes')}:</h4>
-          <ul>
-            <li>
-              <span className="icon">👥</span> {audience}
-            </li>
-            <li>
-              <span className="icon">🕐</span> {meal_suggestion_per_week}
-            </li>
-            <li>
-              <span className="icon">🥬</span> {total}
-            </li>
-          </ul>
-        </div>
+        {box.slug !== 'goi-qua-tang' && (
+          <div className="package-features-list">
+            <h4>{t('landing.packageIncludes')}:</h4>
+            <ul>
+              <li>
+                <span className="icon">👥</span> {audience}
+              </li>
+              <li>
+                <span className="icon">🕐</span> {meal_suggestion_per_week}
+              </li>
+              <li>
+                <span className="icon">🥬</span> {total}
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     );
   };
