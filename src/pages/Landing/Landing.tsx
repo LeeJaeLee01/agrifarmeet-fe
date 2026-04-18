@@ -120,26 +120,16 @@ const Landing: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchWeeklyProducts = async () => {
+    const fetchSeasonalOnSaleProducts = async () => {
       try {
-        const res = await api.get('/products/is-week');
-        const rawData = res.data as any;
-        const productsData = Array.isArray(rawData?.data?.items)
-          ? rawData.data.items
-          : Array.isArray(rawData)
-            ? rawData
-            : Array.isArray(rawData.data)
-              ? rawData.data
-              : rawData.data
-                ? [rawData.data]
-                : [];
-        setProducts(productsData);
+        const res = await api.get('/products/is-sale/all');
+        setProducts(unwrapApiList<TProduct>(res.data));
       } catch (err) {
-        console.error('Error fetching weekly products:', err);
+        console.error('Error fetching is-sale products (landing):', err);
       }
     };
 
-    fetchWeeklyProducts();
+    fetchSeasonalOnSaleProducts();
   }, []);
 
   // Auto scroll partners section on mobile every 3s

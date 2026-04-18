@@ -558,7 +558,7 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
   return (
     <>
       <Modal
-        title={t('orderLookup.addOnModalTitle')}
+        title={null}
         open={open && !showQrModal}
         onCancel={onClose}
         footer={null}
@@ -567,8 +567,6 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
         destroyOnClose
         className="order-lookup-addon-modal"
       >
-        <p className="mb-4 text-sm text-text3">{t('orderLookup.addOnModalHint')}</p>
-
         <div className="mb-6 pb-5 border-b border-[#eee]">
           <p className="mb-2 text-sm font-semibold text-text1">{t('orderLookup.addOnExtraVegTitle')}</p>
           <p className="mb-3 text-xs text-text3">{t('orderLookup.addOnExtraVegLimitHint', { max: maxExtraVeg })}</p>
@@ -733,7 +731,10 @@ const OrderLookupAddOnModal: React.FC<Props> = ({ open, onClose, box, defaultPho
           )}
         </div>
 
-        <p className="mb-2 text-sm font-semibold text-text1">{t('purchase.addOn')}</p>
+        <h3 className="mb-2 text-base font-semibold text-text1">
+          {t('orderLookup.addOnModalTitle')}
+        </h3>
+        <p className="mb-3 text-sm text-text3">{t('orderLookup.addOnModalHint')}</p>
         {loadingAddOns ? (
           <p className="text-sm text-text3">{t('orderLookup.loading')}</p>
         ) : visibleAddOns.length === 0 ? (

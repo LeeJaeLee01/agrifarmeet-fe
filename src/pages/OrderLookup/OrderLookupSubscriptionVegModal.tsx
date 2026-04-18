@@ -31,9 +31,11 @@ type Props = {
   open: boolean;
   onClose: () => void;
   box: OrderLookupAddOnBox | null;
+  /** Mở modal mua thêm add-on / rau thêm (cùng user_box) — ví dụ sau thanh toán tại Purchase */
+  onOpenAddOn?: () => void;
 };
 
-const OrderLookupSubscriptionVegModal: React.FC<Props> = ({ open, onClose, box }) => {
+const OrderLookupSubscriptionVegModal: React.FC<Props> = ({ open, onClose, box, onOpenAddOn }) => {
   const { t } = useTranslation();
   const [subCatalog, setSubCatalog] = useState<SubscriptionVegCatalogPayload | null>(null);
   const [loadingSubCatalog, setLoadingSubCatalog] = useState(false);
@@ -175,61 +177,68 @@ const OrderLookupSubscriptionVegModal: React.FC<Props> = ({ open, onClose, box }
 
       {loadingSubCatalog || loadingSubUserBox ? (
         <p className="text-sm text-text3">{t('orderLookup.loading')}</p>
-      ) : !subCatalog ? (
-        <p className="text-sm text-text3">{t('orderLookup.subscriptionVegCatalogEmpty')}</p>
       ) : (
         <>
-          {(['soft', 'hardy', 'root'] as const).map((gk) => {
-            const lim = subCatalog.limits[gk];
-            const products = subCatalog.groups[gk] ?? [];
-            return (
-              <div key={gk} className="mb-4 last:mb-0">
-                <p className="mb-1 text-xs font-medium text-text1">
-                  {subGroupLabel(gk)} —{' '}
-                  {t('orderLookup.subscriptionVegGroupLine', { max: lim.maxTypes, hint: lim.weightHint })}
-                </p>
-                {products.length === 0 ? (
-                  <p className="text-xs text-text3">{t('orderLookup.subscriptionVegNoProducts')}</p>
-                ) : (
-                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                    {products.map((p) => {
-                      const pid = String(p.id);
-                      const checked = subSelection[gk].includes(pid);
-                      const atMax = subSelection[gk].length >= lim.maxTypes;
-                      const disablePick = !checked && atMax;
-                      const imgSrc = productImageSrc(p.images);
-                      return (
-                        <label
-                          key={pid}
-                          className={`flex items-center gap-3 p-2 border rounded-lg transition-colors ${
-                            disablePick ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-                          } ${checked ? 'border-green-600 bg-green-50' : 'border-[#e9ecef] bg-white'}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            disabled={disablePick}
-                            onChange={() => toggleSubVeg(gk, pid)}
-                            className="w-4 h-4 accent-green-600"
-                          />
-                          <img
-                            src={imgSrc || 'https://via.placeholder.com/80'}
-                            alt=""
-                            className="object-cover w-11 h-11 rounded-md shrink-0"
-                          />
-                          <span className="flex-1 min-w-0 text-sm font-medium text-text1 line-clamp-2">
-                            {p.name}
-                          </span>
-                        </label>
-                      );
-                    })}
+          {!subCatalog ? (
+            <p className="text-sm text-text3">{t('orderLookup.subscriptionVegCatalogEmpty')}</p>
+          ) : (
+            <>
+              {(['soft', 'hardy', 'root'] as const).map((gk) => {
+                const lim = subCatalog.limits[gk];
+                const products = subCatalog.groups[gk] ?? [];
+                return (
+                  <div key={gk} className="mb-4 last:mb-0">
+                    <p className="mb-1 text-xs font-medium text-text1">
+                      {subGroupLabel(gk)} —{' '}
+                      {t('orderLookup.subscriptionVegGroupLine', { max: lim.maxTypes, hint: lim.weightHint })}
+                    </p>
+                    {products.length === 0 ? (
+                      <p className="text-xs text-text3">{t('orderLookup.subscriptionVegNoProducts')}</p>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {products.map((p) => {
+                          const pid = String(p.id);
+                          const checked = subSelection[gk].includes(pid);
+                          const atMax = subSelection[gk].length >= lim.maxTypes;
+                          const disablePick = !checked && atMax;
+                          const imgSrc = productImageSrc(p.images);
+                          return (
+                            <label
+                              key={pid}
+                              className={`flex items-center gap-3 p-2 border rounded-lg transition-colors ${
+                                disablePick ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                              } ${checked ? 'border-green-600 bg-green-50' : 'border-[#e9ecef] bg-white'}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                disabled={disablePick}
+                                onChange={() => toggleSubVeg(gk, pid)}
+                                className="w-4 h-4 accent-green-600"
+                              />
+                              <img
+                                src={imgSrc || 'https://via.placeholder.com/80'}
+                                alt=""
+                                className="object-cover w-11 h-11 rounded-md shrink-0"
+                              />
+                              <span className="flex-1 min-w-0 text-sm font-medium text-text1 line-clamp-2">
+                                {p.name}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
-          <div className="flex justify-end gap-2 mt-6">
+                );
+              })}
+            </>
+          )}
+          <div className="flex justify-end flex-wrap gap-2 mt-6">
             <Button onClick={onClose}>{t('purchase.close')}</Button>
+            {onOpenAddOn ? (
+              <Button onClick={onOpenAddOn}>{t('orderLookup.addOn')}</Button>
+            ) : null}
             <Button type="primary" className="bg-green" loading={savingSubVeg} onClick={handleSaveSubscriptionVeg}>
               {t('orderLookup.subscriptionVegSave')}
             </Button>

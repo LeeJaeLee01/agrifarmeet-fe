@@ -18,4 +18,6 @@ export type TProduct = {
   updatedAt: string;
   priceAddOn?: number;
   isAddOn?: boolean;
+  /** Đang mở bán (add-on / on-sale catalog); API có thể trả 0/1 */
+  isSale?: boolean | number;
 };

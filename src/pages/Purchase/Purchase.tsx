@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Input, Button, Select, Modal, Radio, Spin } from 'antd';
@@ -35,6 +35,10 @@ import {
   isExperienceBoxBySlug,
   isSubscriptionComboBoxBySlug,
 } from '../../utils/boxType';
+import OrderLookupAddOnModal, {
+  type OrderLookupAddOnBox,
+} from '../OrderLookup/OrderLookupAddOnModal';
+import OrderLookupSubscriptionVegModal from '../OrderLookup/OrderLookupSubscriptionVegModal';
 
 function productImageSrc(images: TProduct['images']): string {
   if (Array.isArray(images)) return images[0] || '';
@@ -105,6 +109,51 @@ function mapExperienceWeeklyToRows(data: ExperienceWeeklyPublicResponse): TBoxPr
   }));
 }
 
+function extractUserBoxIdFromPaymentPayload(payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const p = payload as Record<string, unknown>;
+  const nested =
+    p.data != null && typeof p.data === 'object'
+      ? (p.data as Record<string, unknown>)
+      : null;
+  const fromUserBox = (ub: unknown): string | null => {
+    if (!ub || typeof ub !== 'object' || !('id' in ub)) return null;
+    const s = String((ub as { id: unknown }).id);
+    return s !== '' ? s : null;
+  };
+  const raw: unknown =
+    p.userBoxId ??
+    p.user_box_id ??
+    fromUserBox(p.userBox) ??
+    nested?.userBoxId ??
+    nested?.user_box_id ??
+    fromUserBox(nested?.userBox);
+  if (raw == null || raw === '') return null;
+  const s = String(raw);
+  return s || null;
+}
+
+async function fetchUserBoxIdFromPhoneHistory(
+  phone: string,
+  boxId: string,
+): Promise<string | null> {
+  const trimmed = phone.replace(/\D/g, '').slice(0, 10);
+  if (trimmed.length !== 10 || !boxId) return null;
+  try {
+    const res = await api.get(`/users/phone/${encodeURIComponent(trimmed)}/history`);
+    const data = res.data?.data ?? res.data;
+    const list = Array.isArray(data) ? data : [];
+    const match = list.find(
+      (item: { userBox?: { box?: { id?: string }; id?: string }; box?: { id?: string } }) =>
+        String(item?.userBox?.box?.id ?? item?.box?.id ?? '') === String(boxId),
+    );
+    const ub = match?.userBox?.id;
+    return ub != null ? String(ub) : null;
+  } catch {
+    return null;
+  }
+}
+
 const PurchasePage: React.FC = () => {
   const { t, i18n } = useTranslation();
   useTitle(t('purchase.title'));
@@ -139,6 +188,15 @@ const PurchasePage: React.FC = () => {
   const [experienceWeeklyRows, setExperienceWeeklyRows] = useState<TBoxProductRow[]>([]);
   const [experienceWeekStartFromApi, setExperienceWeekStartFromApi] = useState<string | null>(null);
   const [experienceWeeklyLoading, setExperienceWeeklyLoading] = useState(false);
+  /** Sau khi bấm "Chọn rau" từ modal thành công — mở Chọn rau trong gói (subscription) */
+  const [postPayVegBox, setPostPayVegBox] = useState<OrderLookupAddOnBox | null>(null);
+  /** Đã thanh toán xong gói tiêu chuẩn/linh hoạt + có userBoxId — dùng khi bấm Chọn rau */
+  const [pendingSubscriptionVegBox, setPendingSubscriptionVegBox] =
+    useState<OrderLookupAddOnBox | null>(null);
+  /** SĐT người mua — truyền vào modal add-on (QR) */
+  const [purchasePhoneDigits, setPurchasePhoneDigits] = useState('');
+  const [postPayAddOnBox, setPostPayAddOnBox] = useState<OrderLookupAddOnBox | null>(null);
+  const lastPurchasePhoneRef = useRef('');
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -383,6 +441,30 @@ const PurchasePage: React.FC = () => {
           setCurrentBoxId(null);
           setCurrentOrderId(null);
           setSuccessPayDate(payload.payDate ?? null);
+
+          let userBoxId = extractUserBoxIdFromPaymentPayload(payload);
+          const phone = lastPurchasePhoneRef.current;
+          if (!userBoxId && phone && boxInfo?.id) {
+            userBoxId = await fetchUserBoxIdFromPhoneHistory(phone, String(boxInfo.id));
+          }
+
+          const pathSlug = String(boxInfo?.slug || slug || '');
+          const eligible =
+            Boolean(pathSlug && boxInfo?.id) &&
+            isSubscriptionComboBoxBySlug(boxInfo?.slug) &&
+            Boolean(userBoxId);
+
+          if (eligible && userBoxId) {
+            setPendingSubscriptionVegBox({
+              id: String(boxInfo.id),
+              slug: String(boxInfo.slug || pathSlug || boxInfo.id),
+              name: String(boxInfo.name ?? ''),
+              price: boxInfo.price != null ? Number(boxInfo.price) : null,
+              userBoxId: String(userBoxId),
+            });
+          } else {
+            setPendingSubscriptionVegBox(null);
+          }
           setShowSuccessModal(true);
         }
       } catch (err) {
@@ -393,7 +475,7 @@ const PurchasePage: React.FC = () => {
     checkPaymentStatus();
     const pollInterval = setInterval(checkPaymentStatus, 5000);
     return () => clearInterval(pollInterval);
-  }, [showQrModal, currentOrderId, navigate, t]);
+  }, [showQrModal, currentOrderId, t, boxInfo, slug]);
 
   // 🔹 Format thời gian đếm ngược thành MM:SS
   const formatTime = (seconds: number): string => {
@@ -474,6 +556,9 @@ const PurchasePage: React.FC = () => {
 
     try {
       setLoading(true);
+      const phoneDigits = data.phone.replace(/\D/g, '').slice(0, 10);
+      lastPurchasePhoneRef.current = phoneDigits;
+      setPurchasePhoneDigits(phoneDigits);
 
       // Tạo body request cho API /payment/create
       const requestBody = {
@@ -615,19 +700,37 @@ const PurchasePage: React.FC = () => {
         onOk={() => {
           setShowSuccessModal(false);
           setSuccessPayDate(null);
-          navigate('/order-lookup');
+          setPendingSubscriptionVegBox(null);
+          navigate('/');
         }}
         footer={
-          <Button
-            type="primary"
-            onClick={() => {
-              setShowSuccessModal(false);
-              setSuccessPayDate(null);
-              navigate('/order-lookup');
-            }}
-          >
-            {t('purchase.ok')}
-          </Button>
+          <div className="flex justify-center gap-3">
+            <Button
+              onClick={() => {
+                setShowSuccessModal(false);
+                setSuccessPayDate(null);
+                if (pendingSubscriptionVegBox) {
+                  setPostPayVegBox(pendingSubscriptionVegBox);
+                  setPendingSubscriptionVegBox(null);
+                } else {
+                  navigate('/order-lookup');
+                }
+              }}
+            >
+              {t('purchase.selectVeggies')}
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                setShowSuccessModal(false);
+                setSuccessPayDate(null);
+                setPendingSubscriptionVegBox(null);
+                navigate('/');
+              }}
+            >
+              {t('purchase.ok')}
+            </Button>
+          </div>
         }
         closable={false}
         centered
@@ -641,6 +744,24 @@ const PurchasePage: React.FC = () => {
           {successPayDate && <p className="payment-success-date">{successPayDate}</p>}
         </div>
       </Modal>
+
+      <OrderLookupSubscriptionVegModal
+        open={!!postPayVegBox}
+        onClose={() => setPostPayVegBox(null)}
+        box={postPayVegBox}
+        onOpenAddOn={() => {
+          if (postPayVegBox) {
+            setPostPayAddOnBox({ ...postPayVegBox });
+          }
+        }}
+      />
+
+      <OrderLookupAddOnModal
+        open={!!postPayAddOnBox}
+        onClose={() => setPostPayAddOnBox(null)}
+        box={postPayAddOnBox}
+        defaultPhone={purchasePhoneDigits}
+      />
 
       <Section spaceBottom>
         <div className="container mx-auto">
@@ -1056,7 +1177,9 @@ const PurchasePage: React.FC = () => {
                                   <div className="purchase-combo-picker__option">
                                     <Radio value={1}>
                                       <span className="purchase-combo-picker__option-text">
-                                        {t('purchase.comboWeeks1')}
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks1Basic')
+                                          : t('purchase.comboWeeks1Flexible')}
                                       </span>
                                     </Radio>
                                   </div>
@@ -1203,7 +1326,9 @@ const PurchasePage: React.FC = () => {
                                   <div className="purchase-combo-picker__option">
                                     <Radio value={1}>
                                       <span className="purchase-combo-picker__option-text">
-                                        {t('purchase.comboWeeks1')}
+                                        {isStandardBoxBySlug(boxInfo.slug)
+                                          ? t('purchase.comboWeeks1Basic')
+                                          : t('purchase.comboWeeks1Flexible')}
                                       </span>
                                     </Radio>
                                   </div>

@@ -24,7 +24,8 @@ export function getSubscriptionComboAmount(
   if (slug === 'goi-tieu-chuan') {
     if (weeks === 1) return 259_000;
     if (weeks === 6) return 1_554_000;
-    return Math.round(259_000 * 8 * 0.95); // 8 tuần giảm 5%
+    if (weeks === 8) return 1_970_000;
+    return 259_000;
   }
   // goi-linh-hoat
   if (weeks === 1) return 309_000;

@@ -255,8 +255,8 @@ const UserBoxes: React.FC = () => {
       render: (_, r) => <Tag color={statusColor(r.status)}>{r.status}</Tag>,
     },
     {
-      title: 'Add-on',
-      width: 72,
+      title: 'Tổng sản phẩm',
+      width: 120,
       align: 'center',
       render: (_, r) => r.addOns?.length ?? 0,
     },
@@ -385,7 +385,7 @@ const UserBoxes: React.FC = () => {
               <Descriptions.Item label="Giá">{detailRow.box?.price} VND</Descriptions.Item>
             </Descriptions>
             <Typography.Title level={5} className="mt-4">
-              Add-on
+              Bao gồm
             </Typography.Title>
             <ul className="pl-5 text-sm list-disc">
               {(detailRow.addOns ?? []).map((a) => (

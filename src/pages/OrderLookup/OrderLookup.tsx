@@ -297,17 +297,20 @@ const OrderLookup: React.FC = () => {
         </div>
       </Section>
 
+      <OrderLookupSubscriptionVegModal
+        open={!!vegBox}
+        onClose={() => setVegBox(null)}
+        box={vegBox}
+        onOpenAddOn={() => {
+          if (vegBox) setAddOnBox({ ...vegBox });
+        }}
+      />
+
       <OrderLookupAddOnModal
         open={!!addOnBox}
         onClose={() => setAddOnBox(null)}
         box={addOnBox}
         defaultPhone={phone}
-      />
-
-      <OrderLookupSubscriptionVegModal
-        open={!!vegBox}
-        onClose={() => setVegBox(null)}
-        box={vegBox}
       />
 
       <Modal

@@ -346,7 +346,7 @@ const AdminShipping: React.FC = () => {
             </ul>
 
             <Typography.Title level={5} className="mt-4">
-              Add-on
+              Bao gồm
             </Typography.Title>
             <ul className="pl-5 text-sm list-disc">
               {(detailRow.addOns ?? []).map((a) => (

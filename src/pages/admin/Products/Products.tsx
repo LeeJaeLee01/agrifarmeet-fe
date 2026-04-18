@@ -179,31 +179,46 @@ const Products: React.FC = () => {
     }
   };
 
-  const isWeekValue = (record: TProduct): boolean => {
-    const raw = (record as TProduct & { isWeek?: boolean | number }).isWeek;
-    return raw === true || raw === 1;
+  /** Theo mùa = mở bán (is_week + is_sale đồng bộ) */
+  const isSeasonalProduct = (record: TProduct): boolean => {
+    const rawW = (record as TProduct & { isWeek?: boolean | number }).isWeek;
+    const week = rawW === true || rawW === 1;
+    const rawS = record.isSale;
+    const sale = rawS === true || rawS === 1;
+    return week || sale;
   };
 
-  const handleToggleIsWeek = async (record: TProduct, checked: boolean) => {
+  const handleToggleSeasonal = async (record: TProduct, checked: boolean) => {
     const productId = record.id;
     try {
       setUpdatingWeekIds((prev) => ({ ...prev, [productId]: true }));
-      await api.patch(
-        `/admin/products/${productId}/is-week`,
-        { isWeek: checked },
-        { withAuth: true },
-      );
+      await Promise.all([
+        api.patch(
+          `/admin/products/${productId}/is-week`,
+          { isWeek: checked },
+          { withAuth: true },
+        ),
+        api.patch(
+          `/admin/products/${productId}/is-sale`,
+          { isSale: checked },
+          { withAuth: true },
+        ),
+      ]);
       setData((prev) =>
         prev.map((item) =>
           item.id === productId
-            ? ({ ...item, isWeek: checked } as TProduct & { isWeek?: boolean })
+            ? ({
+                ...item,
+                isWeek: checked,
+                isSale: checked,
+              } as TProduct & { isWeek?: boolean })
             : item,
         ),
       );
-      toast.success(checked ? 'Đã bật sản phẩm tuần' : 'Đã tắt sản phẩm tuần');
+      toast.success(checked ? 'Đã bật sản phẩm theo mùa' : 'Đã tắt sản phẩm theo mùa');
     } catch (error) {
       console.error(error);
-      toast.error('Cập nhật isWeek thất bại');
+      toast.error('Cập nhật sản phẩm theo mùa thất bại');
     } finally {
       setUpdatingWeekIds((prev) => ({ ...prev, [productId]: false }));
     }
@@ -262,15 +277,15 @@ const Products: React.FC = () => {
       render: (category: TCategory) => category?.name || null,
     },
     {
-      title: 'Sản phẩm tuần',
+      title: 'Sản phẩm theo mùa',
       key: 'isWeek',
       width: 130,
       align: 'center',
       render: (_: unknown, record: TProduct) => (
         <Switch
-          checked={isWeekValue(record)}
+          checked={isSeasonalProduct(record)}
           loading={!!updatingWeekIds[record.id]}
-          onChange={(checked) => handleToggleIsWeek(record, checked)}
+          onChange={(checked) => handleToggleSeasonal(record, checked)}
         />
       ),
     },
@@ -348,7 +363,7 @@ const Products: React.FC = () => {
         className="mb-2"
         items={[
           { key: 'all', label: 'Tất cả sản phẩm' },
-          { key: 'week', label: 'Rau theo tuần' },
+          { key: 'week', label: 'Rau theo mùa' },
         ]}
       />
       <div className="flex flex-wrap w-full gap-5 mb-5 md:justify-end">
