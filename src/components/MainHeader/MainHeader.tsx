@@ -164,7 +164,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               </a>
               <NavLink to="/order-lookup" className={navLinkClass}>
                 {/* {t('common.news')} */}
-                Đơn hàng
+                {t('common.orderLookup')}
               </NavLink>
 
               {/* {simple ? (
@@ -237,6 +237,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             </NavLink>
             <NavLink to="/news" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.news')}
+            </NavLink>
+            <NavLink to="/order-lookup" className={navLinkClass} onClick={() => setOpen(false)}>
+              {t('common.orderLookup')}
             </NavLink>
             <a
               href="/#footer-contact"
