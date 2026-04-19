@@ -30,5 +30,6 @@ export function getSubscriptionComboAmount(
   // goi-linh-hoat
   if (weeks === 1) return 309_000;
   if (weeks === 6) return 1_854_000;
-  return Math.round(309_000 * 8 * 0.95); // 8 tuần giảm 5%
+  if (weeks === 8) return 2_350_000;
+  return 309_000;
 }
