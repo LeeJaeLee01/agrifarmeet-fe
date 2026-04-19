@@ -740,10 +740,9 @@ const Landing: React.FC = () => {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 m-0">{p.name}</p>
-                    <p className="text-sm text-gray-500 m-0">{p.category?.name}</p>
-                    <p className="text-sm text-gray-400 m-0">
-                      {item.quantity} {item.unit} · {p.weight}g
-                    </p>
+                    {p.category?.name ? (
+                      <p className="text-sm text-gray-500 m-0">{p.category.name}</p>
+                    ) : null}
                   </div>
                 </div>
               );

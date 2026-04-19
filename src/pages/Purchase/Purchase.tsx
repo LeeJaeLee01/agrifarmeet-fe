@@ -661,16 +661,6 @@ const PurchasePage: React.FC = () => {
                     <p className="mb-0.5 text-xs font-medium text-text1 leading-snug">
                       {bp.product.name}
                     </p>
-                    <p className="m-0 text-[10px] leading-snug text-text3">
-                      {t('purchase.netWeight')}:{' '}
-                      <span>{formatWeight(bp.product.weight, bp.product.unit)}</span>
-                    </p>
-                    <p className="m-0 text-[10px] leading-snug text-text3">
-                      {t('purchase.quantity')}:{' '}
-                      <span>
-                        {bp.quantity} {bp.unit}
-                      </span>
-                    </p>
                   </div>
                 </li>
               ))}

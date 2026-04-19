@@ -45,15 +45,16 @@ type SelectedConfig = {
   isOptional: boolean;
 };
 
-function mondayString(d: Dayjs): string {
-  return d.startOf('isoWeek').format('YYYY-MM-DD');
+/** Thứ Hai đầu tuần ISO — API `weekStartDate` luôn là ngày này (YYYY-MM-DD, local). */
+function startOfIsoWeekMonday(d: Dayjs): Dayjs {
+  return d.startOf('isoWeek');
 }
 
 const ExperienceWeekly: React.FC = () => {
   const { t } = useTranslation();
   useTitle(t('admin.experienceWeekly'));
 
-  const [week, setWeek] = useState<Dayjs>(() => dayjs().startOf('isoWeek'));
+  const [week, setWeek] = useState<Dayjs>(() => startOfIsoWeekMonday(dayjs()));
   const [boxInfo, setBoxInfo] = useState<{ id: string; slug: string; name: string } | null>(null);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -63,7 +64,7 @@ const ExperienceWeekly: React.FC = () => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const weekStr = useMemo(() => mondayString(week), [week]);
+  const weekStr = useMemo(() => startOfIsoWeekMonday(week).format('YYYY-MM-DD'), [week]);
 
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -304,7 +305,9 @@ const ExperienceWeekly: React.FC = () => {
             <span className="text-sm font-medium text-gray-700">Tuần giao (Thứ Hai)</span>
             <DatePicker
               value={week}
-              onChange={(d) => d && setWeek(d)}
+              onChange={(d) => {
+                if (d) setWeek(startOfIsoWeekMonday(d));
+              }}
               format="YYYY-MM-DD"
               allowClear={false}
             />
