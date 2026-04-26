@@ -92,16 +92,6 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
       orderingProcessActive ? 'text-green2 font-semibold' : 'text-gray-700'
     }`;
 
-  const handleContactClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setOpen(false);
-    const el = document.getElementById('footer-contact');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/#footer-contact');
-    }
-  };
 
   const headerClass = simple
     ? 'header header-simple'
@@ -155,13 +145,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
               <NavLink to="/news" className={navLinkClass}>
                 {t('common.news')}
               </NavLink>
-              <a
-                href="/#footer-contact"
-                onClick={handleContactClick}
-                className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
-              >
+              <NavLink to="/contact" className={navLinkClass}>
                 {t('common.contact')}
-              </a>
+              </NavLink>
               <NavLink to="/order-lookup" className={navLinkClass}>
                 {/* {t('common.news')} */}
                 {t('common.orderLookup')}
@@ -241,13 +227,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ sticky = false, simple = false 
             <NavLink to="/order-lookup" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.orderLookup')}
             </NavLink>
-            <a
-              href="/#footer-contact"
-              onClick={handleContactClick}
-              className="block lg:px-3 lg:py-2 text-[16px] transition-colors duration-200 hover:text-green2 text-gray-700"
-            >
+            <NavLink to="/contact" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.contact')}
-            </a>
+            </NavLink>
             {/* <NavLink to="/home" className={navLinkClass} onClick={() => setOpen(false)}>
               {t('common.home')}
             </NavLink>

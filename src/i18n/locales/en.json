@@ -618,6 +618,10 @@
     "toastNoOrders": "No orders found for this phone number.",
     "toastLookupFailed": "Could not look up orders.",
     "toastDeliveryLoadFailed": "Could not load delivery details.",
+    "quantityLabel": "Box quantity",
+    "totalQuantity": "Total boxes owned",
+    "packageStatus": "Package status",
+    "expiredAtLabel": "Expiry date",
     "vegetablesInBox": "Vegetables in the box",
     "userAddOns": "Add-on products",
     "noProducts": "No products in this box.",
@@ -638,6 +642,20 @@
     "values": "Core Values",
     "journey": "Our Journey",
     "commitment": "Commitment"
+  },
+  "contact": {
+    "heroSubtitle": "The journey of clean produce always needs your companionship. Please contact us if you have any questions.",
+    "titleInfo": "Contact Farme",
+    "infoDesc": "We are always ready to listen to your feedback and answer any questions about our products and services.",
+    "formTitle": "Send us a message",
+    "subject": "Subject",
+    "subjectPlaceholder": "What are you interested in?",
+    "subjectRequired": "Please enter a subject",
+    "message": "Message content",
+    "messagePlaceholder": "Enter your message here...",
+    "messageRequired": "Please enter a message",
+    "sendMessage": "Send message",
+    "successMessage": "Thank you for contacting us! We will respond as soon as possible."
   },
   "orderingProcess": {
     "pageTitle": "How to order",

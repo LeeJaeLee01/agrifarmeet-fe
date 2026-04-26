@@ -202,11 +202,27 @@ const OrderLookup: React.FC = () => {
                               {userBox.status ?? '—'}
                             </span>
                           </div>
+                          {userBox.totalQuantity != null && (
+                            <div className="order-card-section">
+                              <span className="section-label">{t('orderLookup.quantityLabel') || 'Số lượng box'}</span>
+                              <span className="section-value font-bold text-green-700">
+                                {userBox.totalQuantity}
+                              </span>
+                            </div>
+                          )}
                           {paymentTx && (
                             <div className="order-card-section">
                               <span className="section-label">{t('orderLookup.payment')}</span>
                               <span className={`section-value status-badge status-${paymentTx.status ?? 'pending'}`}>
                                 {paymentTx.status ?? '—'}
+                              </span>
+                            </div>
+                          )}
+                          {userBox.expiredAt && (
+                            <div className="order-card-section">
+                              <span className="section-label">{t('orderLookup.expiredAtLabel') || 'Ngày hết hạn'}</span>
+                              <span className="section-value text-red-600 font-medium">
+                                {formatDate(userBox.expiredAt)}
                               </span>
                             </div>
                           )}

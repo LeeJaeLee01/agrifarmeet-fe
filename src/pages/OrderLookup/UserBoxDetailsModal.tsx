@@ -63,6 +63,24 @@ const UserBoxDetailsModal: React.FC<UserBoxDetailsModalProps> = ({ open, userBox
         <p className="text-sm text-text3 my-4">{t('orderLookup.loading') || 'Đang tải...'}</p>
       ) : data ? (
         <div className="max-h-[70vh] overflow-y-auto pr-2 mt-4 space-y-6">
+          <div className="bg-green-50 p-4 rounded-xl border border-green-100 flex justify-between items-center">
+            <div>
+              <p className="text-xs text-green-700 font-medium uppercase tracking-wider mb-1">
+                {t('orderLookup.packageStatus') || 'Trạng thái gói'}
+              </p>
+              <p className="text-lg font-bold text-green-900 leading-none">
+                {data.status === 'active' ? 'Đang hoạt động' : data.status}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-green-700 font-medium uppercase tracking-wider mb-1">
+                {t('orderLookup.totalQuantity') || 'Số lượng box sở hữu'}
+              </p>
+              <p className="text-2xl font-black text-green-700 leading-none">
+                {data.totalQuantity ?? 1}
+              </p>
+            </div>
+          </div>
           {/* Rau đăng ký đã lưu trong box_products */}
           {data.subscriptionVegBoxProducts && data.subscriptionVegBoxProducts.length > 0 && (
             <div>

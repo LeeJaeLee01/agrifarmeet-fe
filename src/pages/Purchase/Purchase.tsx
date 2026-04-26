@@ -196,6 +196,7 @@ const PurchasePage: React.FC = () => {
   /** SĐT người mua — truyền vào modal add-on (QR) */
   const [purchasePhoneDigits, setPurchasePhoneDigits] = useState('');
   const [postPayAddOnBox, setPostPayAddOnBox] = useState<OrderLookupAddOnBox | null>(null);
+  const [quantity, setQuantity] = useState(1);
   const lastPurchasePhoneRef = useRef('');
 
   const { slug } = useParams<{ slug: string }>();
@@ -307,15 +308,14 @@ const PurchasePage: React.FC = () => {
   }, [isExperiencePurchaseRoute]);
 
   const payableAmount = useMemo(() => {
+    let base = 0;
     if (boxInfo?.slug && isSubscriptionComboSlug(boxInfo.slug)) {
-      return (
-        getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks, Number(boxInfo.price || 0)) +
-        addOnTotal
-      );
+      base = getSubscriptionComboAmount(boxInfo.slug, subscriptionWeeks, Number(boxInfo.price || 0));
+    } else {
+      base = Number(boxInfo?.price || 0);
     }
-    const price = Number(boxInfo?.price || 0);
-    return price + addOnTotal;
-  }, [boxInfo?.slug, boxInfo?.price, subscriptionWeeks, addOnTotal]);
+    return (base + addOnTotal) * quantity;
+  }, [boxInfo?.slug, boxInfo?.price, subscriptionWeeks, addOnTotal, quantity]);
 
   useEffect(() => {
     if (isExperienceBoxBySlug(boxInfo?.slug)) {
@@ -574,6 +574,7 @@ const PurchasePage: React.FC = () => {
         address_detail: data.addressDetail,
         note: (data.note || '').trim(),
         box_id: boxInfo.id,
+        quantity: quantity,
         add_on: visibleAddOns
           .filter((item) => selectedAddOnIds.includes(item.id))
           .map((item) => ({
@@ -616,9 +617,11 @@ const PurchasePage: React.FC = () => {
       } else {
         toast.error(t('purchase.createQrFailed'));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error(t('purchase.orderError'));
+      const apiMessage = err?.response?.data?.message;
+
+      toast.error(apiMessage || t('purchase.orderError'));
     } finally {
       setLoading(false);
     }
@@ -1096,6 +1099,25 @@ const PurchasePage: React.FC = () => {
                               </li>
                             ))}
                         </ul>
+                      </div>
+                    </div>
+                    <div className="purchase-quantity-selector mb-6">
+                      <label className="purchase-quantity-selector__label">
+                        {t('purchase.quantity') || 'Số lượng box'}
+                      </label>
+                      <div className="purchase-quantity-selector__control">
+                        <button 
+                          type="button"
+                          className="purchase-quantity-selector__btn"
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          disabled={quantity <= 1}
+                        >-</button>
+                        <span className="purchase-quantity-selector__value">{quantity}</span>
+                        <button 
+                          type="button"
+                          className="purchase-quantity-selector__btn"
+                          onClick={() => setQuantity(quantity + 1)}
+                        >+</button>
                       </div>
                     </div>
 

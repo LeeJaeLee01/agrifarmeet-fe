@@ -27,6 +27,7 @@ const getPayload = (res: any) => res?.data?.data ?? res?.data;
 type AdminUserBoxRow = {
   id: string;
   status: string;
+  totalQuantity: number;
   expiredAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -123,6 +124,7 @@ const UserBoxes: React.FC = () => {
     setEditing(row);
     form.setFieldsValue({
       status: row.status,
+      totalQuantity: row.totalQuantity ?? 1,
       expiredAt: row.expiredAt ? dayjs(row.expiredAt) : null,
     });
     setEditOpen(true);
@@ -133,8 +135,9 @@ const UserBoxes: React.FC = () => {
     try {
       setSubmitting(true);
       const values = await form.validateFields();
-      const body: { status?: string; expiredAt?: string | null } = {};
+      const body: { status?: string; expiredAt?: string | null; totalQuantity?: number } = {};
       if (values.status != null) body.status = values.status;
+      if (values.totalQuantity != null) body.totalQuantity = Number(values.totalQuantity);
       if (values.expiredAt === null || values.expiredAt === undefined) {
         body.expiredAt = null;
       } else if (values.expiredAt) {
@@ -255,6 +258,12 @@ const UserBoxes: React.FC = () => {
       render: (_, r) => <Tag color={statusColor(r.status)}>{r.status}</Tag>,
     },
     {
+      title: 'Số lượng',
+      width: 100,
+      align: 'center',
+      render: (_, r) => <span className="font-bold text-green-700">{r.totalQuantity ?? 1}</span>,
+    },
+    {
       title: 'Tổng sản phẩm',
       width: 120,
       align: 'center',
@@ -364,6 +373,9 @@ const UserBoxes: React.FC = () => {
             <Descriptions bordered size="small" column={1} className="mb-4">
               <Descriptions.Item label="user_box id">{detailRow.id}</Descriptions.Item>
               <Descriptions.Item label="Trạng thái">{detailRow.status}</Descriptions.Item>
+              <Descriptions.Item label="Số lượng cộng dồn">
+                <span className="font-bold text-green-700">{detailRow.totalQuantity ?? 1}</span>
+              </Descriptions.Item>
               <Descriptions.Item label="Hết hạn">
                 {detailRow.expiredAt ? formatDate(detailRow.expiredAt) : '—'}
               </Descriptions.Item>
@@ -439,6 +451,9 @@ const UserBoxes: React.FC = () => {
                 { value: 'cancelled', label: 'cancelled' },
               ]}
             />
+          </Form.Item>
+          <Form.Item name="totalQuantity" label="Tổng số lượng box (Cộng dồn)" rules={[{ required: true }]}>
+            <Input type="number" min={1} className="w-full" />
           </Form.Item>
           <Form.Item name="expiredAt" label="Hết hạn (để trống = xóa)">
             <DatePicker className="w-full" format="YYYY-MM-DD" />

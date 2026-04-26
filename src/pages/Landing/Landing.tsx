@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { DownOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import MainHeader from '../../components/MainHeader/MainHeader';
 import MainFooter from '../../components/MainFooter/MainFooter';
 import { useTitle } from '../../hooks/useTitle';
@@ -19,6 +20,7 @@ import PackagesSection from '../../components/PackagesSection/PackagesSection';
 
 const Landing: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   useTitle('Farme - Nông sản sạch, minh bạch, an toàn, bền vững');
   const farmerImageUrl =
     'https://api.nongthonviet.com.vn/media/6075f867068bb739ff944505_images1469385_1.jpg';
@@ -51,18 +53,8 @@ const Landing: React.FC = () => {
   } | null>(null);
   const [weeklyModalLoading, setWeeklyModalLoading] = useState(false);
 
-  const handleShowWeekly = async () => {
-    setIsWeeklyModalOpen(true);
-    if (weeklyModalData) return; // đã load rồi thì không load lại
-    try {
-      setWeeklyModalLoading(true);
-      const res = await api.get('/boxes/goi-co-ban/weekly-products');
-      setWeeklyModalData(res.data?.data ?? res.data);
-    } catch (err) {
-      console.error('Error fetching weekly products modal:', err);
-    } finally {
-      setWeeklyModalLoading(false);
-    }
+  const handleShowWeekly = () => {
+    navigate('/weekly-menu');
   };
   const scrollToPackagesSection = () => {
     weeklyRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -704,52 +696,6 @@ const Landing: React.FC = () => {
           </div>
         </section> */}
       </div>
-      <Modal
-        open={isWeeklyModalOpen}
-        onCancel={() => setIsWeeklyModalOpen(false)}
-        footer={null}
-        centered
-        width={680}
-        title={
-          weeklyModalData
-            ? `${weeklyModalData.box?.name ?? ''} — Rau tuần ${new Date(weeklyModalData.weekStartDate).toLocaleDateString('vi-VN')}`
-            : t('landing.weeklyDetails')
-        }
-        destroyOnClose
-      >
-        {weeklyModalLoading ? (
-          <div className="flex justify-center py-10">
-            <span>{t('common.loading') || 'Đang tải...'}</span>
-          </div>
-        ) : weeklyModalData ? (
-          <div className="flex flex-col gap-3 mt-2 overflow-y-auto" style={{ maxHeight: '60vh' }}>
-            {weeklyModalData.items.map((item: any) => {
-              const p = item.product;
-              const img = Array.isArray(p.images) ? p.images[0] : p.images;
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 p-3 rounded-lg border border-gray-100"
-                >
-                  {img && (
-                    <img
-                      src={img}
-                      alt={p.name}
-                      className="w-16 h-16 object-cover rounded-md shrink-0"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 m-0">{p.name}</p>
-                    {p.category?.name ? (
-                      <p className="text-sm text-gray-500 m-0">{p.category.name}</p>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-      </Modal>
       <MainFooter />
     </Fragment>
   );

@@ -75,6 +75,11 @@ const AdminLayout: React.FC = () => {
       label: <Link to="/admin/experience-weekly">{t('admin.experienceWeekly')}</Link>,
     },
     {
+      key: 'weekly-menu',
+      icon: <UnorderedListOutlined />,
+      label: <Link to="/admin/weekly-menu">Quản lý thực đơn</Link>,
+    },
+    {
       key: 'feedbacks',
       icon: <CommentOutlined />,
       label: <Link to="/admin/feedbacks">{t('admin.feedbacks')}</Link>,
