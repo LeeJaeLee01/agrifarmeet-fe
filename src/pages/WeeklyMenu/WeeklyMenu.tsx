@@ -73,7 +73,7 @@ const WeeklyMenu: React.FC = () => {
             Quay lại
           </Button>
           <div className="hero-text">
-            <Title level={1} className="hero-title">{t('landing.weeklyTitle')}</Title>
+            <Title level={1} className="hero-title">{t('landing.weeklyMenuTitle')}</Title>
             <Paragraph className="hero-subtitle">
               Khám phá các món ăn gợi ý từ nông sản tươi ngon tuần này
             </Paragraph>
