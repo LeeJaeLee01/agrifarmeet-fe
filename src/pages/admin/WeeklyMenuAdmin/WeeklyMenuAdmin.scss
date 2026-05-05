@@ -1,37 +1,32 @@
 .weekly-menu-admin {
-  .ant-table-row {
-    cursor: pointer;
-    transition: background-color 0.2s;
-    
-    &:hover {
-      background-color: #f1f5f9 !important;
+  .weekly-menu-admin__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  .weekly-menu-admin__title {
+    margin-bottom: 4px !important;
+  }
+
+  .weekly-menu-admin__foods-table {
+    .ant-table {
+      border: 1px solid #f1f5f9;
+      border-radius: 10px;
+      overflow: hidden;
     }
   }
 
-  .ant-table-expanded-row {
-    .ant-table-cell {
-      background-color: #f8fafc !important;
-      padding: 16px 24px !important;
-    }
+  .menu-food-card {
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
   }
 
-  .food-sub-table {
-    background: white;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-  }
-
-  .ant-card {
-    border-radius: 12px;
-    border: 1px solid #f1f5f9;
-  }
-
-  .text-green-600 {
-    color: #16a34a;
-  }
-
-  .bg-gray-50 {
-    background-color: #f8fafc;
+  .menu-food-card__actions {
+    display: flex;
+    justify-content: flex-end;
   }
 }
